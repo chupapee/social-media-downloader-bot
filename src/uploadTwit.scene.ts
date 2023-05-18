@@ -1,8 +1,11 @@
-import { Markup, Scenes } from 'telegraf';
+import { Scenes } from 'telegraf';
 import * as cheerio from 'cheerio';
 import { IContextBot } from './context.interface';
 
 import { isUploadAction, parseForQuality, preparePage } from './helpers';
+
+// const videoCaption = '📥 @awesome_twitter_downloader_bot';
+const videoCaption = '';
 
 export const UPLOAD_VIDEO_SCENE = 'uploadVideoScene';
 export const uploadVideoScene = new Scenes.BaseScene<IContextBot>(UPLOAD_VIDEO_SCENE);
@@ -56,5 +59,5 @@ uploadVideoScene.action(isUploadAction, async (ctx) => {
     await ctx.answerCbQuery();
     const link = await ctx.state.link;
     await ctx.reply('⌛️ Загружаем видео в телеграм...');
-    await ctx.replyWithVideo({ url: link }, { caption: '📥 @awesome_twitter_downloader_bot' });
+    await ctx.replyWithVideo({ url: link }, { caption: videoCaption });
 });
