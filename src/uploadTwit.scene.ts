@@ -4,10 +4,11 @@ import { IContextBot } from './context.interface';
 
 import { isUploadAction, parseForQuality, preparePage } from './helpers';
 
-export const uploadTweetScene = new Scenes.BaseScene<IContextBot>('uploadTweetScene');
+export const UPLOAD_VIDEO_SCENE = 'uploadVideoScene';
+export const uploadVideoScene = new Scenes.BaseScene<IContextBot>(UPLOAD_VIDEO_SCENE);
 
-uploadTweetScene.enter(async (ctx) => {
-    const tweetLink = ctx.state.link;
+uploadVideoScene.enter(async (ctx) => {
+    const twitterLink = ctx.state.link;
 
     if('message' in ctx.update && ctx.update.message.from.id === 1333220153) {
         await ctx.reply(`🔄 ${ctx.state.count + 1} попытка`);
@@ -16,7 +17,7 @@ uploadTweetScene.enter(async (ctx) => {
     try {
         const content = await Promise.race([
             new Promise((ok) => setTimeout(ok, 10000)),
-            preparePage(tweetLink)
+            preparePage(twitterLink)
         ]);
         if(!content) throw new Error();
 
@@ -51,11 +52,12 @@ uploadTweetScene.enter(async (ctx) => {
     }
 });
 
-uploadTweetScene.action(isUploadAction, async (ctx) => {
+uploadVideoScene.action(isUploadAction, async (ctx) => {
     await ctx.answerCbQuery();
     const link = await ctx.state.link;
     const quality = await ctx.state.quality;
-    // await ctx.reply(`Разрешение: ${quality}\nНажмите на ссылку, чтобы скачать видео:\n\n${link}`, { parse_mode: 'Markdown' });
-    await ctx.replyWithHTML(`🎥 Разрешение: ${quality}\n📝 Перейдите по ссылке, чтобы скачать видео:\n\n`, Markup.inlineKeyboard([Markup.button.url('Перейти 🔗', link)]));
-    Markup.button.url('link', link);
+    await ctx.replyWithHTML(
+        `🎥 Разрешение: ${quality}\n📝 Перейдите по ссылке, чтобы скачать видео:\n\n`,
+        Markup.inlineKeyboard([Markup.button.url('Перейти 🔗', link)])
+    );
 });

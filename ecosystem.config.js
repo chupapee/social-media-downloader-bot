@@ -1,7 +1,7 @@
 module.exports = {
 	apps: [
 		{
-			name: 'bot',
+			name: 'twitter-bot',
 			script: './dist/index.js',
 			instances: 1,
 			autorestart: true,

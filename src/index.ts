@@ -2,12 +2,13 @@ import { Scenes, session, Telegraf } from 'telegraf';
 import { IContextBot } from './context.interface';
 import { ConfigService } from './config.service';
 
-import { uploadTweetScene } from './uploadTweet.scene';
+import { uploadVideoScene, UPLOAD_VIDEO_SCENE } from './uploadTwit.scene';
+const TWITTER_URL = 'https://twitter.com/';
 
 const token = new ConfigService().get('BOT_TOKEN');
 const bot = new Telegraf<IContextBot>(token);
 
-const stage = new Scenes.Stage<IContextBot>([uploadTweetScene]);
+const stage = new Scenes.Stage<IContextBot>([uploadVideoScene]);
 
 bot.use(session());
 bot.use(stage.middleware());
@@ -22,19 +23,19 @@ bot.start(async (ctx) => {
     );
 });
 
-const isTweet = (link: string): boolean => {
-    return link.startsWith('https://twitter.com/');
+const isTwitterVideo = (link: string): boolean => {
+    return link.startsWith(TWITTER_URL);
 };
 
 
 bot.on('message', async (ctx) => {
-    if('text' in ctx.message && isTweet(ctx.message.text)) {
+    if('text' in ctx.message && isTwitterVideo(ctx.message.text)) {
         await ctx.reply('🔄 Подгавливаем видео, это займёт не больше минуты');
         const link = ctx.message.text;
         ctx.state.link = link;
         ctx.state.count = 0;
-        await ctx.scene.enter('uploadTweetScene');
-    } else await ctx.reply('Отправьте корректную ссылку на твит.');
+        await ctx.scene.enter(UPLOAD_VIDEO_SCENE);
+    } else await ctx.reply('🚫 Отправьте корректную ссылку на твит.');
 });
 
 bot.launch();

@@ -5,14 +5,14 @@ import { IContextBot } from './context.interface';
 
 const PAGE_URL = new ConfigService().get('PAGE_URL');
 
-export async function preparePage(tweetLink: string): Promise<string> {
+export async function preparePage(twitterLink: string): Promise<string> {
     const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'], timeout: 5000 });
     const page = await browser.newPage();
     await page.goto(PAGE_URL, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#main_page_text');
 
     const input = await page.$('#main_page_text');
-    await input?.type(tweetLink);
+    await input?.type(twitterLink);
     await page.click('#submit');
     await page.waitForSelector('#result');
     const content = await page.content();
