@@ -39,7 +39,6 @@ export function isUploadAction(val: string, ctx: IContextBot): RegExpExecArray |
         const data = ctx.session.data.find(({ userId }) => Number(userId) === Number(ctx.callbackQuery?.from.id));
         const link = data?.links.find((l) => l.quality === quality);
         ctx.state.link = link?.href;
-        ctx.state.quality = link?.quality;
         return {} as RegExpExecArray;
     }
     return null;

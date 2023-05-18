@@ -55,9 +55,6 @@ uploadVideoScene.enter(async (ctx) => {
 uploadVideoScene.action(isUploadAction, async (ctx) => {
     await ctx.answerCbQuery();
     const link = await ctx.state.link;
-    const quality = await ctx.state.quality;
-    await ctx.replyWithHTML(
-        `🎥 Разрешение: ${quality}\n📝 Перейдите по ссылке, чтобы скачать видео:\n\n`,
-        Markup.inlineKeyboard([Markup.button.url('Перейти 🔗', link)])
-    );
+    await ctx.reply('⌛️ Загружаем видео в телеграм...');
+    await ctx.replyWithVideo({ url: link }, { caption: '📥 @awesome_twitter_downloader_bot' });
 });

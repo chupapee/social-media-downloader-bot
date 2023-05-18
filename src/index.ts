@@ -13,6 +13,19 @@ const stage = new Scenes.Stage<IContextBot>([uploadVideoScene]);
 bot.use(session());
 bot.use(stage.middleware());
 
+// permissions
+// bot.use(async (ctx, next)=> {
+//     if("message" in ctx.update) {
+//         const userId = ctx.update.message.from.id;
+//         const hasPermission = userId === 1333220153;
+//         if(!hasPermission) {
+//             await ctx.reply('Для получения доступа, напиши автору бота: @chupapee');
+//             return;
+//         }
+//         return next();
+//     }
+// });
+
 bot.catch((err, ctx) => {
     console.log(err, 'INDEX.TS');
 });
