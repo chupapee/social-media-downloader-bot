@@ -1,0 +1,17 @@
+{
+    "trailingComma": "es5",
+    "arrowParens": "always",
+    "bracketSpacing": true,
+    "endOfLine": "lf",
+    "insertPragma": false,
+    "printWidth": 120,
+    "proseWrap": "preserve",
+    "quoteProps": "as-needed",
+    "requirePragma": false,
+    "semi": true,
+    "semicolons": true,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "rangeEnd": 500,
+    "rangeStart": 5
+  }
