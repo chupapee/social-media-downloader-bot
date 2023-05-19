@@ -43,7 +43,7 @@ const isTwitterVideo = (link: string): boolean => {
 bot.on('message', async (ctx) => {
     const handleMessage = async () => {
         if('text' in ctx.message && isTwitterVideo(ctx.message.text)) {
-            await ctx.reply('Подготавливаем видео, это займёт не больше минуты 🔄');
+            await ctx.reply('🔄 Подготавливаем видео, это займёт не больше минуты');
             const link = ctx.message.text;
             ctx.state.link = link;
             await ctx.scene.enter(UPLOAD_VIDEO_SCENE);

@@ -4,44 +4,56 @@ import { ConfigService } from './config.service';
 import { IContextBot } from './context.interface';
 
 const PAGE_URL = new ConfigService().get('PAGE_URL');
+const timeout = (sec: number): Promise<null> => new Promise((ok) => setTimeout(ok, sec));
 
 export async function preparePage(twitterLink: string): Promise<string> {
-    const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'], timeout: 5000 });
+    let content = '';
+    const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
-    await page.goto(PAGE_URL, { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('#main_page_text');
+    try {
+        await page.goto(PAGE_URL, { waitUntil: 'domcontentloaded' }).catch(e => void e);
 
-    const input = await page.$('#main_page_text');
-    await input?.type(twitterLink);
-    await page.click('#submit');
-    await page.waitForSelector('#result');
-    const content = await page.content();
+        await page.waitForSelector('#main_page_text');
+        const input = await page.$('#main_page_text');
+        await timeout(3000);
+        await input?.type(twitterLink);
+        await timeout(500);
+        await page.click('#submit');
+
+        await page.waitForSelector('.download_link', { timeout: 5000 });
+
+        content = await page.content();
+    } catch (error) {
+        console.log(error);
+    }
+    await page.close();
+    await browser.close();
     return content;
 }
 
 export async function getLinks(twitterLink: string, ctx: IContextBot) {
-    let attemptsCount = 0;
-    const maxAttempts = 10;
-    const timeout = (): Promise<null> => new Promise((ok) => setTimeout(() => ok(null), 7_000));
+    let attemptsCount = 1;
+    const maxAttempts = 5;
+    const { message_id, chat: { id } } = await ctx.reply(`🛠 ${attemptsCount} попытка`);
 
     let content: string | null = null;
     while(!content && attemptsCount <= maxAttempts) {
-        attemptsCount++;
-
-        if('message' in ctx.update && ctx.update.message.from.id === 1333220153) {
-            await ctx.reply(`${attemptsCount} попытка 🔄`);
+        if(attemptsCount > 1) {
+            await ctx.telegram.editMessageText(id, message_id, '', `🛠 ${attemptsCount} попытка`);
         }
 
         try {
             content = await Promise.race([
-                timeout(),
+                timeout(15_000),
                 preparePage(twitterLink)
             ]);
         } catch (error) {
             console.log('prepare failed');
         }
+        attemptsCount++;
     }
 
+    await ctx.telegram.deleteMessage(id, message_id);
     return content;
 }
 
