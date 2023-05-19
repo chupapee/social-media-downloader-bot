@@ -2,7 +2,8 @@ import { Scenes, Context } from 'telegraf';
 
 export interface IUserSessionData {
     userId: number;
-    links: { quality: string, href: string }[]
+    links: { quality: string, href: string }[];
+    link: string;
 }
 
 interface SceneSession extends Scenes.SceneSession {

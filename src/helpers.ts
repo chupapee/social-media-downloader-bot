@@ -19,6 +19,32 @@ export async function preparePage(twitterLink: string): Promise<string> {
     return content;
 }
 
+export async function getLinks(twitterLink: string, ctx: IContextBot) {
+    let attemptsCount = 0;
+    const maxAttempts = 10;
+    const timeout = (): Promise<null> => new Promise((ok) => setTimeout(() => ok(null), 7_000));
+
+    let content: string | null = null;
+    while(!content && attemptsCount <= maxAttempts) {
+        attemptsCount++;
+
+        if('message' in ctx.update && ctx.update.message.from.id === 1333220153) {
+            await ctx.reply(`${attemptsCount} попытка 🔄`);
+        }
+
+        try {
+            content = await Promise.race([
+                timeout(),
+                preparePage(twitterLink)
+            ]);
+        } catch (error) {
+            console.log('prepare failed');
+        }
+    }
+
+    return content;
+}
+
 export const parseForQuality = (page: string) => {
     const $ = cheerio.load(page);
     const qualities: Record<'quality' | 'href', string>[] = [];
@@ -36,10 +62,14 @@ export const parseForQuality = (page: string) => {
 export function isUploadAction(val: string, ctx: IContextBot): RegExpExecArray | null {
     if (val.startsWith('download')) {
         const quality = val.split('@')[1];
-        const data = ctx.session.data.find(({ userId }) => Number(userId) === Number(ctx.callbackQuery?.from.id));
-        const link = data?.links.find((l) => l.quality === quality);
-        ctx.state.link = link?.href;
-        return {} as RegExpExecArray;
+        if('callback_query' in ctx.update) {
+            const currentId = ctx.update.callback_query.from.id;
+            const currentUser = ctx.session.data.find(({ userId }) => userId === currentId);
+            const link = currentUser?.links.find((l) => l.quality === quality);
+            const allUsersExceptCurrent = ctx.session.data.filter(({ userId }) => userId !== currentId);
+            ctx.session.data = [...allUsersExceptCurrent, {...currentUser!, link: link?.href ?? ''}];
+            return {} as RegExpExecArray;
+        }
     }
     return null;
 }

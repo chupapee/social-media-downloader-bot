@@ -46,7 +46,6 @@ bot.on('message', async (ctx) => {
             await ctx.reply('Подготавливаем видео, это займёт не больше минуты 🔄');
             const link = ctx.message.text;
             ctx.state.link = link;
-            ctx.state.count = 0;
             await ctx.scene.enter(UPLOAD_VIDEO_SCENE);
         } else await ctx.reply('🚫 Отправьте корректную ссылку на твит.');
     };
