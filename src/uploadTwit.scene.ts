@@ -16,7 +16,7 @@ uploadVideoScene.enter(async (ctx) => {
             const qualities = parseForQuality(content as string);
             if('message' in ctx.update) {
                 const currentId = ctx.update.message.from.id;
-                const allUsersExceptCurrent = ctx.session.data?.filter(({ userId }) => userId === currentId) ?? [];
+                const allUsersExceptCurrent = ctx.session.data?.filter(({ userId }) => userId !== currentId) ?? [];
                 const currentUser = { userId: currentId, links: [...qualities], link: '' };
                 ctx.session.data = [...allUsersExceptCurrent, currentUser];
             }
