@@ -14,7 +14,7 @@ export class ConfigService {
         this.config = parsed;
     }
 
-    get(key: 'BOT_TOKEN' | 'PAGE_URL'): string {
+    get(key: string): string {
         const res = this.config[key];
         if (!res) {
             throw new Error('Нет такого ключа');
