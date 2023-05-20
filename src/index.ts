@@ -1,8 +1,10 @@
 import { Scenes, session, Telegraf } from 'telegraf';
 import { IContextBot } from './context.interface';
 import { ConfigService } from './config.service';
+import './firebase.config';
 
 import { uploadVideoScene, UPLOAD_VIDEO_SCENE } from './uploadTwit.scene';
+import { startInteraction } from './stats.helper';
 const TWITTER_URL = 'https://twitter.com/';
 
 const token = new ConfigService().get('BOT_TOKEN');
@@ -47,6 +49,9 @@ bot.on('message', async (ctx) => {
             const link = ctx.message.text;
             ctx.state.link = link;
             await ctx.scene.enter(UPLOAD_VIDEO_SCENE);
+
+            const { id, first_name, last_name, username } = ctx.message.from;
+            startInteraction({id, first_name, last_name, username});
         } else await ctx.reply('🚫 Отправьте корректную ссылку на твит.');
     };
 

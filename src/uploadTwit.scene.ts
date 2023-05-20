@@ -1,6 +1,7 @@
 import { Scenes } from 'telegraf';
 import { IContextBot } from './context.interface';
 import { getLinks, isUploadAction, parseForQuality } from './helpers';
+import { endInteraction } from './stats.helper';
 
 export const UPLOAD_VIDEO_SCENE = 'uploadVideoScene';
 export const uploadVideoScene = new Scenes.BaseScene<IContextBot>(UPLOAD_VIDEO_SCENE);
@@ -48,8 +49,11 @@ uploadVideoScene.action(isUploadAction, async (ctx) => {
         const currentId = ctx.update.callback_query.from.id;
         const link = ctx.session.data.find((u) => +u.userId === +currentId)?.link ?? '';
 
-        await ctx.reply('⏳ Загружаем видео в телеграм...');
+        await ctx.editMessageText('⏳ Загружаем видео в телеграм...');
         await ctx.replyWithVideo({ url: link }, { caption: videoCaption });
+
+        const { id, first_name, last_name, username } = ctx.update.callback_query.from ?? {};
+        endInteraction({ id, first_name, last_name, username });
     };
 
     handleAction();
