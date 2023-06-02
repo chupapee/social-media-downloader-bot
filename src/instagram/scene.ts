@@ -1,10 +1,10 @@
 import { Scenes } from 'telegraf';
 import { splitArray } from '../utils/utils';
-import { IContextBot } from '../context.interface';
+import { IContextBot } from '../config/context.interface';
 
 import { getPage, parseLinks } from './instagram.service';
 import { isLinkAction } from './checkers';
-import { endInteraction, startInteraction } from '../stats.helper';
+import { endInteraction, startInteraction } from '../statsDb/stats.helper';
 
 export const INSTA_SCENE = 'insta_scene';
 export const instaScene = new Scenes.BaseScene<IContextBot>(INSTA_SCENE);

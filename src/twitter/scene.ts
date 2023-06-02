@@ -1,8 +1,9 @@
 import { Scenes } from 'telegraf';
-import { IContextBot } from '../context.interface';
-import { endInteraction, startInteraction } from '../stats.helper';
+import { IContextBot } from '../config/context.interface';
+import { endInteraction, startInteraction } from '../statsDb/stats.helper';
+import { retryGettingPage } from '../utils/utils';
 import { isUploadAction } from './checkers';
-import { getLinks, parseForQuality } from './twitter.service';
+import { getPage, parseLink } from './twitter.service';
 
 export const UPLOAD_VIDEO_SCENE = 'uploadVideoScene';
 export const uploadVideoScene = new Scenes.BaseScene<IContextBot>(UPLOAD_VIDEO_SCENE);
@@ -12,10 +13,10 @@ uploadVideoScene.enter(async (ctx) => {
         const twitterLink = ctx.state.link;
 
         try {
-            const content = await getLinks(twitterLink, ctx);
+            const content = await retryGettingPage(5, twitterLink, getPage, 15_000);
             if (!content) throw new Error();
 
-            const qualities = parseForQuality(content as string);
+            const qualities = parseLink(content as string);
             if ('message' in ctx.update) {
                 const currentId = ctx.update.message.from.id;
                 const allUsersExceptCurrent = ctx.session.data?.filter(({ userId }) => userId !== currentId) ?? [];

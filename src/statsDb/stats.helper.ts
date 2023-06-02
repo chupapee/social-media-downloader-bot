@@ -1,5 +1,5 @@
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from './firebase.config';
+import { db } from '../config/firebase.config';
 
 interface IUser {
     id?: number;
@@ -13,12 +13,12 @@ interface IUserDb extends IUser {
     status: 'start' | 'end';
 }
 
-export type AppType = 'twitter' | 'insta';
+export type AppType = 'twitter' | 'insta' | 'you';
 
 async function getUsers(appType: AppType): Promise<IUserDb[] | undefined> {
     const usersRef = doc(db, 'users', 'list');
     try {
-        const response = (await getDoc(usersRef)).data() as { twitter: IUserDb[]; insta: IUserDb[] };
+        const response = (await getDoc(usersRef)).data() as { twitter: IUserDb[]; insta: IUserDb[]; you: IUserDb[] };
         return response[appType];
     } catch (error) {
         console.log(error, 'GET USERS FAILED');

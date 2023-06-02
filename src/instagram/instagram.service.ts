@@ -1,6 +1,8 @@
 import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
-import { ConfigService } from '../config.service';
+
+import { ConfigService } from '../config/config.service';
+import { timeout } from './../utils/utils';
 
 const PAGE_URL = new ConfigService().get('INSTA_PAGE_URL');
 
@@ -12,10 +14,11 @@ export const getPage = async (link: string) => {
         await page.goto(PAGE_URL, { waitUntil: 'domcontentloaded' });
 
         const input = await page.$('#url');
+        await timeout(500);
         await new Promise((ok) => setTimeout(ok, 500));
 
         await input?.type(link);
-        await new Promise((ok) => setTimeout(ok, 500));
+        await timeout(500);
 
         await page.click('button[type="submit"]');
         await page.waitForSelector('.download-content', { timeout: 20_000 });

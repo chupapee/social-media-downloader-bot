@@ -1,13 +1,12 @@
 import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
-import { IContextBot } from '../context.interface';
 
-import { ConfigService } from '../config.service';
+import { ConfigService } from '../config/config.service';
 import { timeout } from '../utils/utils';
 
 const PAGE_URL = new ConfigService().get('TWITTER_PAGE_URL');
 
-export async function preparePage(twitterLink: string): Promise<string> {
+export const getPage = async (twitterLink: string): Promise<string> => {
     let content = '';
     const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
@@ -30,35 +29,9 @@ export async function preparePage(twitterLink: string): Promise<string> {
     await page.close();
     await browser.close();
     return content;
-}
+};
 
-export async function getLinks(twitterLink: string, ctx: IContextBot) {
-    let attemptsCount = 1;
-    const maxAttempts = 5;
-    const {
-        message_id,
-        chat: { id },
-    } = await ctx.reply(`🛠 ${attemptsCount} попытка`);
-
-    let content: string | null = null;
-    while (!content && attemptsCount <= maxAttempts) {
-        if (attemptsCount > 1) {
-            await ctx.telegram.editMessageText(id, message_id, '', `🛠 ${attemptsCount} попытка`);
-        }
-
-        try {
-            content = await Promise.race([timeout(15_000), preparePage(twitterLink)]);
-        } catch (error) {
-            console.log('prepare failed');
-        }
-        attemptsCount++;
-    }
-
-    await ctx.telegram.deleteMessage(id, message_id);
-    return content;
-}
-
-export const parseForQuality = (page: string) => {
+export const parseLink = (page: string) => {
     const $ = cheerio.load(page);
     const qualities: Record<'quality' | 'href', string>[] = [];
     $('.download_link').each((_, el) => {

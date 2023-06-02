@@ -1,4 +1,4 @@
-import { IContextBot } from '../context.interface';
+import { IContextBot } from '../config/context.interface';
 
 export function isLinkAction(val: string, ctx: IContextBot): RegExpExecArray | null {
     if (val.startsWith('download')) {

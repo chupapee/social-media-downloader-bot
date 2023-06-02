@@ -8,13 +8,13 @@ const appId = new ConfigService().get('APP_ID');
 const measurementId = new ConfigService().get('MEASUREMENT_ID');
 
 export const firebaseConfig = {
-	apiKey: apiKey,
-	authDomain: "awesome-football-stats.firebaseapp.com",
-	projectId: "awesome-football-stats",
-	storageBucket: "awesome-football-stats.appspot.com",
-	messagingSenderId,
-	appId,
-	measurementId
+    apiKey: apiKey,
+    authDomain: 'awesome-football-stats.firebaseapp.com',
+    projectId: 'awesome-football-stats',
+    storageBucket: 'awesome-football-stats.appspot.com',
+    messagingSenderId,
+    appId,
+    measurementId,
 };
 
 const app = initializeApp(firebaseConfig);

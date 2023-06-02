@@ -5,6 +5,13 @@ interface IInstaLink {
     href?: string;
 }
 
+export interface IYouLink {
+    title?: string;
+    descr?: string;
+    quality?: string;
+    href?: string;
+}
+
 export interface IUserSessionData {
     userId: number;
     twLinks?: Record<'quality' | 'href', string>[];
@@ -12,6 +19,9 @@ export interface IUserSessionData {
 
     instaLinks?: IInstaLink[];
     instaLinkOne?: IInstaLink | string;
+
+    youLinks?: IYouLink[];
+    youLinkOne?: IYouLink;
 }
 
 interface SceneSession extends Scenes.SceneSession {

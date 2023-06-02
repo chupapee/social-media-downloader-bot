@@ -8,3 +8,23 @@ export const splitArray = <T>(arr: T[], size: number) => {
     }
     return resultArray;
 };
+
+export const retryGettingPage = async (
+    maxAttempts = 3,
+    link: string,
+    getPage: (link: string) => Promise<string>,
+    timeoutNum = 15_000
+) => {
+    let attemptsCount = 1;
+    let content: string | null = null;
+    while (!content && attemptsCount <= maxAttempts) {
+        try {
+            content = await Promise.race([timeout(timeoutNum), getPage(link)]);
+        } catch (error) {
+            console.log('prepare failed');
+        }
+        attemptsCount++;
+    }
+
+    return content;
+};
