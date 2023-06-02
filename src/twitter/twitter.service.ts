@@ -5,7 +5,7 @@ import { IContextBot } from '../context.interface';
 import { ConfigService } from '../config.service';
 import { timeout } from '../utils/utils';
 
-const PAGE_URL = new ConfigService().get('PAGE_URL');
+const PAGE_URL = new ConfigService().get('TWITTER_PAGE_URL');
 
 export async function preparePage(twitterLink: string): Promise<string> {
     let content = '';

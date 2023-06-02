@@ -1,14 +1,15 @@
 import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
+import { ConfigService } from '../config.service';
 
-const BASE_URL = 'http://snapinsta.app/ru';
+const PAGE_URL = new ConfigService().get('INSTA_PAGE_URL');
 
 export const getPage = async (link: string) => {
     try {
         const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] });
         const page = await browser.newPage();
 
-        await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+        await page.goto(PAGE_URL, { waitUntil: 'domcontentloaded' });
 
         const input = await page.$('#url');
         await new Promise((ok) => setTimeout(ok, 500));
@@ -34,7 +35,6 @@ export const parseLinks = (page: string) => {
     const links: Record<'type' | 'href', string>[] = [];
 
     $('[data-event="click_download_btn"]').each((_, a) => {
-        console.log($(a).text());
         const link = $(a).attr('href');
         const type = $(a).text().split(' ')[1].toLowerCase();
         if (link) links.push({ type, href: link });
