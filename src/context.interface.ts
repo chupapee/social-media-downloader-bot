@@ -1,9 +1,17 @@
 import { Scenes, Context } from 'telegraf';
 
+interface IInstaLink {
+    type?: string;
+    href?: string;
+}
+
 export interface IUserSessionData {
     userId: number;
-    links: { quality: string, href: string }[];
-    link: string;
+    twLinks?: Record<'quality' | 'href', string>[];
+    twLinkOne?: string;
+
+    instaLinks?: IInstaLink[];
+    instaLinkOne?: IInstaLink | string;
 }
 
 interface SceneSession extends Scenes.SceneSession {

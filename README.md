@@ -1,3 +1,3 @@
-📥 Telegram bot for downloading videos from Twitter
+📥 Telegram bot for downloading videos from Twitter and ANY media from Instagram
 
-🔗 Link: [@awesome_twitter_downloader_bot](https://t.me/awesome_twitter_downloader_bot)
+🔗 Link: [@instagram_twitter_bot](https://t.me/instagram_twitter_bot)

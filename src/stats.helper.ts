@@ -13,21 +13,23 @@ interface IUserDb extends IUser {
     status: 'start' | 'end';
 }
 
-async function getUsers(): Promise<IUserDb[] | undefined> {
+export type AppType = 'twitter' | 'insta';
+
+async function getUsers(appType: AppType): Promise<IUserDb[] | undefined> {
     const usersRef = doc(db, 'users', 'list');
     try {
-        const response = (await getDoc(usersRef)).data() as { twitter: IUserDb[] };
-        return response.twitter;
+        const response = (await getDoc(usersRef)).data() as { twitter: IUserDb[]; insta: IUserDb[] };
+        return response[appType];
     } catch (error) {
         console.log(error, 'GET USERS FAILED');
     }
 }
 
-async function saveUser(oldUsers: IUserDb[], newUser: IUserDb) {
+async function saveUser(oldUsers: IUserDb[], newUser: IUserDb, appType: AppType) {
     const usersRef = doc(db, 'users', 'list');
     try {
         await updateDoc(usersRef, {
-            twitter: [...oldUsers, JSON.parse(JSON.stringify(newUser)) ]
+            [appType]: [...oldUsers, JSON.parse(JSON.stringify(newUser)) ]
         });
         console.log('USER SAVED SUCCESSFULLY');
 
@@ -36,7 +38,7 @@ async function saveUser(oldUsers: IUserDb[], newUser: IUserDb) {
     }
 }
 
-export async function startInteraction(user: IUser) {
+export async function startInteraction(user: IUser, appType: AppType) {
     const newUser: IUserDb = {
         ...user,
         date: new Date().toLocaleString(),
@@ -44,15 +46,15 @@ export async function startInteraction(user: IUser) {
     };
 
     try {
-        const oldUsers = await getUsers();
-        if(oldUsers) await saveUser(oldUsers, newUser);
+        const oldUsers = await getUsers(appType);
+        if(oldUsers) await saveUser(oldUsers, newUser, appType);
     } catch (error) {
         console.log(error, 'USER START INTERACTION ERROR');
     }
 
 }
 
-export async function endInteraction(user: IUser) {
+export async function endInteraction(user: IUser, appType: AppType) {
     const newUser: IUserDb = {
         ...user,
         date: new Date().toLocaleString(),
@@ -60,8 +62,8 @@ export async function endInteraction(user: IUser) {
     };
 
     try {
-        const oldUsers = await getUsers();
-        if(oldUsers) await saveUser(oldUsers, newUser);
+        const oldUsers = await getUsers(appType);
+        if(oldUsers) await saveUser(oldUsers, newUser, appType);
     } catch (error) {
         console.log(error, 'USER END INTERACTION ERROR');
     }
