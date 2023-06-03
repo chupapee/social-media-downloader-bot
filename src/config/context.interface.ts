@@ -20,6 +20,7 @@ export interface IUserSessionData {
 	instaLinks?: IInstaLink[];
 	instaLinkOne?: IInstaLink | string;
 
+	youOriginal?: string;
 	youLinks?: IYouLink[];
 	youLinkOne?: IYouLink;
 }

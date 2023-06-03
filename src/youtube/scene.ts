@@ -27,7 +27,11 @@ youScene.enter(async (ctx) => {
 						ctx.session.data?.filter(
 							({ userId }) => userId !== currentId
 						) ?? [];
-					const currentUser = { userId: currentId, youLinks: links };
+					const currentUser = {
+						userId: currentId,
+						youLinks: links,
+						youOriginal: pageLink,
+					};
 
 					ctx.session.data = [...allUsersExceptCurrent, currentUser];
 
@@ -58,16 +62,32 @@ youScene.action(isUploadAction, async (ctx) => {
 		await ctx.answerCbQuery();
 
 		const currentId = ctx.update.callback_query.from.id;
-		const link = ctx.session.data.find(
+		const currentUser = ctx.session.data.find(
 			(u) => u.userId === currentId
-		)?.youLinkOne;
+		);
 
-		if (link?.href) {
-			await ctx.editMessageText('⏳ Загружаем видео в телеграм...');
-			await ctx.replyWithVideo(
-				{ url: link.href },
-				{ caption: link.descr }
-			);
+		const isShorts = currentUser?.youOriginal?.includes('shorts');
+
+		if (currentUser?.youLinkOne?.href) {
+			const link = currentUser.youLinkOne;
+			if (isShorts) {
+				await ctx.editMessageText('⏳ Загружаем видео в телеграм...');
+				await ctx.replyWithVideo(
+					{ url: link.href! },
+					{
+						caption:
+							link.descr ??
+							'Saved by: @insta_twitter_youtube_bot',
+					}
+				);
+			} else {
+				await ctx.editMessageText(
+					`Перейдите по ссылке чтобы скачать видео:\n[${
+						link.quality + 'p: ' + link.descr
+					}](${link.href})`,
+					{ parse_mode: 'Markdown' }
+				);
+			}
 		} else {
 			await ctx.reply(ErrMsg);
 		}
