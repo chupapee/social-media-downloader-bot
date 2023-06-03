@@ -3,24 +3,23 @@ import { IContextBot } from './config/context.interface';
 import { ConfigService } from './config/config.service';
 import './config/firebase.config';
 
-import { uploadVideoScene, UPLOAD_VIDEO_SCENE } from './twitter/scene';
-import { instaScene, INSTA_SCENE } from './instagram/scene';
-import { youScene, YOU_SCENE } from './youtube/scene';
-
-const TWITTER_URL = 'twitter.com';
-const INSTA_URL = 'instagram.com';
-const YOU_URL = ['youtube.com', 'youtu.be'];
+import { twitterScene } from './twitter/scene';
+import { instaScene } from './instagram/scene';
+import { youScene } from './youtube/scene';
+import { actionsByLink } from './helpers';
+import { i18n } from './config/i18n';
 
 const token = new ConfigService().get('BOT_TOKEN');
 const bot = new Telegraf<IContextBot>(token);
 
 const stage = new Scenes.Stage<IContextBot>([
-	uploadVideoScene,
+	twitterScene,
 	instaScene,
 	youScene,
 ]);
 
 bot.use(session());
+bot.use(i18n.middleware());
 bot.use(stage.middleware());
 
 bot.catch((error) => {
@@ -28,26 +27,23 @@ bot.catch((error) => {
 });
 
 bot.start(async (ctx) => {
-	await ctx.reply('🔗 Отправьте ссылку');
+	await ctx.reply(ctx.i18n.t('start', { userId: ctx.from.id }));
 });
 
-const actionsByLink = [
-	{
-		urls: YOU_URL,
-		reply: '🔄 Подготавливаем видео, это займёт не больше минуты',
-		scene: YOU_SCENE,
-	},
-	{
-		urls: [TWITTER_URL],
-		reply: '🔄 Подготавливаем видео, это займёт не больше минуты',
-		scene: UPLOAD_VIDEO_SCENE,
-	},
-	{
-		urls: [INSTA_URL],
-		reply: '🔄 Обработка ссылки, это займёт не больше минуты',
-		scene: INSTA_SCENE,
-	},
-];
+const lang = {
+	ru: '🇷🇺 Язык изменен на русский!',
+	en: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 Language changed to English!',
+};
+
+bot.command('ru', async (ctx) => {
+	ctx.i18n.locale('ru');
+	await ctx.reply(lang.ru);
+});
+
+bot.command('en', async (ctx) => {
+	ctx.i18n.locale('en');
+	await ctx.reply(lang.en);
+});
 
 bot.on('message', async (ctx) => {
 	const handleMessage = async () => {
@@ -59,9 +55,9 @@ bot.on('message', async (ctx) => {
 			);
 			if (selectedAction) {
 				const { scene, reply } = selectedAction;
-				await ctx.reply(reply);
+				await ctx.reply(ctx.i18n.t(reply));
 				await ctx.scene.enter(scene);
-			} else await ctx.reply('🚫 Отправьте корректную ссылку.');
+			} else await ctx.reply(ctx.i18n.t('invalidLink'));
 		}
 	};
 

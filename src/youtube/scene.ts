@@ -7,10 +7,8 @@ import { endInteraction, startInteraction } from '../statsDb/stats.helper';
 import { getPage, parseLink } from './you.service';
 import { isUploadAction } from './checkers';
 
-export const YOU_SCENE = 'you_scene';
+export const YOU_SCENE = 'youScene';
 export const youScene = new Scenes.BaseScene<IContextBot>(YOU_SCENE);
-
-const ErrMsg = '❌ Что-то пошло не так, попробуйте заново.';
 
 youScene.enter(async (ctx) => {
 	const handleEnter = async () => {
@@ -36,7 +34,8 @@ youScene.enter(async (ctx) => {
 					ctx.session.data = [...allUsersExceptCurrent, currentUser];
 
 					startInteraction(ctx.update.message.from, 'you');
-					await ctx.reply('🎥 Выберите разрешение:', {
+
+					await ctx.reply(ctx.i18n.t('chooseQuality'), {
 						reply_markup: {
 							inline_keyboard: links.map(({ title }) => [
 								{
@@ -46,11 +45,11 @@ youScene.enter(async (ctx) => {
 							]),
 						},
 					});
-				} else throw new Error(ErrMsg);
-			} else throw new Error(ErrMsg);
+				} else throw new Error('smthWentWrong');
+			} else throw new Error('smthWentWrong');
 		} catch (error) {
 			console.log(error);
-			await ctx.reply(ErrMsg);
+			await ctx.reply(ctx.i18n.t('smthWentWrong'));
 		}
 	};
 
@@ -71,25 +70,23 @@ youScene.action(isUploadAction, async (ctx) => {
 		if (currentUser?.youLinkOne?.href) {
 			const link = currentUser.youLinkOne;
 			if (isShorts) {
-				await ctx.editMessageText('⏳ Загружаем видео в телеграм...');
+				await ctx.editMessageText(ctx.i18n.t('uploadingVideo'));
 				await ctx.replyWithVideo(
 					{ url: link.href! },
 					{
-						caption:
-							link.descr ??
-							'Saved by: @insta_twitter_youtube_bot',
+						caption: link.descr ?? ctx.i18n.t('savedByBot'),
 					}
 				);
 			} else {
 				await ctx.editMessageText(
-					`Перейдите по ссылке чтобы скачать видео:\n[${
+					`${ctx.i18n.t('clickToDownload')}\n[${
 						link.quality + 'p: ' + link.descr
 					}](${link.href})`,
 					{ parse_mode: 'Markdown' }
 				);
 			}
 		} else {
-			await ctx.reply(ErrMsg);
+			await ctx.reply(ctx.i18n.t('smthWentWrong'));
 		}
 
 		endInteraction(ctx.update.callback_query.from, 'you');

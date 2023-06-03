@@ -6,10 +6,8 @@ import { getPage, parseLinks } from './instagram.service';
 import { isLinkAction } from './checkers';
 import { endInteraction, startInteraction } from '../statsDb/stats.helper';
 
-export const INSTA_SCENE = 'insta_scene';
+export const INSTA_SCENE = 'instaScene';
 export const instaScene = new Scenes.BaseScene<IContextBot>(INSTA_SCENE);
-
-const ErrMsg = '❌ Что-то пошло не так, попробуйте заново.';
 
 instaScene.enter(async (ctx) => {
 	const handelEnter = async () => {
@@ -46,38 +44,32 @@ instaScene.enter(async (ctx) => {
 					if (links.length < 11)
 						buttons.push([
 							{
-								text: '⭐️ Скачать все',
+								text: ctx.i18n.t('downloadAll'),
 								callback_data: `download@All`,
 							},
 						]);
 
-					await ctx.reply(
-						'🔗 Ссылка содержит несколько медиа файлов, выберите какой хотите скачать:',
-						{
-							reply_markup: { inline_keyboard: buttons },
-						}
-					);
+					await ctx.reply(ctx.i18n.t('containsManyLinks'), {
+						reply_markup: { inline_keyboard: buttons },
+					});
 				} else {
-					await ctx.reply(
-						'⭐️ Ссылка успешно обработана! Нажмите чтобы скачать:',
-						{
-							reply_markup: {
-								inline_keyboard: [
-									[
-										...links.map((l, i) => ({
-											text: '⚡️ ' + (i + 1),
-											callback_data: `download@${i}`,
-										})),
-									],
+					await ctx.reply(ctx.i18n.t('linksFound'), {
+						reply_markup: {
+							inline_keyboard: [
+								[
+									...links.map((_, i) => ({
+										text: '⚡️ ' + (i + 1),
+										callback_data: `download@${i}`,
+									})),
 								],
-							},
-						}
-					);
+							],
+						},
+					});
 				}
 			} else throw new Error();
 		} catch (error) {
 			console.log(error);
-			await ctx.reply(ErrMsg);
+			await ctx.reply(ctx.i18n.t('smthWentWrong'));
 		}
 	};
 
@@ -92,7 +84,7 @@ instaScene.action(isLinkAction, async (ctx) => {
 				?.instaLinkOne ?? '';
 		await ctx.answerCbQuery();
 		try {
-			await ctx.reply('⏳ Загружаем в телеграм...');
+			await ctx.reply(ctx.i18n.t('uploadingMedia'));
 			if (link === 'All') {
 				const allLinks = ctx.session.data?.find(
 					(u) => u.userId === currentId
@@ -125,7 +117,7 @@ instaScene.action(isLinkAction, async (ctx) => {
 				}
 			}
 		} catch (error) {
-			await ctx.reply(ErrMsg);
+			await ctx.reply(ctx.i18n.t('smthWentWrong'));
 			console.log(error);
 		}
 

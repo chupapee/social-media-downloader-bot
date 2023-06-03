@@ -1,0 +1,24 @@
+{
+	"//start_command": "",
+	"start": "🔗 Please send the link",
+	"preparingVideo": "⏳ Preparing the video, it will take no more than a minute",
+	"preparingLink": "⏳ Processing the link, it will take no more than a minute",
+	"invalidLink": "🚫 Please send a valid link.",
+
+	"//insta_scene": "",
+	"downloadAll": "⭐️ Download all",
+	"containsManyLinks": "🔗 The link contains multiple media files. Please select which one you'd like to download:",
+	"linksFound": "✅ Link successfully processed! Click to download:",
+
+	"//twitter_scene": "",
+
+	"//you_scene": "",
+	"clickToDownload": "⬇️ Click the link to download the video:",
+
+	"//general": "",
+	"chooseQuality": "🎥 Choose the resolution:",
+	"smthWentWrong": "❌ Oops, something went wrong. Please try again.",
+	"uploadingMedia": "📤 Uploading to Telegram...",
+	"uploadingVideo": "📤 Uploading the video to Telegram...",
+	"savedByBot": "📤 Saved by: @insta_twitter_youtube_bot"
+}
