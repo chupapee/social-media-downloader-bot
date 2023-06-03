@@ -14,68 +14,58 @@ const YOU_URL = ['youtube.com', 'youtu.be'];
 const token = new ConfigService().get('BOT_TOKEN');
 const bot = new Telegraf<IContextBot>(token);
 
-const stage = new Scenes.Stage<IContextBot>([uploadVideoScene, instaScene, youScene]);
+const stage = new Scenes.Stage<IContextBot>([
+	uploadVideoScene,
+	instaScene,
+	youScene,
+]);
 
 bot.use(session());
 bot.use(stage.middleware());
 
-// permissions
-// bot.use(async (ctx, next)=> {
-//     if("message" in ctx.update) {
-//         const userId = ctx.update.message.from.id;
-//         const hasPermission = userId === 1333220153;
-//         if(!hasPermission) {
-//             await ctx.reply('Для получения доступа, напиши автору бота: @chupapee');
-//             return;
-//         }
-//         return next();
-//     }
-// });
-
-bot.catch((err) => {
-    console.log(err, 'INDEX.TS');
+bot.catch((error) => {
+	console.log(error, 'INDEX.TS');
 });
 
 bot.start(async (ctx) => {
-    await ctx.reply(
-        '🔗 Отправьте ссылку',
-    );
+	await ctx.reply('🔗 Отправьте ссылку');
 });
 
 const actionsByLink = [
-  {
-    urls: YOU_URL,
-    reply: '🔄 Подготавливаем видео, это займёт не больше минуты',
-    scene: YOU_SCENE
-  },
-  {
-    urls: [TWITTER_URL],
-    reply: '🔄 Подготавливаем видео, это займёт не больше минуты',
-    scene: UPLOAD_VIDEO_SCENE
-  },
-  {
-    urls: [INSTA_URL],
-    reply: '🔄 Обработка ссылки, это займёт не больше минуты',
-    scene: INSTA_SCENE
-  }
+	{
+		urls: YOU_URL,
+		reply: '🔄 Подготавливаем видео, это займёт не больше минуты',
+		scene: YOU_SCENE,
+	},
+	{
+		urls: [TWITTER_URL],
+		reply: '🔄 Подготавливаем видео, это займёт не больше минуты',
+		scene: UPLOAD_VIDEO_SCENE,
+	},
+	{
+		urls: [INSTA_URL],
+		reply: '🔄 Обработка ссылки, это займёт не больше минуты',
+		scene: INSTA_SCENE,
+	},
 ];
 
-
 bot.on('message', async (ctx) => {
-    const handleMessage = async () => {
-        if('text' in ctx.message) {
-            const link = ctx.message.text;
-            ctx.state.link = link;
-            const selectedAction = actionsByLink.find(({ urls }) => urls.some(url => link.includes(url)));
-            if (selectedAction) {
-                const { scene, reply } = selectedAction;
-                await ctx.reply(reply);
-                await ctx.scene.enter(scene);
-            } else await ctx.reply('🚫 Отправьте корректную ссылку.');
-        }
-    };
+	const handleMessage = async () => {
+		if ('text' in ctx.message) {
+			const link = ctx.message.text;
+			ctx.state.link = link;
+			const selectedAction = actionsByLink.find(({ urls }) =>
+				urls.some((url) => link.includes(url))
+			);
+			if (selectedAction) {
+				const { scene, reply } = selectedAction;
+				await ctx.reply(reply);
+				await ctx.scene.enter(scene);
+			} else await ctx.reply('🚫 Отправьте корректную ссылку.');
+		}
+	};
 
-    handleMessage();
+	handleMessage();
 });
 
 bot.launch();
