@@ -38,12 +38,15 @@ export const getPage = async (link: string) => {
 
 export const parseLinks = (page: string) => {
 	const $ = cheerio.load(page);
-	const links: Record<'type' | 'href', string>[] = [];
+	const links: Record<'type' | 'href' | 'source', string>[] = [];
+
+	const source = $('[alt="avatar"]').first().parent().text();
 
 	$('[data-event="click_download_btn"]').each((_, a) => {
 		const link = $(a).attr('href');
 		const type = $(a).text().split(' ')[1].toLowerCase();
-		if (link) links.push({ type, href: link });
+
+		if (link) links.push({ type, href: link, source });
 	});
 
 	return links;

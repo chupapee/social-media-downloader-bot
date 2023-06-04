@@ -9,12 +9,14 @@ import { endInteraction, startInteraction } from '../statsDb/stats.helper';
 export const INSTA_SCENE = 'instaScene';
 export const instaScene = new Scenes.BaseScene<IContextBot>(INSTA_SCENE);
 
+const mediaEmoji = { photo: '📷', video: '🎥' };
+
 instaScene.enter(async (ctx) => {
 	const handelEnter = async () => {
-		const link = ctx.state.link;
+		const originalLink: string = ctx.state.link;
 
 		try {
-			const page = await getPage(link);
+			const page = await getPage(originalLink);
 			const links = parseLinks(page);
 
 			if ('message' in ctx.update) {
@@ -26,44 +28,59 @@ instaScene.enter(async (ctx) => {
 				const currentUser = {
 					userId: currentId,
 					instaLinks: [...links],
+					instaOriginal: originalLink,
 				};
 				ctx.session.data = [...allUsersExceptCurrent, currentUser];
 
 				startInteraction(ctx.update.message.from, 'insta');
 			}
 
+			// links exist
 			if (links.length > 0) {
-				if (links.length > 1) {
-					const buttons = links.map((l, i) => [
+				// one link
+				if (links.length === 1) {
+					const link = links[0];
+					console.log(`[${link.source}](${originalLink})`);
+
+					switch (link.type) {
+						case 'photo':
+							await ctx.replyWithPhoto(link.href!, {
+								caption: `[${link.source}](${originalLink})`,
+								parse_mode: 'MarkdownV2',
+							});
+							break;
+						case 'video':
+							await ctx.replyWithVideo(link.href!, {
+								caption: `[${link.source}](${originalLink})`,
+								parse_mode: 'MarkdownV2',
+							});
+							break;
+						default:
+							break;
+					}
+					// many links
+				} else if (links.length > 1) {
+					const buttons = links.map(({ type }, i) => [
 						{
-							text: (i + 1).toString(),
+							text: `${
+								mediaEmoji[type as 'photo' | 'video'] ?? ''
+							} ${type} ${i + 1}`,
 							callback_data: `download@${i}`,
 						},
 					]);
-					// FIXME: more than 10 media files doesn't sending
-					if (links.length < 11)
+					// FIXME: more than 10 files doesn't sending at once
+					if (links.length < 11) {
+						// if length less than 10, add button for upload all files at once
 						buttons.push([
 							{
 								text: ctx.i18n.t('downloadAll'),
 								callback_data: `download@All`,
 							},
 						]);
+					}
 
 					await ctx.reply(ctx.i18n.t('containsManyLinks'), {
 						reply_markup: { inline_keyboard: buttons },
-					});
-				} else {
-					await ctx.reply(ctx.i18n.t('linksFound'), {
-						reply_markup: {
-							inline_keyboard: [
-								[
-									...links.map((_, i) => ({
-										text: '⚡️ ' + (i + 1),
-										callback_data: `download@${i}`,
-									})),
-								],
-							],
-						},
 					});
 				}
 			} else throw new Error();
@@ -79,9 +96,12 @@ instaScene.enter(async (ctx) => {
 instaScene.action(isLinkAction, async (ctx) => {
 	const handelAction = async () => {
 		const currentId = ctx.update.callback_query.from.id;
-		const link =
-			ctx.session.data?.find((u) => u.userId === currentId)
-				?.instaLinkOne ?? '';
+		const currentUser = ctx.session.data?.find(
+			(u) => u.userId === currentId
+		);
+		const link = currentUser?.instaLinkOne;
+		const originalLink = currentUser?.instaOriginal;
+
 		await ctx.answerCbQuery();
 		try {
 			await ctx.reply(ctx.i18n.t('uploadingMedia'));
@@ -92,25 +112,40 @@ instaScene.action(isLinkAction, async (ctx) => {
 
 				if (allLinks?.length) {
 					const limitedLinks = splitArray(allLinks, 5);
-
 					for (const list of limitedLinks) {
 						ctx.replyWithMediaGroup(
-							list.map(({ href, type }) => ({
-								media: { url: href! },
-								type: type as 'photo' | 'video',
-							}))
+							list.map(({ href, type, source }, i) => {
+								const media = {
+									media: { url: href! },
+									type: type as 'photo' | 'video',
+								};
+								// add caption only to the first link
+								if (i === 0) {
+									return {
+										...media,
+										caption: `[${source}](${originalLink})`,
+										parse_mode: 'Markdown',
+									};
+								}
+								return media;
+							})
 						);
 						await new Promise((ok) => setTimeout(ok, 3000));
-						console.log('timeout');
 					}
 				}
 			} else if (typeof link === 'object') {
 				switch (link.type) {
 					case 'photo':
-						await ctx.replyWithPhoto({ url: link.href! });
+						await ctx.replyWithPhoto(link.href!, {
+							caption: `[${link.source}](${originalLink})`,
+							parse_mode: 'Markdown',
+						});
 						break;
 					case 'video':
-						await ctx.replyWithVideo(link.href!);
+						await ctx.replyWithVideo(link.href!, {
+							caption: `[${link.source}](${originalLink})`,
+							parse_mode: 'Markdown',
+						});
 						break;
 					default:
 						break;

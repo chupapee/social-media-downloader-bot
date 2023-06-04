@@ -3,6 +3,7 @@ import { Scenes, Context } from 'telegraf';
 interface IInstaLink {
 	type?: string;
 	href?: string;
+	source?: string;
 }
 
 export interface IYouLink {
@@ -19,6 +20,7 @@ export interface IUserSessionData {
 
 	instaLinks?: IInstaLink[];
 	instaLinkOne?: IInstaLink | string;
+	instaOriginal?: string;
 
 	youOriginal?: string;
 	youLinks?: IYouLink[];
