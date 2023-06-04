@@ -42,10 +42,10 @@ export const parseLink = (page: string) => {
 	$('.download_link').each((_, el) => {
 		if ($(el).attr('href')) {
 			const quality = $(el).text().replace('Download', '').trim();
-			const href = $(el).attr('href');
+			const href = $(el).attr('href')?.trim();
 			qualities.push({ quality, href: href! });
 		}
 	});
 
-	return qualities.reverse();
+	return qualities.sort((a) => (a.quality.includes('HD') ? -1 : 1));
 };

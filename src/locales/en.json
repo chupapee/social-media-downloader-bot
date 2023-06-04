@@ -11,6 +11,9 @@
 	"linksFound": "✅ Link successfully processed! Click to download:",
 
 	"//twitter_scene": "",
+	"clickTheLink": "👇 ***Click the link*** to start the download:",
+	"uploadToTg": "⌛ Alternatively, you can click the button, and we will upload the video to Telegram, ***but it may take longer***",
+	"uploadToTgBtn": "📥 Upload to Telegram",
 
 	"//you_scene": "",
 	"clickToDownload": "⬇️ Click the link to download the video:",

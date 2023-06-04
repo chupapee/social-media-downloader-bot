@@ -22,7 +22,7 @@ twitterScene.enter(async (ctx) => {
 			);
 			if (!content) throw new Error();
 
-			const qualities = parseLink(content as string);
+			const links = parseLink(content as string);
 			if ('message' in ctx.update) {
 				const currentId = ctx.update.message.from.id;
 				const allUsersExceptCurrent =
@@ -31,20 +31,34 @@ twitterScene.enter(async (ctx) => {
 					) ?? [];
 				const currentUser = {
 					userId: currentId,
-					twLinks: [...qualities],
+					twLinks: [...links],
 					twLinkOne: '',
 				};
 				ctx.session.data = [...allUsersExceptCurrent, currentUser];
 
 				startInteraction(ctx.update.message.from, 'twitter');
 			}
-			await ctx.reply(ctx.i18n.t('chooseQuality'), {
-				reply_markup: {
-					inline_keyboard: qualities.map(({ quality }) => [
-						{ text: quality, callback_data: `download@${quality}` },
-					]),
-				},
-			});
+			const hrefList = links.map(
+				({ quality, href }) => `[🔗 ${quality}](${href})`
+			);
+			await ctx.reply(
+				`${ctx.i18n.t('clickTheLink')}\n ${hrefList.join(
+					'\n'
+				)}\n\n${ctx.i18n.t('uploadToTg')}`,
+				{
+					parse_mode: 'MarkdownV2',
+					reply_markup: {
+						inline_keyboard: [
+							[
+								{
+									text: ctx.i18n.t('uploadToTgBtn'),
+									callback_data: 'uploadToTg',
+								},
+							],
+						],
+					},
+				}
+			);
 		} catch (error) {
 			console.log(error, 'error message');
 			await ctx.reply(ctx.i18n.t('smthWentWrong'));
@@ -52,6 +66,27 @@ twitterScene.enter(async (ctx) => {
 	};
 
 	handleEnter();
+});
+
+twitterScene.action('uploadToTg', async (ctx) => {
+	await ctx.answerCbQuery();
+
+	const links = ctx.session.data.find(
+		({ userId }) => userId === ctx.callbackQuery.from.id
+	)?.twLinks;
+
+	if (links?.length) {
+		ctx.reply(ctx.i18n.t('chooseQuality'), {
+			reply_markup: {
+				inline_keyboard: links.map(({ quality }) => [
+					{
+						text: quality,
+						callback_data: `download@${quality}`,
+					},
+				]),
+			},
+		});
+	}
 });
 
 twitterScene.action(isUploadAction, async (ctx) => {
