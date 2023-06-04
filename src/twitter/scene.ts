@@ -11,12 +11,12 @@ export const twitterScene = new Scenes.BaseScene<IContextBot>(TWITTER_SCENE);
 
 twitterScene.enter(async (ctx) => {
 	const handleEnter = async () => {
-		const twitterLink = ctx.state.link;
+		const originalLink = ctx.state.link;
 
 		try {
 			const content = await retryGettingPage(
 				5,
-				twitterLink,
+				originalLink,
 				getPage,
 				15_000
 			);
@@ -33,6 +33,7 @@ twitterScene.enter(async (ctx) => {
 					userId: currentId,
 					twLinks: [...links],
 					twLinkOne: '',
+					twOriginal: originalLink,
 				};
 				ctx.session.data = [...allUsersExceptCurrent, currentUser];
 
@@ -94,12 +95,26 @@ twitterScene.action(isUploadAction, async (ctx) => {
 		await ctx.answerCbQuery();
 
 		const currentId = ctx.update.callback_query.from.id;
-		const link =
-			ctx.session.data?.find((u) => u.userId === currentId)?.twLinkOne ??
-			'';
+		const currentUser = ctx.session.data?.find(
+			(u) => u.userId === currentId
+		);
 
-		await ctx.editMessageText(ctx.i18n.t('uploadingVideo'));
-		await ctx.replyWithVideo({ url: link });
+		const link = currentUser?.twLinkOne;
+		const originalLink = currentUser?.twOriginal;
+		const caption = originalLink?.split('/')[3];
+
+		if (link) {
+			await ctx.editMessageText(ctx.i18n.t('uploadingVideo'));
+			await ctx.replyWithVideo(
+				{ url: link },
+				{
+					caption: `[${caption}](${originalLink})`,
+					parse_mode: 'Markdown',
+				}
+			);
+		} else {
+			await ctx.editMessageText(ctx.i18n.t('smthWentWrong'));
+		}
 
 		endInteraction(ctx.update.callback_query.from, 'twitter');
 	};

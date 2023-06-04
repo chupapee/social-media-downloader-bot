@@ -17,6 +17,7 @@ export interface IUserSessionData {
 	userId: number;
 	twLinks?: Record<'quality' | 'href', string>[];
 	twLinkOne?: string;
+	twOriginal?: string;
 
 	instaLinks?: IInstaLink[];
 	instaLinkOne?: IInstaLink | string;
