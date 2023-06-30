@@ -23,3 +23,5 @@ export const actionsByLink = [
 		scene: INSTA_SCENE,
 	},
 ];
+
+export const puppeteerExecutablePath = process.env.NODE_ENV === 'development' ? '' : '/usr/bin/google-chrome';

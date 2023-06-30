@@ -3,12 +3,14 @@ import * as cheerio from 'cheerio';
 
 import { ConfigService } from '../config/config.service';
 import { timeout } from './../utils/utils';
+import { puppeteerExecutablePath } from '../helpers';
 
 const PAGE_URL = new ConfigService().get('INSTA_PAGE_URL');
 
 export const getPage = async (link: string) => {
 	try {
 		const browser = await puppeteer.launch({
+			executablePath: puppeteerExecutablePath,
 			headless: 'new',
 			args: ['--no-sandbox', '--disable-setuid-sandbox'],
 		});

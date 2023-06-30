@@ -3,12 +3,14 @@ import * as cheerio from 'cheerio';
 
 import { ConfigService } from '../config/config.service';
 import { timeout } from '../utils/utils';
+import { puppeteerExecutablePath } from '../helpers';
 
 const PAGE_URL = new ConfigService().get('TWITTER_PAGE_URL');
 
 export const getPage = async (twitterLink: string): Promise<string> => {
 	let content = '';
 	const browser = await puppeteer.launch({
+		executablePath: puppeteerExecutablePath,
 		headless: 'new',
 		args: ['--no-sandbox', '--disable-setuid-sandbox'],
 	});
