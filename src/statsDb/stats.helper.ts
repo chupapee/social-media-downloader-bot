@@ -1,33 +1,48 @@
+import { User } from 'telegraf/typings/core/types/typegram';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase.config';
 
-interface IUser {
-	id?: number;
-	first_name?: string;
-	last_name?: string;
-	username?: string;
-}
-
-interface IUserDb extends IUser {
+interface IUserDb extends User {
 	date: string;
 	status: 'start' | 'end';
 }
 
 export type AppType = 'twitter' | 'insta' | 'you';
 
-async function getUsers(appType: AppType): Promise<IUserDb[] | undefined> {
+interface AllDbUsers {
+	twitter: IUserDb[];
+	insta: IUserDb[];
+	you: IUserDb[];
+	footballStats: User[];
+	socialBotWokeCount: number;
+}
+
+export async function getUsers(): Promise<AllDbUsers | undefined>;
+export async function getUsers(
+	appType: AppType
+): Promise<IUserDb[] | undefined>;
+
+export async function getUsers(
+	appType?: AppType
+): Promise<IUserDb[] | AllDbUsers | undefined> {
 	const usersRef = doc(db, 'users', 'list');
 	try {
-		const response = (await getDoc(usersRef)).data() as {
-			twitter: IUserDb[];
-			insta: IUserDb[];
-			you: IUserDb[];
-		};
-		return response[appType];
+		const response = (await getDoc(usersRef)).data() as AllDbUsers;
+		if (appType) return response[appType];
+		return response;
 	} catch (error) {
 		console.log(error, 'GET USERS FAILED');
 	}
 }
+
+export const updateBotWokeCount = async (updatedCount: number) => {
+	const usersRef = doc(db, 'users', 'list');
+	try {
+		await updateDoc(usersRef, { socialBotWokeCount: updatedCount });
+	} catch (error) {
+		console.log(error, 'SAVING USER FAILED');
+	}
+};
 
 async function saveUser(
 	oldUsers: IUserDb[],
@@ -47,7 +62,7 @@ async function saveUser(
 	}
 }
 
-export async function startInteraction(user: IUser, appType: AppType) {
+export async function startInteraction(user: User, appType: AppType) {
 	const newUser: IUserDb = {
 		...user,
 		date: new Date().toLocaleString(),
@@ -62,7 +77,7 @@ export async function startInteraction(user: IUser, appType: AppType) {
 	}
 }
 
-export async function endInteraction(user: IUser, appType: AppType) {
+export async function endInteraction(user: User, appType: AppType) {
 	const newUser: IUserDb = {
 		...user,
 		date: new Date().toLocaleString(),

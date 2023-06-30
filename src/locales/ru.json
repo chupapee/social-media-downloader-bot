@@ -23,5 +23,6 @@
 	"uploadingMedia": "📤 Загружаем в телеграм...",
 	"uploadingVideo": "📤 Загружаем видео в телеграм...",
 	"savedByBot": "📤 Загружено при помощи: @insta_twitter_youtube_bot",
-	"chooseQuality": "🎥 Выберите разрешение:"
+	"chooseQuality": "🎥 Выберите разрешение:",
+	"botWokeUp": "Привет! 👋\nТехнические неполадки разрешены 🛠✅\nМожете вновь пользоваться ботом 🚀"
 }
