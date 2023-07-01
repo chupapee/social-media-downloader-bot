@@ -3,158 +3,142 @@ import { Scenes } from 'telegraf';
 import { IContextBot } from '../config/context.interface';
 import { endInteraction, startInteraction } from '../statsDb/stats.helper';
 import { splitArray } from '../utils/utils';
-import { isLinkAction } from './checkers';
+import { createInlineKeyboard, downloadLink } from './helpers';
 import { getPage, parseLinks } from './instagram.service';
 
 const INSTA_SCENE = 'instaScene';
 export const instaScene = new Scenes.BaseScene<IContextBot>(INSTA_SCENE);
 
-const mediaEmoji = { photo: '📷', video: '🎥' };
-
 instaScene.enter(async (ctx) => {
 	const handelEnter = async () => {
 		const originalLink: string = ctx.state.link;
+		const isReels = originalLink.includes('reel');
 
 		try {
 			const page = await getPage(originalLink);
 			const links = parseLinks(page);
 
 			if ('message' in ctx.update) {
-				const currentId = ctx.update.message.from.id;
-				const allUsersExceptCurrent =
-					ctx.session.data?.filter(
-						({ userId }) => userId !== currentId
-					) ?? [];
-				const currentUser = {
-					userId: currentId,
-					instaLinks: [...links],
-					instaOriginal: originalLink,
-				};
-				ctx.session.data = [...allUsersExceptCurrent, currentUser];
-
 				startInteraction(ctx.update.message.from, 'insta');
 			}
 
-			if (links.length > 0) {
-				// single link
-				if (links.length === 1) {
-					const link = links[0];
-					switch (link.type) {
-						case 'photo':
-							await ctx.replyWithPhoto(link.href!, {
-								caption: `[${link.source}](${originalLink})`,
-								parse_mode: 'MarkdownV2',
-							});
-							break;
-						case 'video':
-							await ctx.replyWithVideo(link.href!, {
-								caption: `[${link.source}](${originalLink})`,
-								parse_mode: 'MarkdownV2',
-							});
-							break;
-						default:
-							break;
-					}
-					// many links
-				} else {
-					const buttons = links.map(({ type }, i) => [
+			// reels || single file
+			if (isReels || links.length === 1) {
+				const link = links[0];
+				const buffer = await downloadLink(link.href);
+				if (link.type === 'video') {
+					await ctx.replyWithVideo(
+						{ source: buffer! },
 						{
-							text: `${
-								mediaEmoji[type as 'photo' | 'video'] ?? ''
-							} ${type} ${i + 1}`,
-							callback_data: `download@${i}`,
-						},
-					]);
-					// FIXME: more than 10 files doesn't sending at once
-					if (links.length < 11) {
-						// if length less than 10, add button for upload all files at once
-						buttons.push([
-							{
-								text: ctx.i18n.t('downloadAll'),
-								callback_data: `download@All`,
-							},
-						]);
-					}
-
-					await ctx.reply(ctx.i18n.t('containsManyLinks'), {
-						reply_markup: { inline_keyboard: buttons },
-					});
+							caption: `[${link.source}](${originalLink})`,
+							parse_mode: 'MarkdownV2',
+						}
+					);
+					return;
 				}
-			} else throw new Error('links not found');
+				await ctx.replyWithPhoto(
+					{ source: buffer! },
+					{
+						caption: `[${link.source}](${originalLink})`,
+						parse_mode: 'MarkdownV2',
+					}
+				);
+				return;
+			}
+
+			const videosCount = links.filter(
+				({ type }) => type === 'video'
+			).length;
+
+			// no more than 3 videos at once
+			if (videosCount <= 3) {
+				const bufferList: Record<'buffer' | 'type', Buffer | string>[] = [];
+				for (const link of links) {
+					const buffer = await downloadLink(link.href);
+					if (buffer) bufferList.push({ buffer, type: link.type });
+				}
+
+				const limitedLinks = splitArray(bufferList, 5);
+				for (const list of limitedLinks) {
+					ctx.replyWithMediaGroup(
+						list.map(({ buffer, type }, i) => {
+							// add caption only to the first link
+							if (i === 0) {
+								return {
+									media: { source: buffer as Buffer },
+									type: type as 'photo' | 'video',
+									caption: `[${links[0].source}](${originalLink})`,
+									parse_mode: 'Markdown',
+								};
+							}
+							return {
+								media: { source: buffer as Buffer },
+								type: type as 'photo' | 'video',
+							};
+						})
+					);
+					await new Promise((ok) => setTimeout(ok, 3000));
+				}
+				return;
+			}
+
+			// more than 3 videos only
+			const photos = links.filter(({ type }) => type === 'photo');
+			const videos = links.filter(({ type }) => type === 'video');
+
+			if (photos.length > 0) {
+				const bufferList: Record<'buffer' | 'type', Buffer | string>[] = [];
+				for (const link of [...photos, ...videos.slice(0, 3)]) {
+					const buffer = await downloadLink(link.href);
+					if (buffer) bufferList.push({ buffer, type: link.type });
+				}
+
+				const limitedLinks = splitArray(bufferList, 5);
+				for (const list of limitedLinks) {
+					await ctx.replyWithMediaGroup(
+						list.map(({ type, buffer }) => {
+							return {
+								media: { source: buffer as Buffer },
+								type: type as 'photo' | 'video',
+							};
+						})
+					);
+				}
+			}
+
+			const bufferList: Record<'buffer' | 'type', Buffer | string>[] = [];
+			for (const link of [...videos.slice(0, 3)]) {
+				const buffer = await downloadLink(link.href);
+				if (buffer) bufferList.push({ buffer, type: link.type });
+			}
+
+			await ctx.replyWithMediaGroup(
+				bufferList.map(({ buffer }) => ({
+					media: { source: buffer as Buffer },
+					type: 'video',
+				}))
+			);
+
+			await ctx.reply(
+				`[${ctx.i18n.t('otherVideos')} ${
+					links[0].source
+				}:](${originalLink})`,
+				{
+					reply_markup: {
+						inline_keyboard: createInlineKeyboard(videos.slice(3)),
+						resize_keyboard: false,
+					},
+					parse_mode: 'Markdown',
+				}
+			);
+
+			if ('message' in ctx.update) {
+				endInteraction(ctx.update.message.from, 'insta');
+			}
 		} catch (error) {
-			console.log(error);
-			await ctx.reply(ctx.i18n.t('smthWentWrong'));
+			console.error(error, 'insta error');
 		}
 	};
 
 	handelEnter();
-});
-
-instaScene.action(isLinkAction, async (ctx) => {
-	const handelAction = async () => {
-		const currentId = ctx.update.callback_query.from.id;
-		const currentUser = ctx.session.data?.find(
-			(u) => u.userId === currentId
-		);
-		const link = currentUser?.instaLinkOne;
-		const originalLink = currentUser?.instaOriginal;
-
-		await ctx.answerCbQuery();
-		try {
-			await ctx.reply(ctx.i18n.t('uploadingMedia'));
-			if (link === 'All') {
-				const allLinks = ctx.session.data?.find(
-					(u) => u.userId === currentId
-				)?.instaLinks;
-
-				if (allLinks?.length) {
-					const limitedLinks = splitArray(allLinks, 5);
-					for (const list of limitedLinks) {
-						ctx.replyWithMediaGroup(
-							list.map(({ href, type, source }, i) => {
-								const media = {
-									media: { url: href! },
-									type: type as 'photo' | 'video',
-								};
-								// add caption only to the first link
-								if (i === 0) {
-									return {
-										...media,
-										caption: `[${source}](${originalLink})`,
-										parse_mode: 'Markdown',
-									};
-								}
-								return media;
-							})
-						);
-						await new Promise((ok) => setTimeout(ok, 3000));
-					}
-				}
-			} else if (typeof link === 'object') {
-				switch (link.type) {
-					case 'photo':
-						await ctx.replyWithPhoto(link.href!, {
-							caption: `[${link.source}](${originalLink})`,
-							parse_mode: 'Markdown',
-						});
-						break;
-					case 'video':
-						await ctx.replyWithVideo(link.href!, {
-							caption: `[${link.source}](${originalLink})`,
-							parse_mode: 'Markdown',
-						});
-						break;
-					default:
-						break;
-				}
-			}
-		} catch (error) {
-			await ctx.reply(ctx.i18n.t('smthWentWrong'));
-			console.log(error);
-		}
-
-		endInteraction(ctx.update.callback_query.from, 'insta');
-	};
-
-	handelAction();
 });
