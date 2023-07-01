@@ -1,3 +1,5 @@
+import { InlineKeyboardButton } from 'typegram';
+
 import { instaScene } from './instagram/scene';
 import { twitterScene } from './twitter/scene';
 import { youScene } from './youtube/scene';
@@ -24,4 +26,25 @@ export const getActionsByLink = () => {
 			scene: instaScene.id,
 		},
 	];
+};
+
+interface Link {
+	href: string;
+	quality: string;
+}
+
+export const createInlineKeyboard = (links: Link[], smallestLink?: Link) => {
+	return links.reduce(
+		(acc: InlineKeyboardButton[][], { href, quality }, index) => {
+			const btn = { text: `🔗 ${quality}`, url: href };
+			if (smallestLink?.quality && quality === smallestLink.quality) return acc;
+			if (index % 2 === 0) {
+				acc.push([btn]);
+			} else {
+				acc[acc.length - 1].push(btn);
+			}
+			return acc;
+		},
+		[]
+	);
 };

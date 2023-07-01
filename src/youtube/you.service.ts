@@ -38,7 +38,7 @@ export const getPage = async (link: string) => {
 	}
 };
 
-const getUniqueListBy = <T>(arr: T[], key: keyof T) => {
+const uniqueList = <T>(arr: T[], key: keyof T) => {
 	return [...new Map(arr.map((item) => [item[key], item])).values()];
 };
 
@@ -57,5 +57,7 @@ export const parseLink = (page: string) => {
 		links.push({ title, descr, quality, href });
 	});
 
-	return getUniqueListBy(links, 'title');
+	return uniqueList(links, 'title').filter(
+		({ title }) => !title?.includes('audio')
+	);
 };

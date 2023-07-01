@@ -9,8 +9,8 @@ interface IInstaLink {
 export interface IYouLink {
 	title?: string;
 	descr?: string;
-	quality?: string;
-	href?: string;
+	quality: string;
+	href: string;
 }
 
 export interface IUserSessionData {

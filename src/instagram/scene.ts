@@ -35,13 +35,10 @@ instaScene.enter(async (ctx) => {
 				startInteraction(ctx.update.message.from, 'insta');
 			}
 
-			// links exist
 			if (links.length > 0) {
-				// one link
+				// single link
 				if (links.length === 1) {
 					const link = links[0];
-					console.log(`[${link.source}](${originalLink})`);
-
 					switch (link.type) {
 						case 'photo':
 							await ctx.replyWithPhoto(link.href!, {
@@ -59,7 +56,7 @@ instaScene.enter(async (ctx) => {
 							break;
 					}
 					// many links
-				} else if (links.length > 1) {
+				} else {
 					const buttons = links.map(({ type }, i) => [
 						{
 							text: `${
@@ -83,7 +80,7 @@ instaScene.enter(async (ctx) => {
 						reply_markup: { inline_keyboard: buttons },
 					});
 				}
-			} else throw new Error();
+			} else throw new Error('links not found');
 		} catch (error) {
 			console.log(error);
 			await ctx.reply(ctx.i18n.t('smthWentWrong'));

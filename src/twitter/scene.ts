@@ -1,7 +1,7 @@
 import { Scenes } from 'telegraf';
-import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 
 import { IContextBot } from '../config/context.interface';
+import { createInlineKeyboard } from '../helpers';
 import { endInteraction, startInteraction } from '../statsDb/stats.helper';
 import { retryGettingPage } from '../utils/utils';
 import { getSmallestLink } from './helpers';
@@ -21,47 +21,20 @@ twitterScene.enter(async (ctx) => {
 				getPage,
 				15_000
 			);
-			if (!content) throw new Error();
+			if (!content) throw new Error("page doesn't parsed");
 
 			const links = parseLink(content as string);
 			if ('message' in ctx.update) {
-				const currentId = ctx.update.message.from.id;
-				const allUsersExceptCurrent =
-					ctx.session.data?.filter(
-						({ userId }) => userId !== currentId
-					) ?? [];
-				const currentUser = {
-					userId: currentId,
-					twLinks: [...links],
-					twLinkOne: '',
-					twOriginal: originalLink,
-				};
-				ctx.session.data = [...allUsersExceptCurrent, currentUser];
-
 				startInteraction(ctx.update.message.from, 'twitter');
 			}
 
 			const smallestLink = getSmallestLink(links);
-
-			const buttons = links.reduce(
-				(acc: InlineKeyboardButton[][], { href, quality }, index) => {
-					const btn = { text: `🔗 ${quality}`, url: href };
-					if (quality === smallestLink.quality) return acc; // skip smallest link
-
-					if (index % 2 === 0) {
-						acc.push([btn]);
-					} else {
-						acc[acc.length - 1].push(btn);
-					}
-					return acc;
-				},
-				[]
-			);
+			const inline_keyboard = createInlineKeyboard(links, smallestLink);
 
 			await ctx.replyWithVideo(
 				{ url: smallestLink.href },
 				{
-					reply_markup: { inline_keyboard: buttons },
+					reply_markup: { inline_keyboard },
 				}
 			);
 
