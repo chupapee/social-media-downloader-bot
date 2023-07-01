@@ -1,13 +1,12 @@
 import { Scenes } from 'telegraf';
+
 import { IContextBot } from '../config/context.interface';
-
-import { retryGettingPage } from '../utils/utils';
 import { endInteraction, startInteraction } from '../statsDb/stats.helper';
-
-import { getPage, parseLink } from './you.service';
+import { retryGettingPage } from '../utils/utils';
 import { isUploadAction } from './checkers';
+import { getPage, parseLink } from './you.service';
 
-export const YOU_SCENE = 'youScene';
+const YOU_SCENE = 'youScene';
 export const youScene = new Scenes.BaseScene<IContextBot>(YOU_SCENE);
 
 youScene.enter(async (ctx) => {

@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+
 import { ConfigService } from './config.service';
 
 const apiKey = new ConfigService().get('FIREBASE_API_KEY');

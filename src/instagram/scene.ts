@@ -1,12 +1,12 @@
 import { Scenes } from 'telegraf';
-import { splitArray } from '../utils/utils';
+
 import { IContextBot } from '../config/context.interface';
-
-import { getPage, parseLinks } from './instagram.service';
-import { isLinkAction } from './checkers';
 import { endInteraction, startInteraction } from '../statsDb/stats.helper';
+import { splitArray } from '../utils/utils';
+import { isLinkAction } from './checkers';
+import { getPage, parseLinks } from './instagram.service';
 
-export const INSTA_SCENE = 'instaScene';
+const INSTA_SCENE = 'instaScene';
 export const instaScene = new Scenes.BaseScene<IContextBot>(INSTA_SCENE);
 
 const mediaEmoji = { photo: '📷', video: '🎥' };

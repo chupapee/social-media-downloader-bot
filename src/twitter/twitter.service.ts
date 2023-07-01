@@ -1,9 +1,9 @@
-import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
+import puppeteer from 'puppeteer';
 
 import { ConfigService } from '../config/config.service';
+import { puppeteerExecutablePath } from '../consts';
 import { timeout } from '../utils/utils';
-import { puppeteerExecutablePath } from '../helpers';
 
 const PAGE_URL = new ConfigService().get('TWITTER_PAGE_URL');
 

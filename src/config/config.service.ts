@@ -1,4 +1,4 @@
-import { DotenvParseOutput, config } from 'dotenv';
+import { config, DotenvParseOutput } from 'dotenv';
 
 export class ConfigService {
 	private config: DotenvParseOutput;

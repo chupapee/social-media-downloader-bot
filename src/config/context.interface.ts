@@ -1,4 +1,4 @@
-import { Scenes, Context } from 'telegraf';
+import { Context, Scenes } from 'telegraf';
 
 interface IInstaLink {
 	type?: string;

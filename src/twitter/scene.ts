@@ -2,13 +2,12 @@ import { Scenes } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 
 import { IContextBot } from '../config/context.interface';
-import { startInteraction, endInteraction } from '../statsDb/stats.helper';
-
+import { endInteraction, startInteraction } from '../statsDb/stats.helper';
 import { retryGettingPage } from '../utils/utils';
 import { getSmallestLink } from './helpers';
 import { getPage, parseLink } from './twitter.service';
 
-export const TWITTER_SCENE = 'twitterScene';
+const TWITTER_SCENE = 'twitterScene';
 export const twitterScene = new Scenes.BaseScene<IContextBot>(TWITTER_SCENE);
 
 twitterScene.enter(async (ctx) => {

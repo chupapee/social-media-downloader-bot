@@ -1,5 +1,6 @@
-import { User } from 'telegraf/typings/core/types/typegram';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { User } from 'telegraf/typings/core/types/typegram';
+
 import { db } from '../config/firebase.config';
 
 interface IUserDb extends User {

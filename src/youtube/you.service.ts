@@ -1,10 +1,10 @@
-import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
+import puppeteer from 'puppeteer';
 
 import { ConfigService } from '../config/config.service';
-import { timeout } from '../utils/utils';
 import { IYouLink } from '../config/context.interface';
-import { puppeteerExecutablePath } from '../helpers';
+import { puppeteerExecutablePath } from '../consts';
+import { timeout } from '../utils/utils';
 
 const PAGE_URL = new ConfigService().get('YOUTUBE_PAGE_URL');
 

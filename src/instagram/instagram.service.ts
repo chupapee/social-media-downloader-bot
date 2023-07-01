@@ -1,9 +1,9 @@
-import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
+import puppeteer from 'puppeteer';
 
 import { ConfigService } from '../config/config.service';
-import { timeout } from './../utils/utils';
-import { puppeteerExecutablePath } from '../helpers';
+import { puppeteerExecutablePath } from '../consts';
+import { timeout } from '../utils/utils';
 
 const PAGE_URL = new ConfigService().get('INSTA_PAGE_URL');
 

@@ -2,6 +2,7 @@ const { configure, presets } = require('eslint-kit');
 
 module.exports = configure({
 	presets: [
+		presets.imports({ sort: { newline: 'always' } }),
 		presets.node(),
 		presets.prettier({
 			trailingComma: 'es5',
