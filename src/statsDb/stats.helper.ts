@@ -2,6 +2,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { User } from 'telegraf/typings/core/types/typegram';
 
 import { db } from '../config/firebase.config';
+import { AUTHOR_ID } from '../consts';
 
 interface IUserDb extends User {
 	date: string;
@@ -50,7 +51,7 @@ async function saveUser(
 	newUser: IUserDb,
 	appType: AppType
 ) {
-	if (newUser.id !== 1333220153) {
+	if (AUTHOR_ID && newUser.id !== Number(AUTHOR_ID)) {
 		const usersRef = doc(db, 'users', 'list');
 		try {
 			await updateDoc(usersRef, {
@@ -92,3 +93,24 @@ export async function endInteraction(user: User, appType: AppType) {
 		console.log(error, 'USER END INTERACTION ERROR');
 	}
 }
+
+interface Feedback {
+	author: User;
+	message: string;
+}
+
+export const sendFeedback = async (feedback: Feedback) => {
+	const feedbackRef = doc(db, 'users', 'feedback');
+
+	try {
+		const oldResp = (await getDoc(feedbackRef)).data() as {
+			list: Feedback[];
+		};
+		await updateDoc(feedbackRef, {
+			list: [...oldResp.list, feedback],
+		});
+		console.log('FEEDBACK SAVED SUCCESSFULLY');
+	} catch (error) {
+		console.log(error, 'SAVING FEEDBACK FAILED');
+	}
+};

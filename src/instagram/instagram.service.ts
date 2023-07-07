@@ -3,6 +3,7 @@ import puppeteer from 'puppeteer';
 
 import { ConfigService } from '../config/config.service';
 import { puppeteerExecutablePath } from '../consts';
+import { markdownParsable } from '../helpers';
 import { timeout } from '../utils/utils';
 
 const PAGE_URL = new ConfigService().get('INSTA_PAGE_URL');
@@ -48,7 +49,12 @@ export const parseLinks = (page: string) => {
 		const link = $(a).attr('href');
 		const type = $(a).text().split(' ')[1].toLowerCase();
 
-		if (link) links.push({ type, href: link, source });
+		if (link)
+			links.push({
+				type,
+				href: link,
+				source: markdownParsable(source),
+			});
 	});
 
 	return links;

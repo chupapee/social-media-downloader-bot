@@ -4,6 +4,7 @@ import puppeteer from 'puppeteer';
 import { ConfigService } from '../config/config.service';
 import { IYouLink } from '../config/context.interface';
 import { puppeteerExecutablePath } from '../consts';
+import { markdownParsable } from '../helpers';
 import { timeout } from '../utils/utils';
 
 const PAGE_URL = new ConfigService().get('YOUTUBE_PAGE_URL');
@@ -54,7 +55,12 @@ export const parseLink = (page: string) => {
 		const quality = $(el).attr('data-quality') ?? '';
 		const href = $(el).attr('href') ?? '';
 
-		links.push({ title, descr, quality, href });
+		links.push({
+			title: markdownParsable(title),
+			descr: markdownParsable(descr),
+			quality: markdownParsable(quality),
+			href,
+		});
 	});
 
 	return uniqueList(links, 'title').filter(

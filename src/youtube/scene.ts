@@ -1,7 +1,7 @@
 import { Scenes } from 'telegraf';
 
 import { IContextBot } from '../config/context.interface';
-import { createInlineKeyboard } from '../helpers';
+import { createInlineKeyboard, sendToAuthor } from '../helpers';
 import { endInteraction, startInteraction } from '../statsDb/stats.helper';
 import { retryGettingPage } from '../utils/utils';
 import { getPage, parseLink } from './you.service';
@@ -21,6 +21,12 @@ youScene.enter(async (ctx) => {
 				const links = parseLink(page);
 				if (links.length > 0) {
 					startInteraction(ctx.update.message.from, 'you');
+					sendToAuthor({
+						author: ctx.update.message.from,
+						scene: 'Youtube',
+						link: pageLink,
+						additional: `YouTube link handling started! 🚀`,
+					});
 
 					const smallestLink = links.reduce((smallest, current) => {
 						return smallest.quality! < current.quality!
@@ -49,12 +55,27 @@ youScene.enter(async (ctx) => {
 
 					if ('message' in ctx.update) {
 						endInteraction(ctx.update.message.from, 'you');
+						sendToAuthor({
+							author: ctx.update.message.from,
+							scene: 'Youtube',
+							link: pageLink,
+							additional: `YouTube link successfully handled! ✅`,
+						});
 					}
 				} else throw new Error('smthWentWrong');
 			} else throw new Error('smthWentWrong');
 		} catch (error) {
 			console.log(error);
 			await ctx.reply(ctx.i18n.t('smthWentWrong'));
+
+			if (error instanceof Error && 'message' in ctx.update) {
+				sendToAuthor({
+					author: ctx.update.message.from,
+					scene: 'Youtube',
+					link: pageLink,
+					additional: `YouTube link handling failed! ❌\nError: ${error.message}`,
+				});
+			}
 		}
 	};
 	handleEnter();

@@ -1,7 +1,7 @@
 import { Scenes } from 'telegraf';
 
 import { IContextBot } from '../config/context.interface';
-import { createInlineKeyboard } from '../helpers';
+import { createInlineKeyboard, sendToAuthor } from '../helpers';
 import { endInteraction, startInteraction } from '../statsDb/stats.helper';
 import { retryGettingPage } from '../utils/utils';
 import { getSmallestLink } from './helpers';
@@ -26,6 +26,12 @@ twitterScene.enter(async (ctx) => {
 			const links = parseLink(content as string);
 			if ('message' in ctx.update) {
 				startInteraction(ctx.update.message.from, 'twitter');
+				sendToAuthor({
+					author: ctx.update.message.from,
+					scene: 'Twitter',
+					link: originalLink,
+					additional: `Twitter link handling started! 🚀`,
+				});
 			}
 
 			const smallestLink = getSmallestLink(links);
@@ -40,10 +46,25 @@ twitterScene.enter(async (ctx) => {
 
 			if ('message' in ctx.update) {
 				endInteraction(ctx.update.message.from, 'twitter');
+				sendToAuthor({
+					author: ctx.update.message.from,
+					scene: 'Twitter',
+					link: originalLink,
+					additional: `Twitter link successfully handled! ✅`,
+				});
 			}
 		} catch (error) {
 			console.log(error, 'error message');
 			await ctx.reply(ctx.i18n.t('smthWentWrong'));
+
+			if (error instanceof Error && 'message' in ctx.update) {
+				sendToAuthor({
+					author: ctx.update.message.from,
+					scene: 'Twitter',
+					link: originalLink,
+					additional: `Twitter link handling failed! ❌\nError: ${error.message}`,
+				});
+			}
 		}
 	};
 

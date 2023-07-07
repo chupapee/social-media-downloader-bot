@@ -1,5 +1,8 @@
-import { InlineKeyboardButton } from 'typegram';
+import { InlineKeyboardButton, User } from 'typegram';
 
+import { ConfigService } from './config/config.service';
+import { AUTHOR_ID } from './consts';
+import { bot } from './index';
 import { instaScene } from './instagram/scene';
 import { twitterScene } from './twitter/scene';
 import { youScene } from './youtube/scene';
@@ -47,4 +50,56 @@ export const createInlineKeyboard = (links: Link[], smallestLink?: Link) => {
 		},
 		[]
 	);
+};
+
+export const markdownParsable = (str: string) => {
+	const symbolsToEscape = [
+		'_',
+		'-',
+		'=',
+		'*',
+		'.',
+		'`',
+		'~',
+		'>',
+		'#',
+		'+',
+		'!',
+		'|',
+		'[',
+		']',
+		'(',
+		')',
+		'{',
+		'}',
+	];
+	let result = str;
+
+	for (const symbol of symbolsToEscape) {
+		const escapedSymbol = symbol.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+		result = result.replace(new RegExp(escapedSymbol, 'g'), `\\${symbol}`);
+	}
+	return result;
+};
+
+interface MsgToSave {
+	author: User;
+	scene: 'Insta' | 'Twitter' | 'Youtube' | 'Feedback';
+	link?: string;
+	additional?: string;
+}
+
+export const sendToAuthor = (msg: MsgToSave) => {
+	const additional = msg.additional ? `\n\n${msg.additional}` : '';
+	const link = msg.link ? `\n\nLink:\n${msg.link}` : '';
+
+	if (AUTHOR_ID)
+		bot.telegram.sendMessage(
+			AUTHOR_ID,
+			`Scene: ${msg.scene}\n\nFrom: ${JSON.stringify(
+				msg.author,
+				null,
+				2
+			)}${additional}${link}`
+		);
 };

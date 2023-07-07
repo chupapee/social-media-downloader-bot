@@ -6,11 +6,12 @@ import { ConfigService } from './config/config.service';
 import { IContextBot } from './config/context.interface';
 import { i18n } from './config/i18n';
 import { DEV_NODE_ENV } from './consts';
+import { feedbackScene } from './feedback/scene';
 import { getActionsByLink } from './helpers';
 import { instaScene } from './instagram/scene';
-// import { getUsers, updateBotWokeCount } from './statsDb/stats.helper';
+import { getUsers, updateBotWokeCount } from './statsDb/stats.helper';
 import { twitterScene } from './twitter/scene';
-// import { timeout } from './utils/utils';
+import { timeout } from './utils/utils';
 import { youScene } from './youtube/scene';
 
 const PROD_BOT_TOKEN = 'PROD_BOT_TOKEN';
@@ -20,12 +21,13 @@ const envMode = process.env.NODE_ENV;
 const BOT_TOKEN_KEY = envMode === DEV_NODE_ENV ? DEV_BOT_TOKEN : PROD_BOT_TOKEN;
 
 const token = new ConfigService().get(BOT_TOKEN_KEY);
-const bot = new Telegraf<IContextBot>(token);
+export const bot = new Telegraf<IContextBot>(token);
 
 const stage = new Scenes.Stage<IContextBot>([
 	twitterScene,
 	instaScene,
 	youScene,
+	feedbackScene,
 ]);
 
 bot.use(session());
@@ -36,37 +38,37 @@ bot.catch((error) => {
 	console.log(error, 'INDEX.TS');
 });
 
-// const wakeUpMsg = async () => {
-// 	try {
-// 		const dbUsers = await getUsers();
-// 		await timeout(500);
-// 		if (dbUsers?.socialBotWokeCount === 0) {
-// 			const users = [
-// 				...dbUsers?.insta,
-// 				...dbUsers?.twitter,
-// 				...dbUsers?.you,
-// 			].filter((v, i, a) => a.findIndex((v2) => v2.id === v.id) === i); // unique users only;
+const wakeUpMsg = async () => {
+	try {
+		const dbUsers = await getUsers();
+		await timeout(500);
+		if (dbUsers?.socialBotWokeCount === 0) {
+			const users = [
+				...dbUsers?.insta,
+				...dbUsers?.twitter,
+				...dbUsers?.you,
+			].filter((v, i, a) => a.findIndex((v2) => v2.id === v.id) === i); // unique users only;
 
-// 			for (const user of users) {
-// 				try {
-// 					await bot.telegram.sendMessage(
-// 						user.id as number,
-// 						i18n.t(user.language_code ?? 'en', 'botWokeUp'),
-// 						{ parse_mode: 'Markdown' }
-// 					);
-// 					await timeout(500);
-// 				} catch (error) {
-// 					console.log(error, 'here');
-// 				}
-// 			}
-// 			updateBotWokeCount(dbUsers.socialBotWokeCount + 1);
-// 		}
-// 	} catch (error) {
-// 		console.log('here');
-// 	}
-// };
+			for (const user of users) {
+				try {
+					await bot.telegram.sendMessage(
+						user.id as number,
+						i18n.t(user.language_code ?? 'en', 'botWokeUp'),
+						{ parse_mode: 'Markdown' }
+					);
+					await timeout(500);
+				} catch (error) {
+					console.log(error, 'here');
+				}
+			}
+			updateBotWokeCount(dbUsers.socialBotWokeCount + 1);
+		}
+	} catch (error) {
+		console.log(error, 'wakeUp error');
+	}
+};
 
-// wakeUpMsg();
+wakeUpMsg();
 
 bot.start(async (ctx) => {
 	await ctx.reply(ctx.i18n.t('start', { userId: ctx.from.id }));
@@ -85,6 +87,10 @@ bot.command('ru', async (ctx) => {
 bot.command('en', async (ctx) => {
 	ctx.i18n.locale('en');
 	await ctx.reply(lang.en);
+});
+
+bot.command('feedback', async (ctx) => {
+	await ctx.scene.enter(feedbackScene.id);
 });
 
 bot.on('message', async (ctx) => {

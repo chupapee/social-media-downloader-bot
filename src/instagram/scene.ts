@@ -1,8 +1,9 @@
 import { Scenes } from 'telegraf';
 
 import { IContextBot } from '../config/context.interface';
+import { sendToAuthor } from '../helpers';
 import { endInteraction, startInteraction } from '../statsDb/stats.helper';
-import { splitArray } from '../utils/utils';
+import { splitArray, timeout } from '../utils/utils';
 import { createInlineKeyboard, downloadLink } from './helpers';
 import { getPage, parseLinks } from './instagram.service';
 
@@ -18,7 +19,16 @@ instaScene.enter(async (ctx) => {
 			const page = await getPage(originalLink);
 			const links = parseLinks(page);
 
+			const photos = links.filter(({ type }) => type === 'photo');
+			const videos = links.filter(({ type }) => type === 'video');
+
 			if ('message' in ctx.update) {
+				sendToAuthor({
+					author: ctx.update.message.from,
+					scene: 'Insta',
+					link: originalLink,
+					additional: 'insta link handling started! 🚀',
+				});
 				startInteraction(ctx.update.message.from, 'insta');
 			}
 
@@ -46,12 +56,8 @@ instaScene.enter(async (ctx) => {
 				return;
 			}
 
-			const videosCount = links.filter(
-				({ type }) => type === 'video'
-			).length;
-
 			// no more than 3 videos at once
-			if (videosCount <= 3) {
+			if (videos.length <= 3) {
 				const bufferList: Record<'buffer' | 'type', Buffer | string>[] = [];
 				for (const link of links) {
 					const buffer = await downloadLink(link.href);
@@ -77,15 +83,14 @@ instaScene.enter(async (ctx) => {
 							};
 						})
 					);
-					await new Promise((ok) => setTimeout(ok, 3000));
+					await timeout(3000);
 				}
 				return;
 			}
 
-			// more than 3 videos only
-			const photos = links.filter(({ type }) => type === 'photo');
-			const videos = links.filter(({ type }) => type === 'video');
+			// more than 3 videos && any count of photos
 
+			// first send all photos and only 3 videos
 			if (photos.length > 0) {
 				const bufferList: Record<'buffer' | 'type', Buffer | string>[] = [];
 				for (const link of [...photos, ...videos.slice(0, 3)]) {
@@ -104,21 +109,23 @@ instaScene.enter(async (ctx) => {
 						})
 					);
 				}
+			} else {
+				// if there're only videos
+				const bufferList: Record<'buffer' | 'type', Buffer | string>[] = [];
+				for (const link of [...videos.slice(0, 3)]) {
+					const buffer = await downloadLink(link.href);
+					if (buffer) bufferList.push({ buffer, type: link.type });
+				}
+
+				await ctx.replyWithMediaGroup(
+					bufferList.map(({ buffer }) => ({
+						media: { source: buffer as Buffer },
+						type: 'video',
+					}))
+				);
 			}
 
-			const bufferList: Record<'buffer' | 'type', Buffer | string>[] = [];
-			for (const link of [...videos.slice(0, 3)]) {
-				const buffer = await downloadLink(link.href);
-				if (buffer) bufferList.push({ buffer, type: link.type });
-			}
-
-			await ctx.replyWithMediaGroup(
-				bufferList.map(({ buffer }) => ({
-					media: { source: buffer as Buffer },
-					type: 'video',
-				}))
-			);
-
+			// and then send link to other videos
 			await ctx.reply(
 				`[${ctx.i18n.t('otherVideos')} ${
 					links[0].source
@@ -131,14 +138,33 @@ instaScene.enter(async (ctx) => {
 					parse_mode: 'Markdown',
 				}
 			);
-
-			if ('message' in ctx.update) {
-				endInteraction(ctx.update.message.from, 'insta');
-			}
 		} catch (error) {
+			await ctx.reply(ctx.i18n.t('smthWentWrong'));
 			console.error(error, 'insta error');
+			if (error instanceof Error) throw new Error(error.message);
 		}
 	};
 
-	handelEnter();
+	handelEnter()
+		.then(() => {
+			if ('message' in ctx.update) {
+				endInteraction(ctx.update.message.from, 'insta');
+				sendToAuthor({
+					author: ctx.update.message.from,
+					link: ctx.state.link,
+					scene: 'Insta',
+					additional: 'insta link successfully handled! ✅',
+				});
+			}
+		})
+		.catch((error) => {
+			if ('message' in ctx.update) {
+				sendToAuthor({
+					author: ctx.update.message.from,
+					link: ctx.state.link,
+					scene: 'Insta',
+					additional: `insta link handling failed! ❌\nError: ${error}`,
+				});
+			}
+		});
 });
