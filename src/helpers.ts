@@ -44,7 +44,9 @@ export const createInlineKeyboard = (links: Link[], smallestLink?: Link) => {
 			if (index % 2 === 0) {
 				acc.push([btn]);
 			} else {
-				acc[acc.length - 1].push(btn);
+				const lastItem = acc[acc.length - 1];
+				if (lastItem) lastItem.push(btn);
+				else acc.push([btn]);
 			}
 			return acc;
 		},
@@ -93,7 +95,7 @@ export const sendToAuthor = (msg: MsgToSave) => {
 	const additional = msg.additional ? `\n\n${msg.additional}` : '';
 	const link = msg.link ? `\n\nLink:\n${msg.link}` : '';
 
-	if (AUTHOR_ID)
+	if (AUTHOR_ID && msg.author.id !== Number(AUTHOR_ID))
 		bot.telegram.sendMessage(
 			AUTHOR_ID,
 			`Scene: ${msg.scene}\n\nFrom: ${JSON.stringify(
