@@ -1,8 +1,7 @@
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { User } from 'telegraf/typings/core/types/typegram';
 
-import { db } from '../config/firebase.config';
-import { AUTHOR_ID } from '../consts';
+import { BOT_AUTHOR_ID, db } from '../config';
 
 interface IUserDb extends User {
 	date: string;
@@ -51,7 +50,7 @@ async function saveUser(
 	newUser: IUserDb,
 	appType: AppType
 ) {
-	if (AUTHOR_ID && newUser.id !== Number(AUTHOR_ID)) {
+	if (newUser.id !== BOT_AUTHOR_ID) {
 		const usersRef = doc(db, 'users', 'list');
 		try {
 			await updateDoc(usersRef, {

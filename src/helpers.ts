@@ -1,11 +1,10 @@
 import { InlineKeyboardButton, User } from 'typegram';
 
-import { ConfigService } from './config/config.service';
-import { AUTHOR_ID } from './consts';
+import { BOT_AUTHOR_ID } from './config';
 import { bot } from './index';
-import { instaScene } from './instagram/scene';
-import { twitterScene } from './twitter/scene';
-import { youScene } from './youtube/scene';
+import { instaScene } from './instagram';
+import { twitterScene } from './twitter';
+import { youScene } from './youtube';
 
 const TWITTER_URL = 'twitter.com';
 const INSTA_URL = 'instagram.com';
@@ -54,54 +53,25 @@ export const createInlineKeyboard = (links: Link[], smallestLink?: Link) => {
 	);
 };
 
-export const markdownParsable = (str: string) => {
-	const symbolsToEscape = [
-		'_',
-		'-',
-		'=',
-		'*',
-		'.',
-		'`',
-		'~',
-		'>',
-		'#',
-		'+',
-		'!',
-		'|',
-		'[',
-		']',
-		'(',
-		')',
-		'{',
-		'}',
-	];
-	let result = str;
-
-	for (const symbol of symbolsToEscape) {
-		const escapedSymbol = symbol.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-		result = result.replace(new RegExp(escapedSymbol, 'g'), `\\${symbol}`);
-	}
-	return result;
-};
-
 interface MsgToSave {
-	author: User;
-	scene: 'Insta' | 'Twitter' | 'Youtube' | 'Feedback';
+	author?: User;
 	link?: string;
 	additional?: string;
 }
 
-export const sendToAuthor = (msg: MsgToSave) => {
+export const sendToAuthor = (msg: MsgToSave, status: 'full' | 'short') => {
 	const additional = msg.additional ? `\n\n${msg.additional}` : '';
-	const link = msg.link ? `\n\nLink:\n${msg.link}` : '';
+	const link = msg.link ? `\n\n${msg.link}` : '';
 
-	if (AUTHOR_ID && msg.author.id !== Number(AUTHOR_ID))
+	if (status === 'short') {
+		bot.telegram.sendMessage(BOT_AUTHOR_ID, additional);
+		return;
+	}
+
+	if (msg.author && msg.author.id !== BOT_AUTHOR_ID) {
 		bot.telegram.sendMessage(
-			AUTHOR_ID,
-			`Scene: ${msg.scene}\n\nFrom: ${JSON.stringify(
-				msg.author,
-				null,
-				2
-			)}${additional}${link}`
+			BOT_AUTHOR_ID,
+			`From: ${JSON.stringify(msg.author, null, 2)}${additional}${link}`
 		);
+	}
 };

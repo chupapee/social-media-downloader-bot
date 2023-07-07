@@ -1,24 +1,30 @@
-import { config, DotenvParseOutput } from 'dotenv';
+import { config } from 'dotenv';
 
-export class ConfigService {
-	private config: DotenvParseOutput;
+const { parsed } = config();
 
-	constructor() {
-		const { parsed, error } = config();
-		if (error) {
-			throw new Error('Не найден файл .env');
-		}
-		if (!parsed) {
-			throw new Error('Пустой файл .env');
-		}
-		this.config = parsed;
+export const getEnvVar = (key: string) => {
+	if (process.env[key] === undefined || parsed?.[key] === undefined) {
+		throw new Error(`Env variable ${key} is required`);
 	}
+	return process.env[key] || parsed[key] || '';
+};
 
-	get(key: string): string {
-		const res = this.config[key];
-		if (!res) {
-			throw new Error('Нет такого ключа');
-		}
-		return res;
-	}
-}
+/** Runtime mode */
+export const NODE_ENV = getEnvVar('NODE_ENV');
+/** Dev mode */
+export const isDevEnv = NODE_ENV === 'development';
+/** Prod mode */
+export const isProdEnv = NODE_ENV === 'production';
+
+/** bot's token */
+export const BOT_TOKEN = isDevEnv
+	? getEnvVar('DEV_BOT_TOKEN')
+	: getEnvVar('PROD_BOT_TOKEN');
+
+/** bot's author telegram id */
+export const BOT_AUTHOR_ID = Number(getEnvVar('BOT_AUTHOR_ID'));
+
+/** Pages url to scrape */
+export const TWITTER_PAGE_URL = getEnvVar('TWITTER_PAGE_URL');
+export const INSTA_PAGE_URL = getEnvVar('INSTA_PAGE_URL');
+export const YOUTUBE_PAGE_URL = getEnvVar('YOUTUBE_PAGE_URL');

@@ -1,0 +1,1 @@
+export { instaScene } from './scene';

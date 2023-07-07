@@ -1,12 +1,12 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
-import { ConfigService } from './config.service';
+import { getEnvVar } from './config.service';
 
-const apiKey = new ConfigService().get('FIREBASE_API_KEY');
-const messagingSenderId = new ConfigService().get('MESSAGING_SENDER_ID');
-const appId = new ConfigService().get('APP_ID');
-const measurementId = new ConfigService().get('MEASUREMENT_ID');
+const apiKey = getEnvVar('FIREBASE_API_KEY');
+const messagingSenderId = getEnvVar('MESSAGING_SENDER_ID');
+const appId = getEnvVar('APP_ID');
+const measurementId = getEnvVar('MEASUREMENT_ID');
 
 export const firebaseConfig = {
 	apiKey,

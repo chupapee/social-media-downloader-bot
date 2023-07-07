@@ -1,35 +1,11 @@
 import { Context, Scenes } from 'telegraf';
 
-interface IInstaLink {
-	type?: string;
-	href?: string;
-	source?: string;
-}
-
-export interface IYouLink {
-	title?: string;
-	descr?: string;
-	quality: string;
-	href: string;
-}
-
-export interface IUserSessionData {
+export interface UserSessionData {
 	userId: number;
-	twLinks?: Record<'quality' | 'href', string>[];
-	twLinkOne?: string;
-	twOriginal?: string;
-
-	instaLinks?: IInstaLink[];
-	instaLinkOne?: IInstaLink | string;
-	instaOriginal?: string;
-
-	youOriginal?: string;
-	youLinks?: IYouLink[];
-	youLinkOne?: IYouLink;
 }
 
 interface SceneSession extends Scenes.SceneSession {
-	data: IUserSessionData[];
+	data: UserSessionData[];
 }
 
 export interface IContextBot extends Context {

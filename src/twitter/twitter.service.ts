@@ -1,11 +1,9 @@
 import * as cheerio from 'cheerio';
 import puppeteer from 'puppeteer';
 
-import { ConfigService } from '../config/config.service';
+import { TWITTER_PAGE_URL as PAGE_URL } from '../config';
 import { puppeteerExecutablePath } from '../consts';
-import { timeout } from '../utils/utils';
-
-const PAGE_URL = new ConfigService().get('TWITTER_PAGE_URL');
+import { timeout } from '../utils';
 
 export const getPage = async (twitterLink: string): Promise<string> => {
 	let content = '';

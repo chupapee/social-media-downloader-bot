@@ -1,12 +1,9 @@
 import * as cheerio from 'cheerio';
 import puppeteer from 'puppeteer';
 
-import { ConfigService } from '../config/config.service';
+import { INSTA_PAGE_URL as PAGE_URL } from '../config';
 import { puppeteerExecutablePath } from '../consts';
-import { markdownParsable } from '../helpers';
-import { timeout } from '../utils/utils';
-
-const PAGE_URL = new ConfigService().get('INSTA_PAGE_URL');
+import { markdownParsable, timeout } from '../utils';
 
 export const getPage = async (link: string) => {
 	try {

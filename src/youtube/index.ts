@@ -1,0 +1,1 @@
+export { youScene } from './scene';

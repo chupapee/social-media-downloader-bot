@@ -1,13 +1,9 @@
 import * as cheerio from 'cheerio';
 import puppeteer from 'puppeteer';
 
-import { ConfigService } from '../config/config.service';
-import { IYouLink } from '../config/context.interface';
+import { YOUTUBE_PAGE_URL as PAGE_URL, YouTubeLink } from '../config';
 import { puppeteerExecutablePath } from '../consts';
-import { markdownParsable } from '../helpers';
-import { timeout } from '../utils/utils';
-
-const PAGE_URL = new ConfigService().get('YOUTUBE_PAGE_URL');
+import { markdownParsable, timeout } from '../utils';
 
 export const getPage = async (link: string) => {
 	try {
@@ -46,7 +42,7 @@ const uniqueList = <T>(arr: T[], key: keyof T) => {
 export const parseLink = (page: string) => {
 	const $ = cheerio.load(page);
 
-	const links: IYouLink[] = [];
+	const links: YouTubeLink[] = [];
 
 	$('a.link-download').each((_, el) => {
 		const title = $(el).attr('title') ?? '';
@@ -56,14 +52,18 @@ export const parseLink = (page: string) => {
 		const href = $(el).attr('href') ?? '';
 
 		links.push({
-			title: markdownParsable(title),
-			descr: markdownParsable(descr),
-			quality: markdownParsable(quality),
+			title,
+			descr,
+			quality,
 			href,
 		});
 	});
 
-	return uniqueList(links, 'title').filter(
+	const filteredLinks = uniqueList(links, 'title').filter(
 		({ title }) => !title?.includes('audio')
 	);
+
+	if (filteredLinks.length === 0) throw new Error('links not found');
+
+	return filteredLinks;
 };
