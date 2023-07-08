@@ -39,12 +39,9 @@ twitterScene.enter(async (ctx) => {
 			const smallestLink = getSmallestLink(links);
 			const inline_keyboard = createInlineKeyboard(links, smallestLink);
 
-			await ctx.replyWithVideo(
-				{ url: smallestLink.href },
-				{
-					reply_markup: { inline_keyboard },
-				}
-			);
+			await ctx.replyWithVideo(smallestLink.href, {
+				reply_markup: { inline_keyboard },
+			});
 
 			if ('message' in ctx.update) {
 				statsModel.endInteraction(ctx.update.message.from, 'twitter');

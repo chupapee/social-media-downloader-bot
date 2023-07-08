@@ -8,12 +8,13 @@ interface IUserDb extends User {
 	status: 'start' | 'end';
 }
 
-export type AppType = 'twitter' | 'insta' | 'you';
+export type AppType = 'twitter' | 'insta' | 'you' | 'tiktok';
 
 interface AllDbUsers {
 	twitter: IUserDb[];
 	insta: IUserDb[];
 	you: IUserDb[];
+	tiktok: IUserDb[];
 	footballStats: User[];
 	socialBotWokeCount: number;
 }
