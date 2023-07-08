@@ -36,5 +36,5 @@
 	"uploadingVideo": "📤 Uploading the video to Telegram...",
 	"savedByBot": "📤 Saved by: @insta_twitter_youtube_bot",
 	"botWokeUpTechIssues": "Hey! 👋\nTechnical issues have been resolved 🛠✅\nYou can use the bot again 🚀",
-	"botWokeUp": "Hey! 👋\n\n🛠 Some bugs have been fixed. You can now resend the links that weren't processed earlier\n💡 Additionally, you can now provide feedback to the bot's author 👤 Just type the command /feedback and send your message ✉️"
+	"botWokeUp": "⚡️ ***Update*** ⚡️\n\n💡 Added support for ***TikTok links!***\n🛠 Additionally, minor bugs with Twitter links have been fixed. You can try re-uploading the links that had errors"
 }

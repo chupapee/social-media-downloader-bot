@@ -36,6 +36,7 @@ const wakeUpMsg = async () => {
 			const users = [
 				...dbUsers?.insta,
 				...dbUsers?.twitter,
+				...dbUsers?.tiktok,
 				...dbUsers?.you,
 			].filter((v, i, a) => a.findIndex((v2) => v2.id === v.id) === i); // unique users only;
 
@@ -58,7 +59,7 @@ const wakeUpMsg = async () => {
 	}
 };
 
-// wakeUpMsg();
+wakeUpMsg();
 
 bot.start(async (ctx) => {
 	await ctx.reply(ctx.i18n.t('start', { userId: ctx.from.id }));
