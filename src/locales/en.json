@@ -11,6 +11,12 @@
 	"linksFound": "✅ Link successfully processed! Click to download:",
 	"otherVideos": "🎥 Other videos from",
 
+	"//tiktok-scene": "",
+	"beforeUpload": "📥 While we're uploading the video to Telegram, you can use the following link for a quick download 👇",
+	"tooLargeSize": "The file size is too large for uploading to Telegram(\nPlease use the button above 👆",
+	"incorrectLink": "❌ Failed to parse the link(\nSomething might be wrong with the file...",
+
+
 	"//twitter_scene": "",
 	"clickTheLink": "👇 ***Click the link*** to start the download:",
 	"uploadToTg": "⌛ Alternatively, you can click the button, and we will upload the video to Telegram, ***but it may take longer***",

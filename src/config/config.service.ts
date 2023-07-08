@@ -27,4 +27,5 @@ export const BOT_AUTHOR_ID = Number(getEnvVar('BOT_AUTHOR_ID'));
 /** Pages url to scrape */
 export const TWITTER_PAGE_URL = getEnvVar('TWITTER_PAGE_URL');
 export const INSTA_PAGE_URL = getEnvVar('INSTA_PAGE_URL');
+export const TIKTOK_PAGE_URL = getEnvVar('TIKTOK_PAGE_URL');
 export const YOUTUBE_PAGE_URL = getEnvVar('YOUTUBE_PAGE_URL');

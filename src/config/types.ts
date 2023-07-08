@@ -4,6 +4,11 @@ export interface InstaLink {
 	source?: string;
 }
 
+export interface TiktokLink {
+	href?: string;
+	title: string;
+}
+
 export interface YouTubeLink {
 	title?: string;
 	descr?: string;

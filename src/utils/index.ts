@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export const timeout = (sec: number): Promise<null> =>
 	new Promise((ok) => setTimeout(ok, sec));
 
@@ -58,4 +60,15 @@ export const markdownParsable = (str: string) => {
 		result = result.replace(new RegExp(escapedSymbol, 'g'), `\\${symbol}`);
 	}
 	return result;
+};
+
+const bytesToMegaBytes = (bytes: number) => Number((bytes / (1024 * 1024)).toFixed(0));
+
+export const detectLinkSize = async (
+	url: string,
+	header = 'Content-Length'
+) => {
+	const res = await axios.head(url);
+	if (!(header in res.headers || !Number.isNaN(Number(res.headers[header])))) return null;
+	return bytesToMegaBytes(Number(res.headers[header]));
 };

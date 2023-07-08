@@ -3,11 +3,13 @@ import { InlineKeyboardButton, User } from 'typegram';
 import { BOT_AUTHOR_ID } from './config';
 import { bot } from './index';
 import { instaScene } from './instagram';
+import { tiktokScene } from './tiktok';
 import { twitterScene } from './twitter';
 import { youScene } from './youtube';
 
 const TWITTER_URL = 'twitter.com';
 const INSTA_URL = 'instagram.com';
+const TIKTOK_URL = 'tiktok.com';
 const YOU_URL = ['youtube.com', 'youtu.be'];
 
 export const getActionsByLink = () => {
@@ -26,6 +28,11 @@ export const getActionsByLink = () => {
 			urls: [INSTA_URL],
 			reply: 'preparingLink',
 			scene: instaScene.id,
+		},
+		{
+			urls: [TIKTOK_URL],
+			reply: 'preparingVideo',
+			scene: tiktokScene.id,
 		},
 	];
 };
