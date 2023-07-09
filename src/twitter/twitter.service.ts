@@ -1,51 +1,124 @@
-import * as cheerio from 'cheerio';
+/* eslint-disable @typescript-eslint/naming-convention */
 import puppeteer from 'puppeteer';
 
-import { TWITTER_PAGE_URL as PAGE_URL } from '../config';
 import { puppeteerExecutablePath } from '../consts';
-import { timeout } from '../utils';
+import { TwitterResponse } from './types';
 
-export const getPage = async (twitterLink: string): Promise<string> => {
-	let content = '';
-	const browser = await puppeteer.launch({
-		executablePath: puppeteerExecutablePath,
-		headless: 'new',
-		args: ['--no-sandbox', '--disable-setuid-sandbox'],
-	});
-	const page = await browser.newPage();
+const API_JSON_DATA = 'https://twitter.com/i/api/graphql';
+
+export const getPage = async (
+	twitterLink: string
+): Promise<TwitterResponse> => {
 	try {
+		const browser = await puppeteer.launch({
+			executablePath: puppeteerExecutablePath,
+			headless: 'new',
+			args: ['--no-sandbox', '--disable-setuid-sandbox'],
+		});
+
+		const page = await browser.newPage();
 		await page
-			.goto(PAGE_URL, { waitUntil: 'domcontentloaded' })
+			.goto(twitterLink, { waitUntil: 'domcontentloaded' })
 			.catch(() => null);
 
-		await page.waitForSelector('#main_page_text');
-		const input = await page.$('#main_page_text');
-		await timeout(3000);
-		await input?.type(twitterLink);
-		await timeout(500);
-		await page.click('#submit');
+		const response = await page.waitForResponse(
+			(res) => res.url().startsWith(API_JSON_DATA),
+			{
+				timeout: 50_000,
+			}
+		);
 
-		await page.waitForSelector('.download_link', { timeout: 5000 });
-
-		content = await page.content();
+		const content: TwitterResponse = await response.json();
+		await browser.close();
+		if (!content.data) throw new Error('data not found');
+		return content;
 	} catch (error) {
-		console.log(error);
+		if (error instanceof Error) throw new Error(error.message);
+		throw new Error('something went wrong');
 	}
-	await page.close();
-	await browser.close();
-	return content;
 };
 
-export const parseLink = (page: string) => {
-	const $ = cheerio.load(page);
-	const qualities: Record<'quality' | 'href', string>[] = [];
-	$('.download_link').each((_, el) => {
-		if ($(el).attr('href')) {
-			const quality = $(el).text().replace('Download', '').trim();
-			const href = $(el).attr('href')?.trim();
-			qualities.push({ quality, href: href! });
-		}
-	});
+interface MediaFiles {
+	href: string;
+	type: 'photo' | 'video';
+}
 
-	return qualities.sort((a) => (a.quality.includes('HD') ? -1 : 1));
+export const parseJson = (tweetJson: TwitterResponse, originalLink: string) => {
+	/** Main tweet */
+	const { core, legacy, quoted_status_result, views } = tweetJson.data!.tweetResult.result;
+
+	const {
+		full_text,
+
+		favorite_count,
+		retweet_count,
+		quote_count,
+		bookmark_count,
+
+		extended_entities,
+	} = legacy;
+
+	const { count } = views;
+
+	const { name, screen_name } = core.user_results.result.legacy;
+
+	const formatter = Intl.NumberFormat('en', { notation: 'compact' });
+	const actionsBtn = [
+		`❤️ ${formatter.format(favorite_count)}`,
+		`🔁 ${formatter.format(retweet_count)}`,
+		`🔁🗣 ${formatter.format(quote_count)}`,
+		`👀 ${formatter.format(count)}`,
+		`🔖 ${formatter.format(bookmark_count)}`,
+	];
+
+	const mediaFiles: MediaFiles[] = [];
+	if (extended_entities?.media) {
+		extended_entities.media.forEach(({ media_url_https, video_info }) => {
+			if (video_info?.variants) {
+				mediaFiles.push({
+					type: 'video',
+					href: video_info?.variants[0].url, //** add the lowest quality */
+				});
+				return;
+			}
+			mediaFiles.push({ type: 'photo', href: media_url_https });
+		});
+	}
+
+	const videoLinks = mediaFiles.filter(({ type }) => type === 'video');
+	const videoLinksText = videoLinks
+		.map(({ href }, i) => `[${i + 1}. Video](${href})`)
+		.join('\n');
+
+	const caption = `👤 [${
+		name ?? screen_name
+	}:](${originalLink})\n\n${full_text}${
+		videoLinksText ? `\n${videoLinksText}` : ''
+	}`;
+
+	let fullCaption = caption;
+	/** Quoted tweet */
+	if (quoted_status_result?.result) {
+		const { core: quotedCore, legacy: quotedLegacy } = quoted_status_result.result;
+
+		const { name: quotedName, screen_name: quotedScreenName } = quotedCore.user_results.result.legacy;
+		const { full_text: quotedFullText, extended_entities } = quotedLegacy;
+		let links = '';
+		if (extended_entities?.media) {
+			links = extended_entities.media
+				.map(({ media_url_https, video_info }, i) =>
+					video_info?.variants
+						? `[${i + 1}. Video](${video_info?.variants?.[2].url})` //** add the highest quality */
+						: `[${i + 1}. Photo](${media_url_https})`
+				)
+				.join('\n');
+		}
+		const quotedCaption = `👤 [${
+			quotedName ?? quotedScreenName
+		}:](${originalLink})\n\n${quotedFullText}${links ? `\n${links}` : ''}`;
+
+		fullCaption += `\n\n***Reply to ***${quotedCaption}`;
+	}
+
+	return { fullCaption, actionsBtn, mediaFiles };
 };

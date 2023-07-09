@@ -1,29 +1,28 @@
 import { Scenes } from 'telegraf';
 
 import { IContextBot } from '../config';
-import { createInlineKeyboard, sendToAuthor } from '../helpers';
+import { sendToAuthor } from '../helpers';
 import { statsModel } from '../statsDb';
-import { retryGettingPage } from '../utils';
-import { getSmallestLink } from './helpers';
-import { getPage, parseLink } from './twitter.service';
+import { getPage, parseJson } from './twitter.service';
+
+const ACTION_ID = 'action';
 
 const TWITTER_SCENE = 'twitterScene';
 export const twitterScene = new Scenes.BaseScene<IContextBot>(TWITTER_SCENE);
 
 twitterScene.enter(async (ctx) => {
 	const handleEnter = async () => {
-		const originalLink = ctx.state.link;
+		const originalLink: string = ctx.state.link;
 
 		try {
-			const content = await retryGettingPage(
-				5,
-				originalLink,
-				getPage,
-				15_000
-			);
-			if (!content) throw new Error("page doesn't parsed");
+			const content = await getPage(originalLink);
+			if (!content?.data) throw new Error("page doesn't parsed");
 
-			const links = parseLink(content as string);
+			const { fullCaption, actionsBtn, mediaFiles } = parseJson(
+				content,
+				originalLink
+			);
+
 			if ('message' in ctx.update) {
 				statsModel.startInteraction(ctx.update.message.from, 'twitter');
 				sendToAuthor(
@@ -36,15 +35,32 @@ twitterScene.enter(async (ctx) => {
 				);
 			}
 
-			const smallestLink = getSmallestLink(links);
-			const inline_keyboard = createInlineKeyboard(links, smallestLink);
+			const actionsText = actionsBtn.map((act) => act).join(' | ');
+			const photos = mediaFiles.filter(({ type }) => type === 'photo');
+			if (photos.length > 0) {
+				await ctx.replyWithMediaGroup(
+					photos.map(({ href, type }, i) => {
+						if (i === 0) {
+							return {
+								media: href,
+								type,
+								caption: `${fullCaption}\n\n${actionsText}`,
+								parse_mode: 'Markdown',
+							};
+						}
 
-			await ctx.replyWithVideo(
-				{ url: smallestLink.href },
-				{
-					reply_markup: { inline_keyboard },
-				}
-			);
+						return {
+							media: href,
+							type,
+						};
+					})
+				);
+				return;
+			}
+
+			await ctx.reply(`${fullCaption}\n\n${actionsText}`, {
+				parse_mode: 'Markdown',
+			});
 
 			if ('message' in ctx.update) {
 				statsModel.endInteraction(ctx.update.message.from, 'twitter');
@@ -71,4 +87,8 @@ twitterScene.enter(async (ctx) => {
 	};
 
 	handleEnter();
+});
+
+twitterScene.action(ACTION_ID, async (ctx) => {
+	await ctx.answerCbQuery();
 });

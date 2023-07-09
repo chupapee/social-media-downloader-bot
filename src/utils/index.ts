@@ -12,14 +12,14 @@ export const splitArray = <T>(arr: T[], size: number) => {
 	return resultArray;
 };
 
-export const retryGettingPage = async (
+export const retryGettingPage = async <T>(
 	maxAttempts = 3,
 	link: string,
-	getPage: (link: string) => Promise<string>,
+	getPage: (link: string) => Promise<T | null>,
 	timeoutNum = 15_000
 ) => {
 	let attemptsCount = 1;
-	let content: string | null = null;
+	let content: T | null = null;
 	while (!content && attemptsCount <= maxAttempts) {
 		try {
 			content = await Promise.race([timeout(timeoutNum), getPage(link)]);
