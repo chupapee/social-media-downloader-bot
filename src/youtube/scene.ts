@@ -38,10 +38,13 @@ youScene.enter(async (ctx) => {
 				const inline_keyboard = createInlineKeyboard(links);
 
 				if (isShorts) {
-					await ctx.replyWithVideo(smallestLink.href!, {
-						caption: smallestLink.descr ?? ctx.i18n.t('savedByBot'),
-						reply_markup: { inline_keyboard },
-					});
+					await ctx.replyWithVideo(
+						{ url: smallestLink.href! },
+						{
+							caption: smallestLink.descr ?? ctx.i18n.t('savedByBot'),
+							reply_markup: { inline_keyboard },
+						}
+					);
 				} else {
 					await ctx.reply(
 						smallestLink.descr ?? ctx.i18n.t('savedByBot'),
