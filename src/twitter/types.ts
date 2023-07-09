@@ -11,7 +11,7 @@ interface TweetMedia {
 	video_info?: TweetVideo;
 }
 
-interface TweetInfo {
+export interface TweetInfo {
 	full_text: string;
 	reply_count: number;
 

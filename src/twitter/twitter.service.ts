@@ -2,7 +2,8 @@
 import puppeteer from 'puppeteer';
 
 import { puppeteerExecutablePath } from '../consts';
-import { TwitterResponse } from './types';
+import { removeLastLink } from './helpers';
+import { TweetInfo, TwitterResponse } from './types';
 
 const API_JSON_DATA = 'https://twitter.com/i/api/graphql';
 
@@ -43,82 +44,130 @@ interface MediaFiles {
 	type: 'photo' | 'video';
 }
 
+const formatter = Intl.NumberFormat('en', { notation: 'compact' });
+
+interface MakeActionsBtnsProps extends TweetInfo {
+	count: number;
+}
+
+const makeActionsBtns = (args: MakeActionsBtnsProps) => {
+	const {
+		favorite_count,
+		retweet_count,
+		quote_count,
+		count,
+		bookmark_count,
+	} = args;
+
+	return [
+		`❤️ ${formatter.format(favorite_count)}`,
+		`🔁 ${formatter.format(retweet_count)}`,
+		`🗣🔁 ${formatter.format(quote_count)}`,
+		`👀 ${formatter.format(count)}`,
+		`🔖 ${formatter.format(bookmark_count)}`,
+	];
+};
+
+const makeMediaFiles = (media: Pick<TweetInfo, 'extended_entities'>) => {
+	const mediaFiles: MediaFiles[] = [] as MediaFiles[];
+	if (media?.extended_entities?.media) {
+		media.extended_entities.media.forEach(({ media_url_https, video_info }) => {
+				if (video_info?.variants) {
+					mediaFiles.push({
+						type: 'video',
+						href: video_info?.variants[0].url, //** add the lowest quality */
+					});
+					return;
+				}
+				mediaFiles.push({ type: 'photo', href: media_url_https });
+			}
+		);
+	}
+	return mediaFiles;
+};
+
+interface MakeTweetTextProps {
+	originalLink: string;
+	full_text: string;
+	name?: string;
+	screen_name: string;
+	linksText: string;
+}
+
+const makeTweetText = ({
+	originalLink,
+	full_text,
+	name,
+	screen_name,
+	linksText,
+}: MakeTweetTextProps) => {
+	const text = `<a href="${originalLink}">👤 ${
+		name ?? screen_name
+	}: </a>\n\n${removeLastLink(full_text)}${
+		linksText ? `\n${linksText}` : ''
+	}`;
+
+	return text;
+};
+
 export const parseJson = (tweetJson: TwitterResponse, originalLink: string) => {
 	/** Main tweet */
 	const { core, legacy, quoted_status_result, views } = tweetJson.data!.tweetResult.result;
 
-	const {
-		full_text,
-
-		favorite_count,
-		retweet_count,
-		quote_count,
-		bookmark_count,
-
-		extended_entities,
-	} = legacy;
+	const { full_text } = legacy;
 
 	const { count } = views;
 
 	const { name, screen_name } = core.user_results.result.legacy;
 
-	const formatter = Intl.NumberFormat('en', { notation: 'compact' });
-	const actionsBtn = [
-		`❤️ ${formatter.format(favorite_count)}`,
-		`🔁 ${formatter.format(retweet_count)}`,
-		`🔁🗣 ${formatter.format(quote_count)}`,
-		`👀 ${formatter.format(count)}`,
-		`🔖 ${formatter.format(bookmark_count)}`,
-	];
+	const actionsBtn = makeActionsBtns({ ...legacy, count });
 
-	const mediaFiles: MediaFiles[] = [];
-	if (extended_entities?.media) {
-		extended_entities.media.forEach(({ media_url_https, video_info }) => {
-			if (video_info?.variants) {
-				mediaFiles.push({
-					type: 'video',
-					href: video_info?.variants[0].url, //** add the lowest quality */
-				});
-				return;
-			}
-			mediaFiles.push({ type: 'photo', href: media_url_https });
-		});
-	}
-
+	const mediaFiles = makeMediaFiles(legacy);
 	const videoLinks = mediaFiles.filter(({ type }) => type === 'video');
 	const videoLinksText = videoLinks
-		.map(({ href }, i) => `[${i + 1}. Video](${href})`)
+		.map(({ href }, i) => `<a href='${href}'>${i + 1}. Video</a>`)
 		.join('\n');
 
-	const caption = `👤 [${
-		name ?? screen_name
-	}:](${originalLink})\n\n${full_text}${
-		videoLinksText ? `\n${videoLinksText}` : ''
-	}`;
+	const mainText = makeTweetText({
+		originalLink,
+		full_text,
+		name,
+		screen_name,
+		linksText: videoLinksText,
+	});
 
-	let fullCaption = caption;
+	let fullCaption = mainText;
 	/** Quoted tweet */
 	if (quoted_status_result?.result) {
 		const { core: quotedCore, legacy: quotedLegacy } = quoted_status_result.result;
-
 		const { name: quotedName, screen_name: quotedScreenName } = quotedCore.user_results.result.legacy;
 		const { full_text: quotedFullText, extended_entities } = quotedLegacy;
+
 		let links = '';
 		if (extended_entities?.media) {
 			links = extended_entities.media
 				.map(({ media_url_https, video_info }, i) =>
 					video_info?.variants
-						? `[${i + 1}. Video](${video_info?.variants?.[2].url})` //** add the highest quality */
-						: `[${i + 1}. Photo](${media_url_https})`
+						? `<a href="${video_info?.variants?.[2].url}">${i + 1}. Video</a>` //** add the highest quality */
+						: `<a href='${media_url_https}'>${i + 1}. Photo</a>`
 				)
 				.join('\n');
 		}
-		const quotedCaption = `👤 [${
-			quotedName ?? quotedScreenName
-		}:](${originalLink})\n\n${quotedFullText}${links ? `\n${links}` : ''}`;
 
-		fullCaption += `\n\n***Reply to ***${quotedCaption}`;
+		const quotedText = makeTweetText({
+			originalLink,
+			full_text: quotedFullText,
+			name: quotedName,
+			screen_name: quotedScreenName,
+			linksText: links,
+		});
+
+		fullCaption += `\n\n<strong>Reply to </strong>${quotedText}`;
 	}
 
-	return { fullCaption, actionsBtn, mediaFiles };
+	return {
+		fullCaption,
+		actionsBtn,
+		mediaFiles,
+	};
 };

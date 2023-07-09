@@ -12,3 +12,14 @@ export const getSmallestLink = (
 		return smallestSize < currentSize ? smallest : current;
 	});
 };
+
+export const removeLastLink = (text: string) => {
+	const regex = /https?:\/\/\S+/g;
+	const matches = text.match(regex);
+
+	if (matches && matches.length > 0) {
+		const lastLink = matches[matches.length - 1];
+		return text.replace(lastLink, '');
+	}
+	return text.replace(regex, '');
+};

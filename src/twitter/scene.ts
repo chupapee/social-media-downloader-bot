@@ -45,7 +45,7 @@ twitterScene.enter(async (ctx) => {
 								media: href,
 								type,
 								caption: `${fullCaption}\n\n${actionsText}`,
-								parse_mode: 'Markdown',
+								parse_mode: 'HTML',
 							};
 						}
 
@@ -59,7 +59,7 @@ twitterScene.enter(async (ctx) => {
 			}
 
 			await ctx.reply(`${fullCaption}\n\n${actionsText}`, {
-				parse_mode: 'Markdown',
+				parse_mode: 'HTML',
 			});
 
 			if ('message' in ctx.update) {
