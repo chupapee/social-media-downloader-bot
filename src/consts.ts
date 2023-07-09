@@ -1,4 +1,3 @@
-// import { isDevEnv } from './config';
+import { isDevEnv } from './config';
 
-// export const puppeteerExecutablePath = isDevEnv ? '' : '/usr/bin/google-chrome';
-export const puppeteerExecutablePath = '';
+export const puppeteerExecutablePath = isDevEnv ? '' : '/usr/bin/google-chrome';
