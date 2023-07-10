@@ -1,22 +1,21 @@
 import { Scenes, session, Telegraf } from 'telegraf';
 
-import { BOT_TOKEN, i18n, IContextBot } from './config';
-import { feedbackScene } from './feedback';
-import { getActionsByLink } from './helpers';
-import { instaScene } from './instagram';
-import { statsModel } from './statsDb';
-import { tiktokScene } from './tiktok';
-import { twitterScene } from './twitter';
-import { timeout } from './utils';
-import { youScene } from './youtube';
+import { onBotUp } from './features';
+import { getScenesData } from './getScenesData';
+import { feedbackScene } from './scenes/feedback';
+import { instagramScene } from './scenes/instagram';
+import { tiktokScene } from './scenes/tiktok';
+import { twitterScene } from './scenes/twitter';
+import { youtubeScene } from './scenes/youtube';
+import { BOT_TOKEN, i18n, IContextBot } from './shared/config';
 
 export const bot = new Telegraf<IContextBot>(BOT_TOKEN);
 
 const stage = new Scenes.Stage<IContextBot>([
 	twitterScene,
-	instaScene,
+	instagramScene,
 	tiktokScene,
-	youScene,
+	youtubeScene,
 	feedbackScene,
 ]);
 
@@ -28,38 +27,7 @@ bot.catch((error) => {
 	console.log(error, 'INDEX.TS');
 });
 
-const wakeUpMsg = async () => {
-	try {
-		const dbUsers = await statsModel.getUsers();
-		await timeout(500);
-		if (dbUsers?.socialBotWokeCount === 0) {
-			const users = [
-				...dbUsers?.insta,
-				...dbUsers?.twitter,
-				...dbUsers?.tiktok,
-				...dbUsers?.you,
-			].filter((v, i, a) => a.findIndex((v2) => v2.id === v.id) === i); // unique users only;
-
-			for (const user of users) {
-				try {
-					await bot.telegram.sendMessage(
-						user.id as number,
-						i18n.t(user.language_code ?? 'en', 'botWokeUp'),
-						{ parse_mode: 'Markdown' }
-					);
-					await timeout(500);
-				} catch (error) {
-					console.log(error, 'here');
-				}
-			}
-			statsModel.updateBotWokeCount(dbUsers.socialBotWokeCount + 1);
-		}
-	} catch (error) {
-		console.log(error, 'wakeUp error');
-	}
-};
-
-wakeUpMsg();
+onBotUp();
 
 bot.start(async (ctx) => {
 	await ctx.reply(ctx.i18n.t('start', { userId: ctx.from.id }));
@@ -89,8 +57,8 @@ bot.on('message', async (ctx) => {
 		if ('text' in ctx.message) {
 			const link = ctx.message.text;
 			ctx.state.link = link;
-			const actionsByLink = getActionsByLink();
-			const selectedAction = actionsByLink.find(({ urls }) =>
+			const scenesData = getScenesData();
+			const selectedAction = scenesData.find(({ urls }) =>
 				urls.some((url) => link.includes(url))
 			);
 			if (selectedAction) {

@@ -1,1 +1,0 @@
-export { tiktokScene } from './scene';

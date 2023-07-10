@@ -1,1 +1,0 @@
-export { feedbackScene } from './scene';
