@@ -2,7 +2,7 @@ import { InlineKeyboardButton, User } from 'typegram';
 
 import { BOT_AUTHOR_ID } from './config';
 import { bot } from './index';
-import { instaScene } from './instagram';
+import { instagramScene } from './scenes/instagram';
 import { tiktokScene } from './tiktok';
 import { twitterScene } from './twitter';
 import { youScene } from './youtube';
@@ -27,7 +27,7 @@ export const getActionsByLink = () => {
 		{
 			urls: [INSTA_URL],
 			reply: 'preparingLink',
-			scene: instaScene.id,
+			scene: instagramScene.id,
 		},
 		{
 			urls: [TIKTOK_URL],

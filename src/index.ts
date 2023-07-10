@@ -3,7 +3,7 @@ import { Scenes, session, Telegraf } from 'telegraf';
 import { BOT_TOKEN, i18n, IContextBot } from './config';
 import { feedbackScene } from './feedback';
 import { getActionsByLink } from './helpers';
-import { instaScene } from './instagram';
+import { instagramScene } from './scenes/instagram';
 import { statsModel } from './statsDb';
 import { tiktokScene } from './tiktok';
 import { twitterScene } from './twitter';
@@ -14,7 +14,7 @@ export const bot = new Telegraf<IContextBot>(BOT_TOKEN);
 
 const stage = new Scenes.Stage<IContextBot>([
 	twitterScene,
-	instaScene,
+	instagramScene,
 	tiktokScene,
 	youScene,
 	feedbackScene,

@@ -1,9 +1,9 @@
-import * as cheerio from 'cheerio';
+import axios from 'axios';
 import puppeteer from 'puppeteer';
 
-import { INSTA_PAGE_URL as PAGE_URL } from '../config';
-import { puppeteerExecutablePath } from '../consts';
-import { markdownParsable, timeout } from '../utils';
+import { INSTA_PAGE_URL } from '../../../config';
+import { puppeteerExecutablePath } from '../../../consts';
+import { timeout } from '../../../utils';
 
 export const getPage = async (link: string) => {
 	try {
@@ -14,7 +14,7 @@ export const getPage = async (link: string) => {
 		});
 		const page = await browser.newPage();
 
-		await page.goto(PAGE_URL, { waitUntil: 'domcontentloaded' });
+		await page.goto(INSTA_PAGE_URL, { waitUntil: 'domcontentloaded' });
 
 		const input = await page.$('#url');
 		await timeout(500);
@@ -36,23 +36,13 @@ export const getPage = async (link: string) => {
 	}
 };
 
-export const parseLinks = (page: string) => {
-	const $ = cheerio.load(page);
-	const links: Record<'type' | 'href' | 'source', string>[] = [];
-
-	const source = $('[alt="avatar"]').first().parent().text();
-
-	$('[data-event="click_download_btn"]').each((_, a) => {
-		const link = $(a).attr('href');
-		const type = $(a).text().split(' ')[1].toLowerCase();
-
-		if (link)
-			links.push({
-				type,
-				href: link,
-				source: markdownParsable(source),
-			});
-	});
-
-	return links;
+export const downloadLink = async (link: string) => {
+	try {
+		const response = await axios.get(link, { responseType: 'arraybuffer' });
+		const buffer = Buffer.from(response.data, 'binary');
+		return buffer;
+	} catch (error) {
+		if (error instanceof Error) throw new Error(error.message);
+		console.error('Error while downloading and sending image:', error);
+	}
 };
