@@ -9,26 +9,26 @@ export const removeLastLink = (text: string) => {
 	return text.replace(regex, '');
 };
 
-interface parseTweetTextArgs {
+interface ParseTweetTextArgs {
 	originalLink: string;
 	full_text: string;
-	name?: string;
 	screen_name: string;
-	linksText: string;
+	name?: string;
+	linksText?: string;
 }
 
 export const parseTweetText = ({
 	originalLink,
 	full_text,
-	name,
 	screen_name,
+	name,
 	linksText,
-}: parseTweetTextArgs) => {
-	const text = `<a href="${originalLink}">👤 ${
+}: ParseTweetTextArgs) => {
+	const correctedText = removeLastLink(full_text);
+	const text = correctedText.trim().length > 0 ? `\n\n${correctedText}` : '';
+	const fullTweet = `<a href="${originalLink}">👤 ${
 		name ?? screen_name
-	}: </a>\n\n${removeLastLink(full_text)}${
-		linksText ? `\n${linksText}` : ''
-	}`;
+	}: </a>${text}${linksText ? `\n${linksText}` : ''}`;
 
-	return text;
+	return fullTweet;
 };

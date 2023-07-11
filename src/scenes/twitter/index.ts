@@ -31,13 +31,13 @@ twitterScene.enter(async (ctx) => {
 				actionsBtn,
 				ACTION_ID
 			);
-			const photos = mediaFiles.filter(({ type }) => type === 'photo');
-			if (photos.length > 0) {
+
+			if (mediaFiles.length > 0) {
 				await ctx.replyWithMediaGroup(
-					photos.map(({ href, type }, i) => {
+					mediaFiles.map(({ href, type }, i) => {
 						if (i === 0) {
 							return {
-								media: href,
+								media: { url: href },
 								type,
 								caption: `${fullCaption}\n\n${actionsText}`,
 								parse_mode: 'HTML',
@@ -45,7 +45,7 @@ twitterScene.enter(async (ctx) => {
 						}
 
 						return {
-							media: href,
+							media: { url: href },
 							type,
 						};
 					})

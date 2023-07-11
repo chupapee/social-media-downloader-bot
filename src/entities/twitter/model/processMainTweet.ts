@@ -39,18 +39,11 @@ export const processMainTweet = (
 
 	const actionsList = createActionsList({ ...legacy, count });
 
-	const mediaFiles = parseMediaFiles(legacy);
-	const videoLinks = mediaFiles.filter(({ type }) => type === 'video');
-	const videoLinksText = videoLinks
-		.map(({ href }, i) => `<a href='${href}'>${i + 1}. Video</a>`)
-		.join('\n');
-
 	const mainTweet = parseTweetText({
 		originalLink,
 		full_text,
 		name,
 		screen_name,
-		linksText: videoLinksText,
 	});
 	return { mainTweet, actionsList };
 };

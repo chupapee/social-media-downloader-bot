@@ -1,6 +1,7 @@
+import { selectVideoQuality } from '../lib';
 import { TweetInfo } from '../model';
 
-export interface MediaFiles {
+export interface MediaFile {
 	href: string;
 	type: 'photo' | 'video';
 }
@@ -8,14 +9,19 @@ export interface MediaFiles {
 export const parseMediaFiles = (
 	media: Pick<TweetInfo, 'extended_entities'>
 ) => {
-	const mediaFiles: MediaFiles[] = [] as MediaFiles[];
+	const mediaFiles: MediaFile[] = [] as MediaFile[];
 	if (media?.extended_entities?.media) {
 		media.extended_entities.media.forEach(
 			({ media_url_https, video_info }) => {
-				if (video_info?.variants) {
+				if (video_info?.variants !== undefined) {
+					const lowestQuality = selectVideoQuality(
+						video_info,
+						'lowest'
+					);
+
 					mediaFiles.push({
 						type: 'video',
-						href: video_info?.variants[0].url, //** add the lowest quality */
+						href: lowestQuality.url,
 					});
 					return;
 				}

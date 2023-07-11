@@ -1,5 +1,6 @@
-interface TweetVideo {
+export interface TweetVideo {
 	variants: {
+		content_type: string;
 		bitrate: number;
 		url: string;
 	}[];

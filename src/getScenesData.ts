@@ -4,24 +4,24 @@ import { twitterScene } from './scenes/twitter';
 import { youtubeScene } from './scenes/youtube';
 
 const TWITTER_URL = 'twitter.com';
-const INSTA_URL = 'instagram.com';
+const INSTAGRAM_URL = 'instagram.com';
 const TIKTOK_URL = 'tiktok.com';
-const YOU_URL = ['youtube.com', 'youtu.be'];
+const YOUTUBE_URL = ['youtube.com', 'youtu.be'];
 
 export const getScenesData = () => {
 	return [
 		{
-			urls: YOU_URL,
+			urls: YOUTUBE_URL,
 			reply: 'preparingVideo',
 			scene: youtubeScene.id,
 		},
 		{
 			urls: [TWITTER_URL],
-			reply: 'preparingVideo',
+			reply: 'preparingLink',
 			scene: twitterScene.id,
 		},
 		{
-			urls: [INSTA_URL],
+			urls: [INSTAGRAM_URL],
 			reply: 'preparingLink',
 			scene: instagramScene.id,
 		},

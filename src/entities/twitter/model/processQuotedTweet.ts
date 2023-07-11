@@ -1,3 +1,4 @@
+import { selectVideoQuality } from '../lib';
 import { TweetJson } from '../model';
 import { parseTweetText } from './parseTweetText';
 
@@ -13,11 +14,16 @@ export const processQuotedTweet = (
 	let links = '';
 	if (extended_entities?.media) {
 		links = extended_entities.media
-			.map(({ media_url_https, video_info }, i) =>
-				video_info?.variants
-					? `<a href="${video_info?.variants?.[2].url}">${i + 1}. Video</a>` //** add the highest quality */
-					: `<a href='${media_url_https}'>${i + 1}. Photo</a>`
-			)
+			.map(({ media_url_https, video_info }, i) => {
+				if (video_info?.variants) {
+					const highestQuality = selectVideoQuality(
+						video_info,
+						'highest'
+					);
+					return `<a href="${highestQuality.url}">🔗 ${i + 1}. Video</a>`;
+				}
+				return `<a href='${media_url_https}'>🔗 ${i + 1}. Photo</a>`;
+			})
 			.join('\n');
 	}
 
