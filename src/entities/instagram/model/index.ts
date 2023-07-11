@@ -1,5 +1,2 @@
-export interface InstagramLink {
-	type: 'photo' | 'video';
-	href: string;
-	source: string;
-}
+export { parsePage } from './parsePage';
+export { InstagramLink } from './types';

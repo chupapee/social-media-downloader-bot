@@ -5,7 +5,7 @@ interface TweetVideo {
 	}[];
 }
 
-interface TweetMedia {
+export interface TweetMedia {
 	media_url_https: string;
 	type: 'photo' | 'video' | 'animated_gif';
 	video_info?: TweetVideo;
@@ -26,21 +26,21 @@ export interface TweetInfo {
 }
 
 interface TweetAuthor {
-	user_results: {
-		result: {
-			legacy: {
-				name?: string;
-				screen_name: string;
-			};
-		};
-	};
+	name?: string;
+	screen_name: string;
 }
 
-export interface TwitterResponse {
+export interface TweetJson {
 	data?: {
 		tweetResult: {
 			result: {
-				core: TweetAuthor;
+				core: {
+					user_results: {
+						result: {
+							legacy: TweetAuthor;
+						};
+					};
+				};
 				views: {
 					count: number;
 				};
@@ -48,7 +48,13 @@ export interface TwitterResponse {
 				quoted_status_result?: {
 					result: {
 						legacy: TweetInfo;
-						core: TweetAuthor;
+						core: {
+							user_results: {
+								result: {
+									legacy: TweetAuthor;
+								};
+							};
+						};
 					};
 				};
 			};

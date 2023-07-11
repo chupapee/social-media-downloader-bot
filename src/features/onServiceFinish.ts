@@ -1,4 +1,4 @@
-import { IContextBot } from '../config';
+import { BOT_ADMIN_ID, IContextBot } from '../config';
 import { SocialMediaType } from '../entities/storage';
 import { notifyAdmin } from '../shared/notifyAdmin';
 import { saveServiceFinisher } from './storage';
@@ -18,14 +18,16 @@ export const onServiceFinish = ({
 }: OnServiceInitArgs) => {
 	const successText = `${socialMediaType} service handled! ✅`;
 	const errorText = `${socialMediaType} service failed! ❌`;
-	notifyAdmin({
-		text:
-			status === 'success'
-				? successText
-				: `${errorText}\n${error!.message}`,
-	});
 	if ('message' in ctx.update) {
 		const user = ctx.update.message.from;
-		saveServiceFinisher(user, socialMediaType);
+		if (user.id !== BOT_ADMIN_ID) {
+			notifyAdmin({
+				text:
+					status === 'success'
+						? successText
+						: `${errorText}\n${error!.message}`,
+			});
+			saveServiceFinisher(user, socialMediaType);
+		}
 	}
 };

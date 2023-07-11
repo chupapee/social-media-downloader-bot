@@ -1,4 +1,4 @@
-import { IContextBot } from '../config';
+import { BOT_ADMIN_ID, IContextBot } from '../config';
 import { SocialMediaType } from '../entities/storage';
 import { notifyAdmin } from '../shared/notifyAdmin';
 import { saveServiceInitiator } from './storage';
@@ -16,11 +16,13 @@ export const onServiceInit = ({
 }: OnServiceInitArgs) => {
 	if ('message' in ctx.update) {
 		const user = ctx.update.message.from;
-		notifyAdmin({
-			user,
-			originalLink,
-			text: `${socialMediaType} service initialized! 🚀`,
-		});
-		saveServiceInitiator(user, socialMediaType);
+		if (user.id !== BOT_ADMIN_ID) {
+			notifyAdmin({
+				user,
+				originalLink,
+				text: `${socialMediaType} service initialized! 🚀`,
+			});
+			saveServiceInitiator(user, socialMediaType);
+		}
 	}
 };

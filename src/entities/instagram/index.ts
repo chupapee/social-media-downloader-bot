@@ -1,3 +1,3 @@
 export { downloadLink, getPage } from './api';
-export { createInlineKeyboard, parsePage } from './lib';
-export { InstagramLink } from './model';
+export { createInlineKeyboard } from './lib';
+export { InstagramLink, parsePage } from './model';

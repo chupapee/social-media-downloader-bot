@@ -3,8 +3,8 @@ import { InlineKeyboardButton, User } from 'typegram';
 import { BOT_AUTHOR_ID } from './config';
 import { bot } from './index';
 import { instagramScene } from './scenes/instagram';
+import { twitterScene } from './scenes/twitter';
 import { tiktokScene } from './tiktok';
-import { twitterScene } from './twitter';
 import { youScene } from './youtube';
 
 const TWITTER_URL = 'twitter.com';

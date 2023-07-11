@@ -1,7 +1,6 @@
 import * as cheerio from 'cheerio';
 
-import { markdownParsable } from '../../../utils';
-import { InstagramLink } from '../model';
+import { InstagramLink } from './types';
 
 export const parsePage = (page: string) => {
 	const $ = cheerio.load(page);
@@ -17,7 +16,7 @@ export const parsePage = (page: string) => {
 			links.push({
 				type: type as 'photo' | 'video',
 				href: link,
-				source: markdownParsable(source),
+				source,
 			});
 	});
 

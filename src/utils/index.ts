@@ -72,3 +72,5 @@ export const detectLinkSize = async (
 	if (!(header in res.headers || !Number.isNaN(Number(res.headers[header])))) return null;
 	return bytesToMegaBytes(Number(res.headers[header]));
 };
+
+export const compactNumber = Intl.NumberFormat('en', { notation: 'compact' });

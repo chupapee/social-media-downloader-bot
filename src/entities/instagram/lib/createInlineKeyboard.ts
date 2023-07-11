@@ -1,6 +1,6 @@
 import { InlineKeyboardButton } from 'typegram';
 
-import { InstagramLink } from '../model';
+import { InstagramLink } from '../model/types';
 
 export const createInlineKeyboard = (links: InstagramLink[]) => {
 	return links.reduce(

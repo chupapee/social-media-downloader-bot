@@ -4,9 +4,9 @@ import { BOT_TOKEN, i18n, IContextBot } from './config';
 import { feedbackScene } from './feedback';
 import { getActionsByLink } from './helpers';
 import { instagramScene } from './scenes/instagram';
+import { twitterScene } from './scenes/twitter';
 import { statsModel } from './statsDb';
 import { tiktokScene } from './tiktok';
-import { twitterScene } from './twitter';
 import { timeout } from './utils';
 import { youScene } from './youtube';
 
