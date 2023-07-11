@@ -12,5 +12,5 @@
 		"resolveJsonModule": true,
 		"strictPropertyInitialization": false
 	},
-	"include": ["src", "src/locales/*.json"]
+	"include": ["src", "src/shared/config/locales/*.json"]
 }
