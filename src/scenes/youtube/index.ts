@@ -51,7 +51,7 @@ youtubeScene.enter((ctx) => {
 				);
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			await ctx.reply(ctx.i18n.t('smthWentWrong'));
 			if (error instanceof Error) throw new Error(error.message);
 		}

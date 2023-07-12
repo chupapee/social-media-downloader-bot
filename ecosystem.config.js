@@ -1,7 +1,7 @@
 module.exports = {
 	apps: [
 		{
-			name: 'social-media-bot',
+			name: 'social-media-downloader-bot',
 			script: './dist/index.js',
 			instances: 1,
 			autorestart: true,

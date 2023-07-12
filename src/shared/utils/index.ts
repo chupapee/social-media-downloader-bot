@@ -24,7 +24,7 @@ export const retryGettingPage = async <T>(
 		try {
 			content = await Promise.race([timeout(timeoutNum), getPage(link)]);
 		} catch (error) {
-			console.log(error, 'puppeeter page preparing failed');
+			console.error(error, 'puppeeter page preparing failed');
 		}
 		attemptsCount++;
 	}

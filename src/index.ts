@@ -24,7 +24,7 @@ bot.use(i18n.middleware());
 bot.use(stage.middleware());
 
 bot.catch((error) => {
-	console.log(error, 'INDEX.TS');
+	console.error(error, 'INDEX.TS');
 });
 
 onBotUp();

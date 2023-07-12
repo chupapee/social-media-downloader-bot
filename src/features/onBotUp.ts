@@ -25,12 +25,12 @@ export const onBotUp = async () => {
 					);
 					await timeout(500);
 				} catch (error) {
-					console.log(error, 'here');
+					console.error(error, 'onBotUp error');
 				}
 			}
 			toggleBotUpFlag();
 		}
 	} catch (error) {
-		console.log(error, 'wakeUp error');
+		console.error(error, 'onBotUp error');
 	}
 };

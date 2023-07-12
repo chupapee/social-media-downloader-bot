@@ -21,11 +21,10 @@ export const BOT_TOKEN = isDevEnv
 	? getEnvVar('DEV_BOT_TOKEN')
 	: getEnvVar('PROD_BOT_TOKEN');
 
-/** bot's author telegram id */
-export const BOT_AUTHOR_ID = Number(getEnvVar('BOT_AUTHOR_ID'));
+/** Telegram id of bot admin */
 export const BOT_ADMIN_ID = Number(getEnvVar('BOT_ADMIN_ID'));
 
-/** Pages url to scrape */
+/** Scraping page urls */
 export const TWITTER_PAGE_URL = getEnvVar('TWITTER_PAGE_URL');
 export const INSTA_PAGE_URL = getEnvVar('INSTA_PAGE_URL');
 export const TIKTOK_PAGE_URL = getEnvVar('TIKTOK_PAGE_URL');

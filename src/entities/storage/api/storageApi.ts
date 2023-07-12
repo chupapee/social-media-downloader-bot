@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { doc, getDoc, updateDoc } from '@firebase/firestore';
 
-import { BOT_AUTHOR_ID, db } from '../../../shared/config';
+import { BOT_ADMIN_ID, db } from '../../../shared/config';
 import {
 	DatabaseEntities,
 	DatabaseUser,
@@ -22,7 +22,7 @@ export async function getUsers(
 		if (appType) return response[appType];
 		return response;
 	} catch (error) {
-		console.log(error, 'GETTING DB USERS FAILED');
+		console.error(error, 'GETTING DB USERS FAILED');
 	}
 }
 
@@ -36,7 +36,7 @@ export async function saveUser(
 	newUser: DatabaseUser,
 	appType: SocialMediaType
 ) {
-	if (newUser.id !== BOT_AUTHOR_ID) {
+	if (newUser.id !== BOT_ADMIN_ID) {
 		const usersRef = doc(db, 'users', 'list');
 		const updatedUsers = [...oldUsers, updatable(newUser)];
 		try {
@@ -45,7 +45,7 @@ export async function saveUser(
 			});
 			console.log('USER SAVED SUCCESSFULLY');
 		} catch (error) {
-			console.log(error, 'SAVING USER IN DB FAILED');
+			console.error(error, 'SAVING USER IN DB FAILED');
 		}
 	}
 };

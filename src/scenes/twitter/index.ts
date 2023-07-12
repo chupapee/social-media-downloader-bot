@@ -60,7 +60,7 @@ twitterScene.enter(async (ctx) => {
 				},
 			});
 		} catch (error) {
-			console.log(error, 'error message');
+			console.error(error, 'error message');
 			await ctx.reply(ctx.i18n.t('smthWentWrong'));
 			if (error instanceof Error) throw new Error(error.message);
 		}
