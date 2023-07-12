@@ -20,7 +20,7 @@ export const processTweetJson = (
 	const { quoted_status_result } = tweetJson.data!.tweetResult.result;
 	if (quoted_status_result?.result) {
 		const quotedTweet = processQuotedTweet(tweetJson, originalLink);
-		fullCaption += `\n\n<strong>↩️ Reply to </strong>${quotedTweet}`;
+		fullCaption += `\n\n<strong>↩️ Replying to </strong>${quotedTweet}`;
 	}
 
 	return {

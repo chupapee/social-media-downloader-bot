@@ -21,6 +21,6 @@ export const saveServiceInitiator = async (
 		const oldUsers = await getUsers(socialMediaType);
 		if (oldUsers) await saveUser(oldUsers, newUser, socialMediaType);
 	} catch (error) {
-		console.log(error, 'ERROR saveServiceInitiator');
+		console.error(error, 'ERROR saveServiceInitiator');
 	}
 };

@@ -21,6 +21,6 @@ export async function saveServiceFinisher(
 		const oldUsers = await getUsers(socialMediaType);
 		if (oldUsers) await saveUser(oldUsers, newUser, socialMediaType);
 	} catch (error) {
-		console.log(error, 'ERROR saveServiceFinish');
+		console.error(error, 'ERROR saveServiceFinish');
 	}
 }

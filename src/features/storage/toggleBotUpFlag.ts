@@ -7,6 +7,6 @@ export const toggleBotUpFlag = async () => {
 	try {
 		await updateDoc(usersRef, { socialBotUpFlag: true });
 	} catch (error) {
-		console.log(error, 'SAVING USER FAILED');
+		console.error(error, 'SAVING USER FAILED');
 	}
 };

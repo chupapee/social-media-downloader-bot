@@ -59,7 +59,7 @@ tiktokScene.enter((ctx) => {
 						await ctx.reply(ctx.i18n.t('incorrectLink'));
 						break;
 					default:
-						console.log(error, 'ERROR');
+						console.error(error, 'ERROR');
 						await ctx.reply(ctx.i18n.t('smthWentWrong'));
 				}
 				throw new Error(error.message);

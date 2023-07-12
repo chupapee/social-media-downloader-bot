@@ -20,6 +20,6 @@ export const saveFeedback = async (feedback: Feedback) => {
 		});
 		console.log('FEEDBACK SAVED SUCCESSFULLY');
 	} catch (error) {
-		console.log(error, 'SAVING FEEDBACK FAILED');
+		console.error(error, 'SAVING FEEDBACK FAILED');
 	}
 };
