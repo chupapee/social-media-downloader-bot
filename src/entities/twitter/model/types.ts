@@ -35,6 +35,7 @@ export interface TweetJson {
 	data?: {
 		tweetResult: {
 			result: {
+				__typename: 'TweetUnavailable' | 'Tweet';
 				core: {
 					user_results: {
 						result: {

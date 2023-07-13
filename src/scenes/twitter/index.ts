@@ -61,8 +61,16 @@ twitterScene.enter(async (ctx) => {
 			});
 		} catch (error) {
 			console.error(error, 'error message');
+			if (error instanceof Error) {
+				if (error.message === 'TweetUnavailable') {
+					await ctx.reply(ctx.i18n.t('TweetUnavailable'));
+					throw new Error(error.message);
+				}
+				await ctx.reply(ctx.i18n.t('smthWentWrong'));
+				throw new Error(error.message);
+			}
 			await ctx.reply(ctx.i18n.t('smthWentWrong'));
-			if (error instanceof Error) throw new Error(error.message);
+			throw new Error(`${JSON.stringify(error)}, 'unhandled error'`);
 		}
 	};
 

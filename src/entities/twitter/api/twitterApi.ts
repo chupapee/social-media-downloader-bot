@@ -28,6 +28,9 @@ export const getPage = async (twitterLink: string): Promise<TweetJson> => {
 		const content: TweetJson = await response.json();
 		await browser.close();
 		if (!content.data) throw new Error('data not found');
+		if (content.data.tweetResult.result.__typename === 'TweetUnavailable') {
+			throw new Error('TweetUnavailable');
+		}
 		return content;
 	} catch (error) {
 		if (error instanceof Error) throw new Error(error.message);
