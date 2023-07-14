@@ -8,19 +8,19 @@ export const onBotUp = async () => {
 	try {
 		const dbUsers = await getUsers();
 		await timeout(500);
-		if (dbUsers && !dbUsers?.socialBotUpFlag) {
+		if (dbUsers && !dbUsers.socialBotUpFlag) {
 			const users = [
-				...dbUsers?.insta,
-				...dbUsers?.twitter,
-				...dbUsers?.tiktok,
-				...dbUsers?.you,
+				...dbUsers.insta,
+				...dbUsers.twitter,
+				...dbUsers.tiktok,
+				...dbUsers.you,
 			].filter((v, i, a) => a.findIndex((v2) => v2.id === v.id) === i); // unique users only;
 
 			for (const user of users) {
 				try {
 					await bot.telegram.sendMessage(
 						user.id as number,
-						i18n.t(user.language_code ?? 'en', 'botWokeUp'),
+						i18n.t(user.language_code ?? 'en', 'botUpText'),
 						{ parse_mode: 'Markdown' }
 					);
 					await timeout(500);

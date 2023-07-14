@@ -1,7 +1,8 @@
-import { SocialMediaType } from '../entities/storage';
-import { BOT_ADMIN_ID, IContextBot } from '../shared/config';
-import { notifyAdmin } from '../shared/notifyAdmin';
-import { saveServiceFinisher } from './storage';
+import { SocialMediaType } from '../../entities/storage';
+import { BOT_ADMIN_ID, IContextBot } from '../../shared/config';
+import { notifyAdmin } from '../../shared/notifyAdmin';
+import { removeTempMessages } from '../bot';
+import { saveServiceFinisher } from '../storage';
 
 interface OnServiceInitArgs {
 	ctx: IContextBot;
@@ -30,4 +31,6 @@ export const onServiceFinish = ({
 			saveServiceFinisher(user, socialMediaType);
 		}
 	}
+	ctx.scene.leave();
+	removeTempMessages(ctx);
 };

@@ -5,7 +5,7 @@ import {
 	getPage,
 	parsePage,
 } from '../../entities/youtube';
-import { onServiceFinish, onServiceInit } from '../../features';
+import { onServiceFinish, onServiceInit } from '../../features/scenes';
 import { IContextBot } from '../../shared/config';
 import { retryGettingPage } from '../../shared/utils';
 

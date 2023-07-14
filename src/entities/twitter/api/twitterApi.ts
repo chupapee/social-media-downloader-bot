@@ -5,7 +5,9 @@ import { TweetJson } from '../model';
 
 const API_JSON_DATA = 'https://twitter.com/i/api/graphql';
 
-export const getPage = async (twitterLink: string): Promise<TweetJson> => {
+export const getPage = async (
+	twitterLink: string
+): Promise<TweetJson | undefined> => {
 	try {
 		const browser = await puppeteer.launch({
 			executablePath: puppeteerExecutablePath,

@@ -1,12 +1,12 @@
 import { Scenes } from 'telegraf';
 
 import { getPage, parsePage } from '../../entities/instagram';
-import { onServiceFinish, onServiceInit } from '../../features';
 import {
 	sendFewVideos,
 	sendManyFiles,
 	sendSingleFile,
 } from '../../features/instagram';
+import { onServiceFinish, onServiceInit } from '../../features/scenes';
 import { IContextBot } from '../../shared/config';
 
 export const instagramScene = new Scenes.BaseScene<IContextBot>(

@@ -12,22 +12,18 @@ export const getScenesData = () => {
 	return [
 		{
 			urls: YOUTUBE_URL,
-			reply: 'preparingVideo',
 			scene: youtubeScene.id,
 		},
 		{
 			urls: [TWITTER_URL],
-			reply: 'preparingLink',
 			scene: twitterScene.id,
 		},
 		{
 			urls: [INSTAGRAM_URL],
-			reply: 'preparingLink',
 			scene: instagramScene.id,
 		},
 		{
 			urls: [TIKTOK_URL],
-			reply: 'preparingVideo',
 			scene: tiktokScene.id,
 		},
 	];

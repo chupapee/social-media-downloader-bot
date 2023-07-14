@@ -1,11 +1,12 @@
 import { Context, Scenes } from 'telegraf';
+import { User } from 'typegram';
 
-export interface UserSessionData {
-	userId: number;
+export interface UserSession extends User {
+	messagesToRemove: number[];
 }
 
 interface SceneSession extends Scenes.SceneSession {
-	data: UserSessionData[];
+	usersList: UserSession[] | undefined;
 }
 
 export interface IContextBot extends Context {

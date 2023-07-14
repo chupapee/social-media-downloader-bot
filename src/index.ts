@@ -1,6 +1,7 @@
 import { Scenes, session, Telegraf } from 'telegraf';
 
-import { onBotUp } from './features';
+import { addMsgToRemoveList } from './features/bot';
+// import { onBotUp } from './features';
 import { getScenesData } from './getScenesData';
 import { feedbackScene } from './scenes/feedback';
 import { instagramScene } from './scenes/instagram';
@@ -27,11 +28,7 @@ bot.catch((error) => {
 	console.error(error, 'INDEX.TS');
 });
 
-onBotUp();
-
-bot.start(async (ctx) => {
-	await ctx.reply(ctx.i18n.t('start', { userId: ctx.from.id }));
-});
+// onBotUp();
 
 const lang = {
 	ru: '🇷🇺 Язык изменен на русский!',
@@ -52,6 +49,24 @@ bot.command('feedback', async (ctx) => {
 	await ctx.scene.enter(feedbackScene.id);
 });
 
+bot.use(async (ctx, next) => {
+	/** While the user is in a certain scene,
+	 * new commands are not processed */
+	const isStarted = ctx.state.isStarted;
+	const isRunning = ctx.scene.current;
+
+	if (!isStarted && isRunning) {
+		const { message_id } = await ctx.reply(ctx.i18n.t('pleaseWait'));
+		addMsgToRemoveList(message_id, ctx);
+		return;
+	}
+	return next();
+});
+
+bot.start(async (ctx) => {
+	await ctx.reply(ctx.i18n.t('start', { userId: ctx.from.id }));
+});
+
 bot.on('message', async (ctx) => {
 	const handleMessage = async () => {
 		if ('text' in ctx.message) {
@@ -62,8 +77,12 @@ bot.on('message', async (ctx) => {
 				urls.some((url) => link.includes(url))
 			);
 			if (selectedAction) {
-				const { scene, reply } = selectedAction;
-				await ctx.reply(ctx.i18n.t(reply));
+				ctx.state.isStarted = true;
+				const { scene } = selectedAction;
+				const { message_id } = await ctx.reply(
+					ctx.i18n.t('processingLink')
+				);
+				addMsgToRemoveList(message_id, ctx);
 				await ctx.scene.enter(scene);
 			} else await ctx.reply(ctx.i18n.t('invalidLink'));
 		}

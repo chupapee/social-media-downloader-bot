@@ -1,9 +1,9 @@
 {
 	"//start_command": "",
 	"start": "🔗 Please send the link",
-	"preparingVideo": "⏳ Preparing the video, it will take no more than a minute",
-	"preparingLink": "⏳ Processing the link, it will take no more than a minute",
+	"processingLink": "⏳ Processing the link, it will take no more than a minute",
 	"invalidLink": "🚫 Please send a valid link.",
+	"pleaseWait": "⚡️ Your request is being processed\n⌛️ Please be patient",
 
 	"//insta_scene": "",
 	"downloadAll": "📥 Download all",
@@ -36,6 +36,7 @@
 	"uploadingMedia": "📤 Uploading to Telegram...",
 	"uploadingVideo": "📤 Uploading the video to Telegram...",
 	"savedByBot": "📤 Saved by: @insta_twitter_youtube_bot",
-	"botWokeUpTechIssues": "Hey! 👋\nTechnical issues have been resolved 🛠✅\nYou can use the bot again 🚀",
-	"botWokeUp": "⚡️ ***Update*** ⚡️\n\n💡 Added support for ***TikTok links!***\n🛠 Additionally, minor bugs with Twitter links have been fixed. You can try re-uploading the links that had errors"
+
+	"botUpTechIssues": "Hey! 👋\nTechnical issues have been resolved 🛠✅\nYou can use the bot again 🚀",
+	"botUpText": "⚡️ ***Update*** ⚡️\n\n💡 Added support for ***TikTok links!***\n🛠 Additionally, minor bugs with Twitter links have been fixed. You can try re-uploading the links that had errors"
 }

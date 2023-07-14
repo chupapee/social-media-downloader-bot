@@ -1,7 +1,7 @@
 import { Scenes } from 'telegraf';
 
 import { getPage, parsePage } from '../../entities/tiktok';
-import { onServiceFinish, onServiceInit } from '../../features';
+import { onServiceFinish, onServiceInit } from '../../features/scenes';
 import { IContextBot } from '../../shared/config';
 import { calcLinkSize, retryGettingPage } from '../../shared/utils';
 
