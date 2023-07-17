@@ -1,16 +1,25 @@
+import { bytesToMegaBytes, findLargestBelow } from '../../../shared/utils';
 import { TweetVideo } from '../model';
 
-export const selectVideoQuality = (
+export const selectLargestQuality = (
 	tweetVideo: TweetVideo,
-	quality: 'highest' | 'lowest'
+	maxSize = 1000
 ) => {
 	const allQualities = tweetVideo.variants.filter(
 		({ content_type }) => content_type === 'video/mp4'
 	);
-	const selectedQuality = allQualities.reduce((prev, curr) => {
-		const highQ = prev.bitrate > curr.bitrate ? prev : curr;
-		const lowQ = prev.bitrate < curr.bitrate ? prev : curr;
-		return quality === 'highest' ? highQ : lowQ;
-	});
-	return selectedQuality;
+	const revertedToMb = allQualities.map((video) => ({
+		...video,
+		bitrate: bytesToMegaBytes(video.bitrate),
+	}));
+
+	const sizes = revertedToMb.map(({ bitrate }) => bitrate);
+
+	const largestVideo = findLargestBelow(sizes, maxSize);
+
+	const largest = revertedToMb.find(
+		({ bitrate }) => bitrate === largestVideo
+	)!;
+
+	return largest;
 };

@@ -62,12 +62,18 @@ export const markdownParsable = (str: string) => {
 	return result;
 };
 
-const bytesToMegaBytes = (bytes: number) => Number((bytes / (1024 * 1024)).toFixed(0));
+export const bytesToMegaBytes = (bytes: number) =>
+	Number((bytes / (1024 * 1024)).toFixed(0));
 
 export const calcLinkSize = async (url: string, header = 'Content-Length') => {
 	const res = await axios.head(url);
-	if (!(header in res.headers || !Number.isNaN(Number(res.headers[header])))) return null;
+	if (!(header in res.headers || !Number.isNaN(Number(res.headers[header]))))
+		return null;
 	return bytesToMegaBytes(Number(res.headers[header]));
+};
+
+export const findLargestBelow = (arr: number[], max: number) => {
+	return Math.max(...arr.filter((x) => x <= max));
 };
 
 export const compactNumber = Intl.NumberFormat('en', { notation: 'compact' });

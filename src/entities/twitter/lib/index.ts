@@ -1,2 +1,2 @@
 export { createActionsKeyboard } from './createActionsKeyboard';
-export { selectVideoQuality } from './selectVideoQuality';
+export { selectLargestQuality } from './selectVideoQuality';

@@ -1,5 +1,5 @@
-import { selectVideoQuality } from '../lib';
-import { TweetJson } from '../model';
+import { selectLargestQuality } from '../lib';
+import { TweetJson } from '.';
 import { parseTweetText } from './parseTweetText';
 
 export const processQuotedTweet = (
@@ -7,8 +7,10 @@ export const processQuotedTweet = (
 	originalLink: string
 ) => {
 	const { quoted_status_result } = tweetJson.data!.tweetResult.result;
-	const { core: quotedCore, legacy: quotedLegacy } = quoted_status_result!.result;
-	const { name: quotedName, screen_name: quotedScreenName } = quotedCore.user_results.result.legacy;
+	const { core: quotedCore, legacy: quotedLegacy } =
+		quoted_status_result!.result;
+	const { name: quotedName, screen_name: quotedScreenName } =
+		quotedCore.user_results.result.legacy;
 	const { full_text: quotedFullText, extended_entities } = quotedLegacy;
 
 	let links = '';
@@ -16,11 +18,10 @@ export const processQuotedTweet = (
 		links = extended_entities.media
 			.map(({ media_url_https, video_info }, i) => {
 				if (video_info?.variants) {
-					const highestQuality = selectVideoQuality(
-						video_info,
-						'highest'
-					);
-					return `<a href="${highestQuality.url}">🔗 ${i + 1}. Video</a>`;
+					const highestQuality = selectLargestQuality(video_info);
+					return `<a href="${highestQuality.url}">🔗 ${
+						i + 1
+					}. Video</a>`;
 				}
 				return `<a href='${media_url_https}'>🔗 ${i + 1}. Photo</a>`;
 			})

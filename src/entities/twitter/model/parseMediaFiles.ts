@@ -1,27 +1,29 @@
-import { selectVideoQuality } from '../lib';
-import { TweetInfo } from '../model';
+import { selectLargestQuality } from '../lib';
+import { TweetInfo } from '.';
 
 export interface MediaFile {
 	href: string;
 	type: 'photo' | 'video';
 }
 
+const MAX_ALLOWED_SIZE = 50; // megabyte
+
 export const parseMediaFiles = (
 	media: Pick<TweetInfo, 'extended_entities'>
 ) => {
 	const mediaFiles: MediaFile[] = [] as MediaFile[];
-	if (media?.extended_entities?.media) {
+	if (media.extended_entities?.media) {
 		media.extended_entities.media.forEach(
 			({ media_url_https, video_info }) => {
 				if (video_info?.variants !== undefined) {
-					const lowestQuality = selectVideoQuality(
+					const largestVideo = selectLargestQuality(
 						video_info,
-						'lowest'
+						MAX_ALLOWED_SIZE
 					);
 
 					mediaFiles.push({
 						type: 'video',
-						href: lowestQuality.url,
+						href: largestVideo.url,
 					});
 					return;
 				}
