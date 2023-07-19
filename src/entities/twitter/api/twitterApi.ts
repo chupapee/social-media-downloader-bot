@@ -21,7 +21,8 @@ export const getPage = async (
 			.catch(() => null);
 
 		const response = await page.waitForResponse(
-			(res) => res.url().startsWith(API_JSON_DATA),
+			(res) =>
+				res.url().startsWith(API_JSON_DATA) && res.status() === 200,
 			{
 				timeout: 50_000,
 			}
