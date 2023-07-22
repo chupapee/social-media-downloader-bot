@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer';
 
-import { puppeteerExecutablePath } from '../../../shared/consts';
+import { puppeteerExecutablePath } from '@shared/consts';
+
 import { TweetJson } from '../model';
 
 const API_JSON_DATA = 'https://twitter.com/i/api/graphql';

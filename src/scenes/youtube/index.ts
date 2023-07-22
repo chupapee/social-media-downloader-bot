@@ -1,13 +1,9 @@
 import { Scenes } from 'telegraf';
 
-import {
-	createLinksKeyboard,
-	getPage,
-	parsePage,
-} from '../../entities/youtube';
-import { onServiceFinish, onServiceInit } from '../../features/scenes';
-import { IContextBot } from '../../shared/config';
-import { retryGettingPage } from '../../shared/utils';
+import { createLinksKeyboard, getPage, parsePage } from '@entities/youtube';
+import { onServiceFinish, onServiceInit } from '@features/scenes';
+import { IContextBot } from '@shared/config';
+import { retryGettingPage } from '@shared/utils';
 
 export const youtubeScene = new Scenes.BaseScene<IContextBot>('youtubeScene');
 

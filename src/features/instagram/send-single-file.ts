@@ -1,5 +1,5 @@
-import { downloadLink, InstagramLink } from '../../entities/instagram';
-import { IContextBot } from '../../shared/config';
+import { downloadLink, InstagramLink } from '@entities/instagram';
+import { IContextBot } from '@shared/config';
 
 interface SendSingleFileArgs {
 	ctx: IContextBot;

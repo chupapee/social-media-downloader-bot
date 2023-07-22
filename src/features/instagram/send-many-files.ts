@@ -2,9 +2,10 @@ import {
 	createInlineKeyboard,
 	downloadLink,
 	InstagramLink,
-} from '../../entities/instagram';
-import { IContextBot } from '../../shared/config';
-import { splitArray } from '../../shared/utils';
+} from '@entities/instagram';
+import { IContextBot } from '@shared/config';
+import { splitArray } from '@shared/utils';
+
 import { MAX_FILE_LIMIT } from './model/consts';
 
 interface SendManyFileArgs {

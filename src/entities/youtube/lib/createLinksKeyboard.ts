@@ -9,7 +9,8 @@ export const createLinksKeyboard = (
 	return links.reduce(
 		(acc: InlineKeyboardButton[][], { href, quality }, index) => {
 			const btn = { text: `🔗 ${quality}`, url: href };
-			if (smallestLink?.quality && quality === smallestLink.quality) return acc;
+			if (smallestLink?.quality && quality === smallestLink.quality)
+				return acc;
 			if (index % 2 === 0) {
 				acc.push([btn]);
 			} else {

@@ -1,8 +1,8 @@
 import puppeteer from 'puppeteer';
 
-import { YOUTUBE_PAGE_URL } from '../../../shared/config';
-import { puppeteerExecutablePath } from '../../../shared/consts';
-import { timeout } from '../../../shared/utils';
+import { YOUTUBE_PAGE_URL } from '@shared/config';
+import { puppeteerExecutablePath } from '@shared/consts';
+import { timeout } from '@shared/utils';
 
 export const getPage = async (link: string) => {
 	try {

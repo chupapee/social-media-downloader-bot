@@ -1,7 +1,7 @@
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { User } from 'typegram';
 
-import { db } from '../../shared/config';
+import { db } from '@shared/config';
 
 interface Feedback {
 	author: User;

@@ -1,7 +1,6 @@
-/* eslint-disable no-console */
 import { doc, getDoc, updateDoc } from '@firebase/firestore';
+import { BOT_ADMIN_ID, db } from '@shared/config';
 
-import { BOT_ADMIN_ID, db } from '../../../shared/config';
 import {
 	DatabaseEntities,
 	DatabaseUser,
@@ -48,4 +47,4 @@ export async function saveUser(
 			console.error(error, 'SAVING USER IN DB FAILED');
 		}
 	}
-};
+}

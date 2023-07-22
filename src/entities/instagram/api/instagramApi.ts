@@ -1,9 +1,9 @@
 import axios from 'axios';
 import puppeteer from 'puppeteer';
 
-import { INSTA_PAGE_URL } from '../../../shared/config';
-import { puppeteerExecutablePath } from '../../../shared/consts';
-import { timeout } from '../../../shared/utils';
+import { INSTA_PAGE_URL } from '@shared/config';
+import { puppeteerExecutablePath } from '@shared/consts';
+import { timeout } from '@shared/utils';
 
 export const getPage = async (link: string) => {
 	try {

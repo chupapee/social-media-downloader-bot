@@ -1,4 +1,4 @@
-import { IContextBot } from '../../shared/config';
+import { IContextBot } from '@shared/config';
 
 export const addMsgToRemoveList = (messageId: number, ctx: IContextBot) => {
 	const user = ctx.from!;

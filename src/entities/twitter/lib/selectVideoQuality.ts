@@ -1,4 +1,5 @@
-import { bytesToMegaBytes, findLargestBelow } from '../../../shared/utils';
+import { bytesToMegaBytes, findLargestBelow } from '@shared/utils';
+
 import { TweetVideo } from '../model';
 
 export const selectLargestQuality = (

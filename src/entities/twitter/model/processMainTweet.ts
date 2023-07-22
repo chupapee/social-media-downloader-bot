@@ -1,6 +1,6 @@
-import { compactNumber } from '../../../shared/utils';
-import { TweetInfo, TweetJson } from '../model';
-import { parseMediaFiles } from './parseMediaFiles';
+import { compactNumber } from '@shared/utils';
+
+import { TweetInfo, TweetJson } from './index';
 import { parseTweetText } from './parseTweetText';
 
 interface CreateActionsListArgs extends TweetInfo {

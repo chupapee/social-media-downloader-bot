@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 
-import { TIKTOK_PAGE_URL } from '../../../shared/config';
-import { puppeteerExecutablePath } from '../../../shared/consts';
+import { TIKTOK_PAGE_URL } from '@shared/config';
+import { puppeteerExecutablePath } from '@shared/consts';
 
 export const getPage = async (link: string) => {
 	try {

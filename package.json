@@ -6,12 +6,10 @@
 	"license": "MIT",
 	"scripts": {
 		"dev": "nodemon",
-		"build": "rm -rf dist && tsc",
-
+		"build": "tsc && tsc-alias",
 		"lint": "eslint src",
 		"lint:fix": "eslint src --fix",
 		"format": "prettier --write ./src/*",
-
 		"process:start": "yarn build && npx pm2 start ecosystem.config.js",
 		"process:stop": "npx pm2 stop social-media-downloader-bot",
 		"process:delete": "npx pm2 delete social-media-downloader-bot",
@@ -32,8 +30,10 @@
 		"typescript": "^5.0.4"
 	},
 	"devDependencies": {
-		"prettier": "^2.8.8",
 		"eslint": "^8.42.0",
-		"eslint-kit": "^9.1.0"
+		"eslint-kit": "^9.1.0",
+		"prettier": "^2.8.8",
+		"tsc-alias": "^1.8.7",
+		"tsconfig-paths": "^4.2.0"
 	}
 }

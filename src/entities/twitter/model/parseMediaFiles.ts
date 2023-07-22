@@ -1,5 +1,5 @@
 import { selectLargestQuality } from '../lib';
-import { TweetInfo } from '.';
+import { TweetInfo } from './index';
 
 export interface MediaFile {
 	href: string;

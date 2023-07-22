@@ -1,14 +1,15 @@
 import { Scenes, session, Telegraf } from 'telegraf';
 
-import { addMsgToRemoveList } from './features/bot';
+import { addMsgToRemoveList } from '@features/bot';
+import { feedbackScene } from '@scenes/feedback';
+import { instagramScene } from '@scenes/instagram';
+import { tiktokScene } from '@scenes/tiktok';
+import { twitterScene } from '@scenes/twitter';
+import { youtubeScene } from '@scenes/youtube';
+import { BOT_TOKEN, i18n, IContextBot } from '@shared/config';
+
 // import { onBotUp } from './features';
 import { getScenesData } from './getScenesData';
-import { feedbackScene } from './scenes/feedback';
-import { instagramScene } from './scenes/instagram';
-import { tiktokScene } from './scenes/tiktok';
-import { twitterScene } from './scenes/twitter';
-import { youtubeScene } from './scenes/youtube';
-import { BOT_TOKEN, i18n, IContextBot } from './shared/config';
 
 export const bot = new Telegraf<IContextBot>(BOT_TOKEN);
 

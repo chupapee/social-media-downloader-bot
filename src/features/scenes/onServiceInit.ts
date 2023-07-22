@@ -1,6 +1,7 @@
-import { SocialMediaType } from '../../entities/storage';
-import { BOT_ADMIN_ID, IContextBot } from '../../shared/config';
-import { notifyAdmin } from '../../shared/notifyAdmin';
+import { SocialMediaType } from '@entities/storage';
+import { BOT_ADMIN_ID, IContextBot } from '@shared/config';
+import { notifyAdmin } from '@shared/notifyAdmin';
+
 import { saveServiceInitiator } from '../storage';
 
 interface OnServiceInitArgs {

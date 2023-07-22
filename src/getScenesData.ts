@@ -1,7 +1,7 @@
-import { instagramScene } from './scenes/instagram';
-import { tiktokScene } from './scenes/tiktok';
-import { twitterScene } from './scenes/twitter';
-import { youtubeScene } from './scenes/youtube';
+import { instagramScene } from '@scenes/instagram';
+import { tiktokScene } from '@scenes/tiktok';
+import { twitterScene } from '@scenes/twitter';
+import { youtubeScene } from '@scenes/youtube';
 
 const TWITTER_URL = 'twitter.com';
 const INSTAGRAM_URL = 'instagram.com';

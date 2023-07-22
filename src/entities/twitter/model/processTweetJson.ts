@@ -1,4 +1,4 @@
-import { TweetJson } from '../model';
+import { TweetJson } from './index';
 import { parseMediaFiles } from './parseMediaFiles';
 import { processMainTweet } from './processMainTweet';
 import { processQuotedTweet } from './processQuotedTweet';

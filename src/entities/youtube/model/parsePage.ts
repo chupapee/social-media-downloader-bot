@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 
-import { calcLinkSize } from '../../../shared/utils';
+import { calcLinkSize } from '@shared/utils';
+
 import { YouTubeLink } from './types';
 
 const uniqueList = <T>(arr: T[], key: keyof T) => {

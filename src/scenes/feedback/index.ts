@@ -1,8 +1,8 @@
 import { Scenes } from 'telegraf';
 
-import { saveFeedback } from '../../features/storage';
-import { IContextBot } from '../../shared/config';
-import { notifyAdmin } from '../../shared/notifyAdmin';
+import { saveFeedback } from '@features/storage';
+import { IContextBot } from '@shared/config';
+import { notifyAdmin } from '@shared/notifyAdmin';
 
 const FEEDBACK_SCENE = 'feedbackScene';
 export const feedbackScene = new Scenes.BaseScene<IContextBot>(FEEDBACK_SCENE);

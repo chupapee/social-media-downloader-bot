@@ -4,9 +4,9 @@ import {
 	createActionsKeyboard,
 	getPage,
 	processTweetJson,
-} from '../../entities/twitter';
-import { onServiceFinish, onServiceInit } from '../../features/scenes';
-import { IContextBot } from '../../shared/config';
+} from '@entities/twitter';
+import { onServiceFinish, onServiceInit } from '@features/scenes';
+import { IContextBot } from '@shared/config';
 
 const ACTION_ID = 'tweetMetrics';
 

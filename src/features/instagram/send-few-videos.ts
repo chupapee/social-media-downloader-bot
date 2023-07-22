@@ -1,6 +1,7 @@
-import { downloadLink, InstagramLink } from '../../entities/instagram';
-import { IContextBot } from '../../shared/config';
-import { splitArray, timeout } from '../../shared/utils';
+import { downloadLink, InstagramLink } from '@entities/instagram';
+import { IContextBot } from '@shared/config';
+import { splitArray, timeout } from '@shared/utils';
+
 import { MAX_FILE_LIMIT } from './model/consts';
 
 interface SendFewVideosArgs {

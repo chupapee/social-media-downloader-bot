@@ -1,7 +1,8 @@
-import { getUsers } from '../entities/storage';
+import { getUsers } from '@entities/storage';
+import { i18n } from '@shared/config';
+import { timeout } from '@shared/utils';
+
 import { bot } from '../index';
-import { i18n } from '../shared/config';
-import { timeout } from '../shared/utils';
 import { toggleBotUpFlag } from './storage/toggleBotUpFlag';
 
 export const onBotUp = async () => {

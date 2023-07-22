@@ -10,7 +10,14 @@
 		"noImplicitAny": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
-		"strictPropertyInitialization": false
+		"strictPropertyInitialization": false,
+		"baseUrl": "src",
+		"paths": {
+			"@scenes/*": ["./scenes/*"],
+			"@entities/*": ["./entities/*"],
+			"@features/*": ["./features/*"],
+			"@shared/*": ["./shared/*"],
+		}
 	},
 	"include": ["src", "src/shared/config/locales/*.json"]
 }

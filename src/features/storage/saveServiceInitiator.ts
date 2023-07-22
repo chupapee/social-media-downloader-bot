@@ -5,7 +5,7 @@ import {
 	getUsers,
 	saveUser,
 	SocialMediaType,
-} from '../../entities/storage';
+} from '@entities/storage';
 
 export const saveServiceInitiator = async (
 	user: User,

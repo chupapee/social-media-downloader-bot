@@ -5,7 +5,7 @@ import {
 	getUsers,
 	saveUser,
 	SocialMediaType,
-} from '../../entities/storage';
+} from '@entities/storage';
 
 export async function saveServiceFinisher(
 	user: User,
