@@ -1,4 +1,4 @@
-import { downloadLink, InstagramLink } from '@entities/instagram';
+import { InstagramLink } from '@entities/instagram';
 import { IContextBot } from '@shared/config';
 import { splitArray, timeout } from '@shared/utils';
 
@@ -15,16 +15,10 @@ export const sendFewVideos = async ({
 	links,
 	originalLink,
 }: SendFewVideosArgs) => {
-	const bufferList = [];
-	for (const link of links) {
-		const buffer = await downloadLink(link.href);
-		if (buffer) bufferList.push({ ...link, buffer, type: link.type });
-	}
-
-	const limitedLinks = splitArray(bufferList, MAX_FILE_LIMIT);
+	const limitedLinks = splitArray(links, MAX_FILE_LIMIT);
 	for (const list of limitedLinks) {
 		ctx.replyWithMediaGroup(
-			list.map(({ buffer, type, source }, i) => {
+			list.map(({ href, type, source }, i) => {
 				const filename = `${source}.${
 					type === 'video' ? 'mp4' : 'jpg'
 				}`;
@@ -33,7 +27,7 @@ export const sendFewVideos = async ({
 					return {
 						type,
 						media: {
-							source: buffer,
+							url: href,
 							filename,
 						},
 						caption: `<a href='${originalLink}'>${links[0].source}</a>`,
@@ -42,7 +36,7 @@ export const sendFewVideos = async ({
 				}
 				return {
 					type,
-					media: { source: buffer, filename },
+					media: { url: href, filename },
 				};
 			})
 		);

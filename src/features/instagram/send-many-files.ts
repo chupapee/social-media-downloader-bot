@@ -1,8 +1,4 @@
-import {
-	createInlineKeyboard,
-	downloadLink,
-	InstagramLink,
-} from '@entities/instagram';
+import { createInlineKeyboard, InstagramLink } from '@entities/instagram';
 import { IContextBot } from '@shared/config';
 import { splitArray } from '@shared/utils';
 
@@ -23,20 +19,16 @@ export const sendManyFiles = async ({
 	const videos = links.filter(({ type }) => type === 'video');
 
 	/** first send all photos and only 3 videos */
-	const bufferList = [];
-	for (const link of [...photos, ...videos.slice(0, 3)]) {
-		const buffer = await downloadLink(link.href);
-		if (buffer) bufferList.push({ ...link, buffer, type: link.type });
-	}
+	const limitedVideosList = [...photos, ...videos.slice(0, 3)];
 
-	const limitedLinks = splitArray(bufferList, MAX_FILE_LIMIT);
+	const limitedLinks = splitArray(limitedVideosList, MAX_FILE_LIMIT);
 	for (const list of limitedLinks) {
 		await ctx.replyWithMediaGroup(
-			list.map(({ type, buffer, source }) => {
+			list.map(({ type, href, source }) => {
 				return {
 					type,
 					media: {
-						source: buffer,
+						url: href,
 						filename: `${source}.${
 							type === 'video' ? 'mp4' : 'jpg'
 						}`,
