@@ -2,7 +2,7 @@ import { createInlineKeyboard, InstagramLink } from '@entities/instagram';
 import { IContextBot } from '@shared/config';
 import { splitArray } from '@shared/utils';
 
-import { MAX_FILE_LIMIT } from './model/consts';
+import { MAX_FILE_LIMIT, MAX_VIDEOS_LIMIT } from './model/consts';
 
 interface SendManyFileArgs {
 	ctx: IContextBot;
@@ -18,8 +18,8 @@ export const sendManyFiles = async ({
 	const photos = links.filter(({ type }) => type === 'photo');
 	const videos = links.filter(({ type }) => type === 'video');
 
-	/** first send all photos and only 3 videos */
-	const limitedVideosList = [...photos, ...videos.slice(0, 3)];
+	/** first send all photos and only 5 videos */
+	const limitedVideosList = [...photos, ...videos.slice(0, MAX_VIDEOS_LIMIT)];
 
 	const limitedLinks = splitArray(limitedVideosList, MAX_FILE_LIMIT);
 	for (const list of limitedLinks) {
@@ -46,7 +46,9 @@ export const sendManyFiles = async ({
 		}:</a>`,
 		{
 			reply_markup: {
-				inline_keyboard: createInlineKeyboard(videos.slice(3)),
+				inline_keyboard: createInlineKeyboard(
+					videos.slice(MAX_VIDEOS_LIMIT)
+				),
 			},
 			parse_mode: 'HTML',
 		}

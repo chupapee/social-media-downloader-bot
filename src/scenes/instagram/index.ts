@@ -2,6 +2,7 @@ import { Scenes } from 'telegraf';
 
 import { getPage, parsePage } from '@entities/instagram';
 import {
+	MAX_VIDEOS_LIMIT,
 	sendFewVideos,
 	sendManyFiles,
 	sendSingleFile,
@@ -25,10 +26,6 @@ instagramScene.enter((ctx) => {
 
 			const videos = links.filter(({ type }) => type === 'video');
 
-			/**
-			 * LESS than 3 videos && any count of photos handlers
-			 * */
-			/** reels || single file */
 			if (isReels || links.length === 1) {
 				await sendSingleFile({
 					ctx,
@@ -38,14 +35,17 @@ instagramScene.enter((ctx) => {
 				return;
 			}
 
-			/** max 3 videos at once */
-			if (videos.length <= 3) {
+			/** max 5 videos at once
+			 * and any count of photos
+			 */
+			if (videos.length <= MAX_VIDEOS_LIMIT) {
 				await sendFewVideos({ ctx, links, originalLink });
 				return;
 			}
 
 			/**
-			 * MORE than 3 videos && any count of photos handlers
+			 * MORE than 5 videos
+			 * and any count of photos
 			 * */
 			await sendManyFiles({ ctx, links, originalLink });
 		} catch (error) {
