@@ -6,7 +6,7 @@ export interface MediaFile {
 	type: 'photo' | 'video';
 }
 
-const MAX_ALLOWED_SIZE = 50; // megabyte
+const MAX_ALLOWED_MEDIA_SIZE = 50; // mb
 
 export const parseMediaFiles = (
 	media: Pick<TweetInfo, 'extended_entities'>
@@ -18,7 +18,7 @@ export const parseMediaFiles = (
 				if (video_info?.variants !== undefined) {
 					const largestVideo = selectLargestQuality(
 						video_info,
-						MAX_ALLOWED_SIZE
+						MAX_ALLOWED_MEDIA_SIZE
 					);
 
 					mediaFiles.push({

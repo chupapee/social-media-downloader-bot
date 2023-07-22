@@ -3,4 +3,5 @@ export interface YouTubeLink {
 	descr?: string;
 	quality: string;
 	href: string;
+	size: number | null;
 }

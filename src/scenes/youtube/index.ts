@@ -11,10 +11,11 @@ import { retryGettingPage } from '../../shared/utils';
 
 export const youtubeScene = new Scenes.BaseScene<IContextBot>('youtubeScene');
 
+const MAX_ALLOWED_MEDIA_SIZE = 50; // mb
+
 youtubeScene.enter((ctx) => {
 	const handleEnter = async () => {
 		const originalLink = ctx.state.link;
-		const isShorts = originalLink.includes('shorts');
 		onServiceInit({ ctx, originalLink, socialMediaType: 'you' });
 
 		try {
@@ -26,30 +27,38 @@ youtubeScene.enter((ctx) => {
 			);
 
 			if (!page) throw new Error('parsing page failed');
-			const links = parsePage(page);
+			const links = await parsePage(page);
 
-			const smallestLink = links.reduce((smallest, current) => {
-				return smallest.quality! < current.quality!
-					? smallest
-					: current;
-			});
+			const allowedToUploadLinks = links.filter(
+				({ size }) => size && size <= MAX_ALLOWED_MEDIA_SIZE
+			);
 
-			const linksKeyboard = createLinksKeyboard(links);
-
-			if (isShorts) {
+			if (allowedToUploadLinks.length > 0) {
+				const link = allowedToUploadLinks[0];
 				await ctx.replyWithVideo(
-					{ url: smallestLink.href! },
+					{ url: link.href },
 					{
-						caption: smallestLink.descr ?? ctx.i18n.t('savedByBot'),
-						reply_markup: { inline_keyboard: linksKeyboard },
+						caption: `<a href='${originalLink}'>${
+							link.descr ?? ctx.i18n.t('savedByBot')
+						}</a>`,
+						parse_mode: 'HTML',
 					}
 				);
-			} else {
-				await ctx.reply(
-					smallestLink.descr ?? ctx.i18n.t('savedByBot'),
-					{ reply_markup: { inline_keyboard: linksKeyboard } }
-				);
+				return;
 			}
+
+			const linksKeyboard = createLinksKeyboard(links);
+			const link = links[0];
+
+			await ctx.reply(
+				`<a href='${originalLink}'>${
+					link.descr ?? ctx.i18n.t('savedByBot')
+				}</a>`,
+				{
+					parse_mode: 'HTML',
+					reply_markup: { inline_keyboard: linksKeyboard },
+				}
+			);
 		} catch (error) {
 			console.error(error);
 			await ctx.reply(ctx.i18n.t('smthWentWrong'));

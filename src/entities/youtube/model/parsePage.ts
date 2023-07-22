@@ -1,12 +1,13 @@
 import * as cheerio from 'cheerio';
 
+import { calcLinkSize } from '../../../shared/utils';
 import { YouTubeLink } from './types';
 
 const uniqueList = <T>(arr: T[], key: keyof T) => {
 	return [...new Map(arr.map((item) => [item[key], item])).values()];
 };
 
-export const parsePage = (page: string) => {
+export const parsePage = async (page: string) => {
 	const $ = cheerio.load(page);
 
 	const links: YouTubeLink[] = [];
@@ -18,19 +19,29 @@ export const parsePage = (page: string) => {
 		const quality = $(el).attr('data-quality') ?? '';
 		const href = $(el).attr('href') ?? '';
 
-		links.push({
+		const link = {
 			title,
-			descr,
+			descr: descr.replace('.mp4', ''),
 			quality,
 			href,
-		});
+			size: null,
+		};
+
+		if (!link.title.includes('audio')) links.push(link);
 	});
 
-	const filteredLinks = uniqueList(links, 'title').filter(
-		({ title }) => !title?.includes('audio')
-	);
+	const uniqueLinks = uniqueList(links, 'title');
 
-	if (filteredLinks.length === 0) throw new Error('links not found');
+	try {
+		for (const link of uniqueLinks) {
+			const size = await calcLinkSize(link.href, 'content-length');
+			link.size = size;
+		}
+	} catch (error) {
+		console.error(error);
+	}
 
-	return filteredLinks;
+	if (uniqueLinks.length === 0) throw new Error('links not found');
+
+	return uniqueLinks;
 };
