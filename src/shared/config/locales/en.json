@@ -18,9 +18,7 @@
 
 
 	"//twitter_scene": "",
-	"clickTheLink": "👇 ***Click the link*** to start the download:",
-	"uploadToTg": "⌛ Alternatively, you can click the button, and we will upload the video to Telegram, ***but it may take longer***",
-	"uploadToTgBtn": "📥 Upload to Telegram",
+	"tweetMetrics": "📈 Tweet metrics",
 	"TweetUnavailable": "🔒 Unfortunately, this tweet is protected and unavailable for viewing",
 
 	"//you_scene": "",

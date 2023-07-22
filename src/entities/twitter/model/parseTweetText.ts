@@ -1,8 +1,9 @@
-export const removeLastLink = (text: string) => {
+export const correctText = (text: string) => {
 	const regex = /https?:\/\/\S+/g;
 	const matches = text.match(regex);
 
 	if (matches && matches.length > 0) {
+		/** remove unnecessary text link */
 		const lastLink = matches[matches.length - 1];
 		return text.replace(lastLink, '');
 	}
@@ -24,7 +25,7 @@ export const parseTweetText = ({
 	name,
 	linksText,
 }: ParseTweetTextArgs) => {
-	const correctedText = removeLastLink(full_text);
+	const correctedText = correctText(full_text);
 	const text = correctedText.trim().length > 0 ? `\n\n${correctedText}` : '';
 	const fullTweet = `<a href="${originalLink}">👤 ${
 		name ?? screen_name

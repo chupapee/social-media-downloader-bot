@@ -8,7 +8,7 @@ import {
 import { onServiceFinish, onServiceInit } from '../../features/scenes';
 import { IContextBot } from '../../shared/config';
 
-const ACTION_ID = 'action';
+const ACTION_ID = 'tweetMetrics';
 
 export const twitterScene = new Scenes.BaseScene<IContextBot>('twitterScene');
 
@@ -26,7 +26,6 @@ twitterScene.enter(async (ctx) => {
 				originalLink
 			);
 
-			const actionsText = actionsBtn.map((act) => act).join(' | ');
 			const actionsKeyboard = createActionsKeyboard(
 				actionsBtn,
 				ACTION_ID
@@ -39,7 +38,7 @@ twitterScene.enter(async (ctx) => {
 							return {
 								media: { url: href },
 								type,
-								caption: `${fullCaption}\n\n${actionsText}`,
+								caption: `${fullCaption}`,
 								parse_mode: 'HTML',
 							};
 						}
@@ -50,6 +49,9 @@ twitterScene.enter(async (ctx) => {
 						};
 					})
 				);
+				await ctx.reply(ctx.i18n.t('tweetMetrics'), {
+					reply_markup: { inline_keyboard: actionsKeyboard },
+				});
 				return;
 			}
 
