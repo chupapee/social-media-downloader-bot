@@ -29,9 +29,11 @@ twitterScene.enter(async (ctx) => {
 			if (mediaFiles.length > 0) {
 				await ctx.replyWithMediaGroup(
 					mediaFiles.map(({ href, type }, i) => {
+						const filename =
+							type === 'video' ? `${type}.mp4` : `${type}.jpg`;
 						if (i === 0) {
 							return {
-								media: { url: href },
+								media: { url: href, filename },
 								type,
 								caption: `${fullCaption}`,
 								parse_mode: 'HTML',
@@ -39,7 +41,7 @@ twitterScene.enter(async (ctx) => {
 						}
 
 						return {
-							media: { url: href },
+							media: { url: href, filename },
 							type,
 						};
 					})

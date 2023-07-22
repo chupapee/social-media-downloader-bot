@@ -32,7 +32,7 @@ youtubeScene.enter((ctx) => {
 			if (allowedToUploadLinks.length > 0) {
 				const link = allowedToUploadLinks[0];
 				await ctx.replyWithVideo(
-					{ url: link.href },
+					{ url: link.href, filename: `${link.descr}.mp4` },
 					{
 						caption: `<a href='${originalLink}'>${
 							link.descr ?? ctx.i18n.t('savedByBot')

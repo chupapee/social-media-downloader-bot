@@ -26,16 +26,22 @@ export const sendManyFiles = async ({
 	const bufferList = [];
 	for (const link of [...photos, ...videos.slice(0, 3)]) {
 		const buffer = await downloadLink(link.href);
-		if (buffer) bufferList.push({ buffer, type: link.type });
+		if (buffer) bufferList.push({ ...link, buffer, type: link.type });
 	}
 
 	const limitedLinks = splitArray(bufferList, MAX_FILE_LIMIT);
 	for (const list of limitedLinks) {
 		await ctx.replyWithMediaGroup(
-			list.map(({ type, buffer }) => {
+			list.map(({ type, buffer, source }) => {
 				return {
 					type,
-					media: { source: buffer },
+					media: {
+						source: buffer,
+						filename: `${source}.${
+							type === 'video' ? 'mp4' : 'jpg'
+						}`,
+					},
+					parse_mode: 'HTML',
 				};
 			})
 		);
@@ -43,9 +49,9 @@ export const sendManyFiles = async ({
 
 	/** send other videos links */
 	await ctx.reply(
-		`<a href='${ctx.i18n.t('otherVideos')} ${
+		`<a href='${originalLink}'>${ctx.i18n.t('otherVideos')} ${
 			links[0].source
-		}:'>${originalLink}</a>`,
+		}:</a>`,
 		{
 			reply_markup: {
 				inline_keyboard: createInlineKeyboard(videos.slice(3)),

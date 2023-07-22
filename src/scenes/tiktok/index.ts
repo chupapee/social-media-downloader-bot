@@ -1,6 +1,7 @@
 import { Scenes } from 'telegraf';
 
 import { getPage, parsePage } from '@entities/tiktok';
+import { addMsgToRemoveList } from '@features/bot';
 import { onServiceFinish, onServiceInit } from '@features/scenes';
 import { IContextBot } from '@shared/config';
 import { calcLinkSize, retryGettingPage } from '@shared/utils';
@@ -28,7 +29,7 @@ tiktokScene.enter((ctx) => {
 			if (!link.href) throw new Error(linkNotFoundError);
 
 			//** link button before upload to Telegram */
-			await ctx.reply(ctx.i18n.t('beforeUpload'), {
+			const { message_id } = await ctx.reply(ctx.i18n.t('beforeUpload'), {
 				reply_markup: {
 					inline_keyboard: [
 						[
@@ -40,6 +41,7 @@ tiktokScene.enter((ctx) => {
 					],
 				},
 			});
+			addMsgToRemoveList(message_id, ctx);
 
 			const videoSize = await calcLinkSize(link.href, 'content-length');
 
@@ -48,7 +50,10 @@ tiktokScene.enter((ctx) => {
 			}
 
 			//** uploading to Telegram */
-			await ctx.replyWithVideo(link.href, { caption: link.title });
+			await ctx.replyWithVideo(link.href, {
+				caption: `<a href='${originalLink}'>${link.title}</a>`,
+				parse_mode: 'HTML',
+			});
 		} catch (error) {
 			if (error instanceof Error) {
 				switch (error.message) {
