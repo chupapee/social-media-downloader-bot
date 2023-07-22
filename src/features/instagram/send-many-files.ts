@@ -41,7 +41,7 @@ export const sendManyFiles = async ({
 		);
 	}
 
-	/** and then, send other videos links */
+	/** send other videos links */
 	await ctx.reply(
 		`<a href='${ctx.i18n.t('otherVideos')} ${
 			links[0].source

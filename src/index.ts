@@ -50,12 +50,28 @@ bot.command('feedback', async (ctx) => {
 	await ctx.scene.enter(feedbackScene.id);
 });
 
+/** The response to the 'tweet stats' inline_keyboard press is due to the fact that
+ * after processing the link, the scene is exited,
+ * so its needs to handle the button click here */
 bot.use(async (ctx, next) => {
-	/** While the user is in a certain scene,
-	 * new commands are not processed */
+	try {
+		if (
+			'data' in ctx.callbackQuery! &&
+			ctx.callbackQuery.data.includes('tweetStats')
+		) {
+			const text = ctx.callbackQuery.data.split('-')[1];
+			await ctx.answerCbQuery(text);
+		}
+	} catch {}
+	return next();
+});
+
+bot.use(async (ctx, next) => {
 	const isStarted = ctx.state.isStarted;
 	const isRunning = ctx.scene.current;
 
+	/** While the user is in a certain scene,
+	 * new commands are not processed */
 	if (!isStarted && isRunning) {
 		const { message_id } = await ctx.reply(ctx.i18n.t('pleaseWait'));
 		addMsgToRemoveList(message_id, ctx);

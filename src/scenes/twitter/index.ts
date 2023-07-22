@@ -8,8 +8,6 @@ import {
 import { onServiceFinish, onServiceInit } from '@features/scenes';
 import { IContextBot } from '@shared/config';
 
-const ACTION_ID = 'tweetMetrics';
-
 export const twitterScene = new Scenes.BaseScene<IContextBot>('twitterScene');
 
 twitterScene.enter(async (ctx) => {
@@ -26,10 +24,7 @@ twitterScene.enter(async (ctx) => {
 				originalLink
 			);
 
-			const actionsKeyboard = createActionsKeyboard(
-				actionsBtn,
-				ACTION_ID
-			);
+			const actionsKeyboard = createActionsKeyboard(actionsBtn);
 
 			if (mediaFiles.length > 0) {
 				await ctx.replyWithMediaGroup(
@@ -49,7 +44,7 @@ twitterScene.enter(async (ctx) => {
 						};
 					})
 				);
-				await ctx.reply(ctx.i18n.t('tweetMetrics'), {
+				await ctx.reply(ctx.i18n.t('tweetStats'), {
 					reply_markup: { inline_keyboard: actionsKeyboard },
 				});
 				return;
@@ -92,8 +87,4 @@ twitterScene.enter(async (ctx) => {
 				error,
 			})
 		);
-});
-
-twitterScene.action(ACTION_ID, async (ctx) => {
-	await ctx.answerCbQuery();
 });

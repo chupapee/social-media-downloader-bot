@@ -2,13 +2,10 @@
 	"//start_command": "",
 	"start": "🔗 Please send the link",
 	"processingLink": "⏳ Processing the link, it will take no more than a minute",
-	"invalidLink": "🚫 Please send a valid link.",
 	"pleaseWait": "⚡️ Your request is being processed\n⌛️ Please be patient",
+	"invalidLink": "🚫 Please send a valid link.",
 
 	"//insta_scene": "",
-	"downloadAll": "📥 Download all",
-	"containsManyLinks": "🔗 The link contains multiple media files. Please select which one you'd like to download:",
-	"linksFound": "✅ Link successfully processed! Click to download:",
 	"otherVideos": "🎥 Other videos from",
 
 	"//tiktok-scene": "",
@@ -18,23 +15,18 @@
 
 
 	"//twitter_scene": "",
-	"tweetMetrics": "📈 Tweet metrics",
+	"tweetStats": "📊 | Tweet stats",
 	"TweetUnavailable": "🔒 Unfortunately, this tweet is protected and unavailable for viewing",
 
 	"//you_scene": "",
-	"clickToDownload": "⬇️ Click the link to download the video:",
 
 	"//feedback-scene": "",
 	"feedbackExample": "Here you can send a message to the developer! 👤\nThink carefully, express your thought fully, and fit it into one message ✍️\n\nBelow are examples of different types of feedback you can send:\n- Hi! I would like to suggest adding feature X, which would allow us to do Y 📈\n- Hi! I noticed a bug in function X when I do Y 🛠",
 	"feedbackReceived": "✉️ Feedback received!\nYou can continue using the bot 🚀",
 
 	"//general": "",
-	"chooseQuality": "🎥 Choose the resolution:",
 	"smthWentWrong": "❌ Oops, something went wrong. Please try again.",
-	"uploadingMedia": "📤 Uploading to Telegram...",
-	"uploadingVideo": "📤 Uploading the video to Telegram...",
 	"savedByBot": "📤 Saved by: @insta_twitter_youtube_bot",
-
 	"botUpTechIssues": "Hey! 👋\nTechnical issues have been resolved 🛠✅\nYou can use the bot again 🚀",
 	"botUpText": "⚡️ ***Update*** ⚡️\n\n💡 Added support for ***TikTok links!***\n🛠 Additionally, minor bugs with Twitter links have been fixed. You can try re-uploading the links that had errors"
 }
