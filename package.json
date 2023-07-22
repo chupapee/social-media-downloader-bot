@@ -6,15 +6,10 @@
 	"license": "MIT",
 	"scripts": {
 		"dev": "nodemon",
-		"build": "tsc && tsc-alias",
+		"build": "rm -rf dist && tsc",
 		"lint": "eslint src",
 		"lint:fix": "eslint src --fix",
-		"format": "prettier --write ./src/*",
-		"process:start": "yarn build && npx pm2 start ecosystem.config.js",
-		"process:stop": "npx pm2 stop social-media-downloader-bot",
-		"process:delete": "npx pm2 delete social-media-downloader-bot",
-		"process:restart": "yarn build && npx pm2 restart social-media-downloader-bot",
-		"update": "git pull && yarn process:restart"
+		"format": "prettier --write ./src/*"
 	},
 	"dependencies": {
 		"@types/node": "^20.1.7",
