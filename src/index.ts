@@ -6,7 +6,13 @@ import { instagramScene } from '@scenes/instagram';
 import { tiktokScene } from '@scenes/tiktok';
 import { twitterScene } from '@scenes/twitter';
 import { youtubeScene } from '@scenes/youtube';
-import { BOT_TOKEN, i18n, IContextBot } from '@shared/config';
+import {
+	BOT_ADMIN_ID,
+	BOT_TOKEN,
+	i18n,
+	IContextBot,
+	USERS_WITH_ISSUES,
+} from '@shared/config';
 
 // import { onBotUp } from './features';
 import { getScenesData } from './getScenesData';
@@ -76,6 +82,17 @@ bot.use(async (ctx, next) => {
 		const { message_id } = await ctx.reply(ctx.i18n.t('pleaseWait'));
 		addMsgToRemoveList(message_id, ctx);
 		return;
+	}
+	return next();
+});
+
+bot.use(async (ctx, next) => {
+	if (ctx.from?.id === USERS_WITH_ISSUES) {
+		await ctx.reply(ctx.i18n.t('techIssues'));
+		await ctx.telegram.sendMessage(
+			BOT_ADMIN_ID,
+			'tech issue message sended!'
+		);
 	}
 	return next();
 });
