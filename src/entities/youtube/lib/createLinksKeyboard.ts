@@ -1,31 +1,21 @@
 import { InlineKeyboardButton } from 'typegram';
-import { videoFormat } from 'ytdl-core';
 
-import { uniqueList } from '@shared/utils';
+import { YouTubeLink } from '../model/types';
 
-const sortLinks = (links: videoFormat[]) => {
+const sortLinks = (links: YouTubeLink[]) => {
 	return links.sort((a, b) => {
-		const qualityA = a.qualityLabel ?? a.quality;
-		const qualityB = b.qualityLabel ?? b.quality;
-		return qualityB.localeCompare(qualityA, undefined, {
+		return b.quality.localeCompare(a.quality, undefined, {
 			numeric: true,
 		});
 	});
 };
 
-export const createLinksKeyboard = (links: videoFormat[]) => {
+export const createLinksKeyboard = (links: YouTubeLink[]) => {
 	const sortedLinks = sortLinks(links);
-	const uniqueLinks = uniqueList(sortedLinks, 'qualityLabel' ?? 'quality');
-	return uniqueLinks.reduce(
-		(
-			acc: InlineKeyboardButton[][],
-			{ url, quality, qualityLabel },
-			index
-		) => {
-			const btn = { text: `🔗 ${qualityLabel ?? quality}`, url };
-			/** skip lowest quality */
-			if (quality === 'tiny') return acc;
-			if (index % 3 === 0) {
+	return sortedLinks.reduce(
+		(acc: InlineKeyboardButton[][], { href, quality }, index) => {
+			const btn = { text: `🔗 ${quality}`, url: href };
+			if (index % 2 === 0) {
 				acc.push([btn]);
 			} else {
 				const lastItem = acc[acc.length - 1];

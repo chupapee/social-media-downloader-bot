@@ -1,15 +1,16 @@
 import { Scenes } from 'telegraf';
 import ytdl from 'ytdl-core';
 
-import {
-	createLinksKeyboard,
-	createStatsKeyboard,
-	getFormatToUpload,
-} from '@entities/youtube';
 import { onServiceFinish, onServiceInit } from '@features/scenes';
+import { sendFromBuffer } from '@features/youtube';
 import { IContextBot } from '@shared/config';
 
 export const youtubeScene = new Scenes.BaseScene<IContextBot>('youtubeScene');
+
+/** Convert seconds to minutes */
+const calcDuration = (sec: string) => {
+	return Number((Number(sec) / 60).toFixed(0));
+};
 
 youtubeScene.enter((ctx) => {
 	const handleEnter = async () => {
@@ -17,74 +18,47 @@ youtubeScene.enter((ctx) => {
 		onServiceInit({ ctx, originalLink, socialMediaType: 'you' });
 
 		try {
-			const { videoDetails, formats } = await ytdl.getBasicInfo(
-				originalLink
-			);
+			const { videoDetails } = await ytdl.getInfo(originalLink);
 
-			const {
-				author,
-				ownerChannelName,
+			const duration = calcDuration(videoDetails.lengthSeconds);
+			const isLongDuration = duration >= 10;
 
-				title,
-				description,
-
-				likes,
-				viewCount,
-				dislikes,
-
-				lengthSeconds,
-			} = videoDetails;
-
-			const formatsKeyboardButtons = createLinksKeyboard(formats);
-
-			await ctx.reply(ctx.i18n.t('beforeUpload'), {
-				reply_markup: {
-					inline_keyboard: formatsKeyboardButtons,
-				},
+			const chunks: Uint8Array[] = [];
+			await new Promise((resolve, reject) => {
+				ytdl(originalLink, {
+					filter: 'audioandvideo',
+					quality: isLongDuration ? 'lowest' : 'highest',
+				})
+					.on('data', (chunk: Uint8Array) => chunks.push(chunk))
+					.on('end', async () => {
+						await sendFromBuffer(
+							chunks,
+							videoDetails,
+							originalLink,
+							ctx
+						);
+						resolve('done');
+					})
+					.on('error', (e) => {
+						reject(e.message);
+					});
 			});
-
-			const statsKeyboard = createStatsKeyboard({
-				likes,
-				dislikes,
-				viewCount,
-			});
-
-			const formatToUpload = await getFormatToUpload(
-				formats,
-				lengthSeconds
-			);
-
-			if (formatToUpload) {
-				const caption = `${
-					title ?? description ?? ctx.i18n.t('savedByBot')
-				}\n\n<a href='${originalLink}'>👤 ${
-					author.name ?? ownerChannelName ?? author.user
-				}</a>`;
-				const filename = `${title ?? author.name ?? author.user}.mp4`;
-
-				await ctx.replyWithVideo(
-					{
-						url: formatToUpload.url,
-						filename,
-					},
-					{
-						caption,
-						parse_mode: 'HTML',
-						reply_markup: { inline_keyboard: statsKeyboard },
-					}
-				);
-				return;
-			}
-			await ctx.reply(ctx.i18n.t('tooLargeSize'));
 		} catch (error) {
-			console.error('error');
+			console.error(error);
 			if (error instanceof Error) {
 				if (error.message.includes('410')) {
 					ctx.reply(ctx.i18n.t('regionError'));
+					throw new TypeError(error.message);
 				}
+				if (error.message === 'tooLargeSize') {
+					ctx.reply(ctx.i18n.t('tooLargeSize'));
+					throw new TypeError(error.message);
+				}
+				await ctx.reply(ctx.i18n.t('smthWentWrong'));
 				throw new TypeError(error.message);
 			}
 			await ctx.reply(ctx.i18n.t('smthWentWrong'));
+			throw new Error('smthWentWrong');
 		}
 	};
 	handleEnter()
