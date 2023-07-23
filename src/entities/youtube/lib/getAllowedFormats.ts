@@ -2,35 +2,56 @@ import { videoFormat } from 'ytdl-core';
 
 import { calcLinkSize } from '@shared/utils';
 
-/** size in megabytes */
-const MAX_ALLOWED_MEDIA_SIZE = 50;
-const TOO_LOW_QUALITY_SIZE = 5;
+interface VideoFormatWithMb extends videoFormat {
+	mbBitrate: number | null;
+}
 
-export const getAllowedFormats = async (
-	formats: videoFormat[],
-	isLongVideo: boolean
-) => {
-	const links: videoFormat[] = [];
+/** Convert seconds to minutes */
+const calcDuration = (sec: string) => {
+	return Number((Number(sec) / 60).toFixed(0));
+};
+
+const addMbBitrate = async (
+	formats: videoFormat[]
+): Promise<VideoFormatWithMb[]> => {
+	const links: VideoFormatWithMb[] = [];
 	for (const format of formats) {
-		const size = await calcLinkSize(format.url, 'content-length');
-		const isVideo = !format.mimeType?.includes('audio');
-		if (size && isVideo) {
-			const isSizeAllowed = size <= MAX_ALLOWED_MEDIA_SIZE;
-			/** Ignore too low qualities of long duration videos */
-			if (isLongVideo && isSizeAllowed && size >= TOO_LOW_QUALITY_SIZE) {
-				links.push(format);
-				continue;
-			}
-
-			if (isSizeAllowed) {
-				links.push(format);
-			}
-		}
+		const mbBitrate = await calcLinkSize(format.url, 'content-length');
+		links.push({ ...format, mbBitrate });
 	}
+	return links;
+};
 
-	let highestQualityLink = null;
-	if (links.length > 0)
-		highestQualityLink = links.sort((a, b) => b.bitrate! - a.bitrate!)[0];
+const closestFormat = async (
+	formats: VideoFormatWithMb[],
+	goal: number
+): Promise<VideoFormatWithMb> => {
+	const videos = formats.filter(
+		({ mimeType }) => !mimeType?.includes('audio')
+	);
+	return videos.reduce((prev, curr) =>
+		Math.abs(curr.mbBitrate! - goal) < Math.abs(prev.mbBitrate! - goal)
+			? curr
+			: prev
+	);
+};
 
-	return { links, highestQualityLink };
+/** sizes in megabyte */
+const MIN_SIZE = 3;
+/** max size that telegram can upload */
+const MAX_SIZE = 48;
+
+export const getFormatToUpload = async (
+	formats: videoFormat[],
+	lengthSeconds: string
+) => {
+	const formatsWithMb = await addMbBitrate(formats);
+	const duration = calcDuration(lengthSeconds);
+	if (duration >= MAX_SIZE) {
+		return null;
+	}
+	if (duration < 3) {
+		return closestFormat(formatsWithMb, MIN_SIZE);
+	}
+	return closestFormat(formatsWithMb, duration);
 };

@@ -9,8 +9,8 @@
 	"otherVideos": "🎥 Other videos from",
 
 	"//tiktok-scene": "",
-	"beforeUpload": "📥 While we're uploading the video to Telegram, you can use the following link for a quick download 👇",
-	"tooLargeSize": "The file size is too large for uploading to Telegram(\nPlease use the button above 👆",
+	"beforeUpload": "📥 While we're uploading the video to Telegram, you can use the following links for a quick download 👇",
+	"tooLargeSize": "The file size is too large for uploading to Telegram\nPlease use the links above 👆\njust click on the button with the desired resolution)",
 	"incorrectLink": "❌ Failed to parse the link(\nSomething might be wrong with the file...",
 
 

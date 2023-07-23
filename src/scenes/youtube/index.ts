@@ -4,19 +4,12 @@ import ytdl from 'ytdl-core';
 import {
 	createLinksKeyboard,
 	createStatsKeyboard,
-	getAllowedFormats,
+	getFormatToUpload,
 } from '@entities/youtube';
 import { onServiceFinish, onServiceInit } from '@features/scenes';
 import { IContextBot } from '@shared/config';
 
 export const youtubeScene = new Scenes.BaseScene<IContextBot>('youtubeScene');
-
-const LONG_VIDEO_DURATION = 25; // minutes;
-
-const calcIsVideoLong = (sec: string) => {
-	const mins = Number((Number(sec) / 60).toFixed(1));
-	return mins >= LONG_VIDEO_DURATION;
-};
 
 youtubeScene.enter((ctx) => {
 	const handleEnter = async () => {
@@ -42,29 +35,36 @@ youtubeScene.enter((ctx) => {
 				lengthSeconds,
 			} = videoDetails;
 
-			let formatsKeyboardText = title;
 			const formatsKeyboardButtons = createLinksKeyboard(formats);
-			const isLongVideo = calcIsVideoLong(lengthSeconds);
 
-			const { links: allowedLinks, highestQualityLink } =
-				await getAllowedFormats(formats, isLongVideo);
+			await ctx.reply(ctx.i18n.t('beforeUpload'), {
+				reply_markup: {
+					inline_keyboard: formatsKeyboardButtons,
+				},
+			});
+
 			const statsKeyboard = createStatsKeyboard({
 				likes,
 				dislikes,
 				viewCount,
 			});
 
-			if (allowedLinks.length > 0) {
-				formatsKeyboardText = ctx.i18n.t('availableFormats');
+			const formatToUpload = await getFormatToUpload(
+				formats,
+				lengthSeconds
+			);
+
+			if (formatToUpload) {
 				const caption = `${
 					title ?? description ?? ctx.i18n.t('savedByBot')
 				}\n\n<a href='${originalLink}'>👤 ${
 					author.name ?? ownerChannelName ?? author.user
 				}</a>`;
 				const filename = `${title ?? author.name ?? author.user}.mp4`;
+
 				await ctx.replyWithVideo(
 					{
-						url: highestQualityLink!.url,
+						url: formatToUpload.url,
 						filename,
 					},
 					{
@@ -73,15 +73,11 @@ youtubeScene.enter((ctx) => {
 						reply_markup: { inline_keyboard: statsKeyboard },
 					}
 				);
+				return;
 			}
-
-			await ctx.reply(formatsKeyboardText, {
-				reply_markup: {
-					inline_keyboard: formatsKeyboardButtons,
-				},
-			});
+			await ctx.reply(ctx.i18n.t('tooLargeSize'));
 		} catch (error) {
-			console.error(error);
+			console.error('error');
 			if (error instanceof Error) {
 				if (error.message.includes('410')) {
 					ctx.reply(ctx.i18n.t('regionError'));

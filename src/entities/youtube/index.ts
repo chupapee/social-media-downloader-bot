@@ -1,5 +1,5 @@
 export {
 	createLinksKeyboard,
 	createStatsKeyboard,
-	getAllowedFormats,
+	getFormatToUpload,
 } from './lib';

@@ -3,8 +3,19 @@ import { videoFormat } from 'ytdl-core';
 
 import { uniqueList } from '@shared/utils';
 
+const sortLinks = (links: videoFormat[]) => {
+	return links.sort((a, b) => {
+		const qualityA = a.qualityLabel ?? a.quality;
+		const qualityB = b.qualityLabel ?? b.quality;
+		return qualityB.localeCompare(qualityA, undefined, {
+			numeric: true,
+		});
+	});
+};
+
 export const createLinksKeyboard = (links: videoFormat[]) => {
-	const uniqueLinks = uniqueList(links, 'qualityLabel' ?? 'quality');
+	const sortedLinks = sortLinks(links);
+	const uniqueLinks = uniqueList(sortedLinks, 'qualityLabel' ?? 'quality');
 	return uniqueLinks.reduce(
 		(
 			acc: InlineKeyboardButton[][],
