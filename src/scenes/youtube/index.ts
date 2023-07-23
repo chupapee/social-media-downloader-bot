@@ -1,64 +1,94 @@
 import { Scenes } from 'telegraf';
+import ytdl from 'ytdl-core';
 
-import { createLinksKeyboard, getPage, parsePage } from '@entities/youtube';
+import {
+	createLinksKeyboard,
+	createStatsKeyboard,
+	getAllowedFormats,
+} from '@entities/youtube';
 import { onServiceFinish, onServiceInit } from '@features/scenes';
 import { IContextBot } from '@shared/config';
-import { retryGettingPage } from '@shared/utils';
 
 export const youtubeScene = new Scenes.BaseScene<IContextBot>('youtubeScene');
 
-const MAX_ALLOWED_MEDIA_SIZE = 50; // mb
+const LONG_VIDEO_DURATION = 25; // minutes;
+
+const calcIsVideoLong = (sec: string) => {
+	const mins = Number((Number(sec) / 60).toFixed(1));
+	return mins >= LONG_VIDEO_DURATION;
+};
 
 youtubeScene.enter((ctx) => {
 	const handleEnter = async () => {
-		const originalLink = ctx.state.link;
+		const originalLink: string = ctx.state.link;
 		onServiceInit({ ctx, originalLink, socialMediaType: 'you' });
 
 		try {
-			const page = await retryGettingPage(
-				3,
-				originalLink,
-				getPage,
-				20_000
+			const { videoDetails, formats } = await ytdl.getBasicInfo(
+				originalLink
 			);
 
-			if (!page) throw new Error('parsing page failed');
-			const links = await parsePage(page);
+			const {
+				author,
+				ownerChannelName,
 
-			const allowedToUploadLinks = links.filter(
-				({ size }) => size && size <= MAX_ALLOWED_MEDIA_SIZE
-			);
+				title,
+				description,
 
-			if (allowedToUploadLinks.length > 0) {
-				const link = allowedToUploadLinks[0];
+				likes,
+				viewCount,
+				dislikes,
+
+				lengthSeconds,
+			} = videoDetails;
+
+			let formatsKeyboardText = title;
+			const formatsKeyboardButtons = createLinksKeyboard(formats);
+			const isLongVideo = calcIsVideoLong(lengthSeconds);
+
+			const { links: allowedLinks, highestQualityLink } =
+				await getAllowedFormats(formats, isLongVideo);
+			const statsKeyboard = createStatsKeyboard({
+				likes,
+				dislikes,
+				viewCount,
+			});
+
+			if (allowedLinks.length > 0) {
+				formatsKeyboardText = ctx.i18n.t('availableFormats');
+				const caption = `${
+					title ?? description ?? ctx.i18n.t('savedByBot')
+				}\n\n<a href='${originalLink}'>👤 ${
+					author.name ?? ownerChannelName ?? author.user
+				}</a>`;
+				const filename = `${title ?? author.name ?? author.user}.mp4`;
 				await ctx.replyWithVideo(
-					{ url: link.href, filename: `${link.descr}.mp4` },
 					{
-						caption: `<a href='${originalLink}'>${
-							link.descr ?? ctx.i18n.t('savedByBot')
-						}</a>`,
+						url: highestQualityLink!.url,
+						filename,
+					},
+					{
+						caption,
 						parse_mode: 'HTML',
+						reply_markup: { inline_keyboard: statsKeyboard },
 					}
 				);
-				return;
 			}
 
-			const linksKeyboard = createLinksKeyboard(links);
-			const link = links[0];
-
-			await ctx.reply(
-				`<a href='${originalLink}'>${
-					link.descr ?? ctx.i18n.t('savedByBot')
-				}</a>`,
-				{
-					parse_mode: 'HTML',
-					reply_markup: { inline_keyboard: linksKeyboard },
-				}
-			);
+			await ctx.reply(formatsKeyboardText, {
+				reply_markup: {
+					inline_keyboard: formatsKeyboardButtons,
+				},
+			});
 		} catch (error) {
 			console.error(error);
+			if (error instanceof Error) {
+				if (error.message.includes('410')) {
+					ctx.reply(ctx.i18n.t('regionError'));
+				}
+				throw new TypeError(error.message);
+			}
 			await ctx.reply(ctx.i18n.t('smthWentWrong'));
-			if (error instanceof Error) throw new Error(error.message);
 		}
 	};
 	handleEnter()

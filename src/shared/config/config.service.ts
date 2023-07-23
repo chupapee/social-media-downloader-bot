@@ -23,7 +23,6 @@ export const BOT_TOKEN = isDevEnv
 
 /** Telegram id of bot admin */
 export const BOT_ADMIN_ID = Number(getEnvVar('BOT_ADMIN_ID'));
-export const USERS_WITH_ISSUES = Number(getEnvVar('USERS_WITH_ISSUES'));
 
 /** Scraping page urls */
 export const TWITTER_PAGE_URL = getEnvVar('TWITTER_PAGE_URL');

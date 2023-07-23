@@ -1,3 +1,5 @@
-export { getPage } from './api';
-export { createLinksKeyboard } from './lib';
-export { parsePage, YouTubeLink } from './model';
+export {
+	createLinksKeyboard,
+	createStatsKeyboard,
+	getAllowedFormats,
+} from './lib';

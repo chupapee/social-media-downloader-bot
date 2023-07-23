@@ -19,6 +19,8 @@
 	"TweetUnavailable": "🔒 Unfortunately, this tweet is protected and unavailable for viewing",
 
 	"//you_scene": "",
+	"availableFormats": "🔗 Available formats",
+	"regionError": "🔒 Link is unavailable for download",
 
 	"//feedback-scene": "",
 	"feedbackExample": "Here you can send a message to the developer! 👤\nThink carefully, express your thought fully, and fit it into one message ✍️\n\nBelow are examples of different types of feedback you can send:\n- Hi! I would like to suggest adding feature X, which would allow us to do Y 📈\n- Hi! I noticed a bug in function X when I do Y 🛠",

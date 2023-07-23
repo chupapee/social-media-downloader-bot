@@ -6,13 +6,8 @@ import { instagramScene } from '@scenes/instagram';
 import { tiktokScene } from '@scenes/tiktok';
 import { twitterScene } from '@scenes/twitter';
 import { youtubeScene } from '@scenes/youtube';
-import {
-	BOT_ADMIN_ID,
-	BOT_TOKEN,
-	i18n,
-	IContextBot,
-	USERS_WITH_ISSUES,
-} from '@shared/config';
+import { BOT_TOKEN, i18n, IContextBot } from '@shared/config';
+import { STATS_ACTION_ID } from '@shared/consts';
 
 // import { onBotUp } from './features';
 import { getScenesData } from './getScenesData';
@@ -56,14 +51,14 @@ bot.command('feedback', async (ctx) => {
 	await ctx.scene.enter(feedbackScene.id);
 });
 
-/** The response to the 'tweet stats' inline_keyboard press is due to the fact that
+/** The response to the services stats inline_keyboard press is due to the fact that
  * after processing the link, the scene is exited,
  * so its needs to handle the button click here */
 bot.use(async (ctx, next) => {
 	try {
 		if (
 			'data' in ctx.callbackQuery! &&
-			ctx.callbackQuery.data.includes('tweetStats')
+			ctx.callbackQuery.data.includes(STATS_ACTION_ID)
 		) {
 			const text = ctx.callbackQuery.data.split('-')[1];
 			await ctx.answerCbQuery(text);
@@ -86,17 +81,6 @@ bot.use(async (ctx, next) => {
 	return next();
 });
 
-bot.use(async (ctx, next) => {
-	if (ctx.from?.id === USERS_WITH_ISSUES) {
-		await ctx.reply(ctx.i18n.t('techIssues'));
-		await ctx.telegram.sendMessage(
-			BOT_ADMIN_ID,
-			'tech issue message sended!'
-		);
-	}
-	return next();
-});
-
 bot.start(async (ctx) => {
 	await ctx.reply(ctx.i18n.t('start', { userId: ctx.from.id }));
 });
@@ -105,12 +89,13 @@ bot.on('message', async (ctx) => {
 	const handleMessage = async () => {
 		if ('text' in ctx.message) {
 			const link = ctx.message.text;
-			ctx.state.link = link;
+			const isMusicLink = link.includes('music.youtube.com');
 			const scenesData = getScenesData();
 			const selectedAction = scenesData.find(({ urls }) =>
 				urls.some((url) => link.includes(url))
 			);
-			if (selectedAction) {
+			if (selectedAction && !isMusicLink) {
+				ctx.state.link = link;
 				ctx.state.isStarted = true;
 				const { scene } = selectedAction;
 				const { message_id } = await ctx.reply(

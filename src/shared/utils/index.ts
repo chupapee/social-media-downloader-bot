@@ -63,7 +63,7 @@ export const markdownParsable = (str: string) => {
 };
 
 export const bytesToMegaBytes = (bytes: number) =>
-	Number((bytes / (1024 * 1024)).toFixed(0));
+	Number((bytes / (1024 * 1024)).toFixed(1));
 
 export const calcLinkSize = async (url: string, header = 'Content-Length') => {
 	const res = await axios.head(url);
@@ -77,3 +77,7 @@ export const findLargestBelow = (arr: number[], max: number) => {
 };
 
 export const compactNumber = Intl.NumberFormat('en', { notation: 'compact' });
+
+export const uniqueList = <T>(arr: T[], key: keyof T) => {
+	return [...new Map(arr.map((item) => [item[key], item])).values()];
+};

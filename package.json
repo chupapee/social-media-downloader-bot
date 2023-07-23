@@ -27,7 +27,8 @@
 		"telegraf": "^4.12.2",
 		"telegraf-i18n": "^6.6.0",
 		"ts-node": "^10.9.1",
-		"typescript": "^5.0.4"
+		"typescript": "^5.0.4",
+		"ytdl-core": "^4.11.5"
 	},
 	"devDependencies": {
 		"eslint": "^8.42.0",
