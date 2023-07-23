@@ -8,7 +8,7 @@ export const getPage = async (link: string) => {
 	try {
 		const browser = await puppeteer.launch({
 			executablePath: puppeteerExecutablePath,
-			headless: 'new',
+			headless: false,
 			args: ['--no-sandbox', '--disable-setuid-sandbox'],
 		});
 		const page = await browser.newPage();
@@ -16,10 +16,10 @@ export const getPage = async (link: string) => {
 		await page.goto(YOUTUBE_PAGE_URL, { waitUntil: 'domcontentloaded' });
 
 		const input = await page.$('#sf_url');
-		await timeout(500);
+		await timeout(1000);
 
 		await input?.type(link);
-		await timeout(500);
+		await timeout(1000);
 
 		await page.click('#sf_submit');
 		await page.waitForSelector('.link-box', { timeout: 25_000 });

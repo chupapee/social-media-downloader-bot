@@ -1,3 +1,4 @@
+import { downloadLink } from '@entities/instagram';
 import { createLinksKeyboard, getPage, parsePage } from '@entities/youtube';
 import { IContextBot } from '@shared/config';
 import { retryGettingPage } from '@shared/utils';
@@ -29,25 +30,29 @@ export const scrapeAndSend = async ({
 	);
 	if (!page) throw new Error('parsing page failed');
 	const links = await parsePage(page);
-	console.log(links);
 	const allowedToUploadLinks = links.filter(
 		({ size }) => size && size <= MAX_ALLOWED_SIZE
 	);
-	if (allowedToUploadLinks.length > 0) {
-		const link = allowedToUploadLinks[0];
-		await ctx.replyWithVideo(
-			{ url: link.href, filename },
-			{
-				caption,
-				parse_mode: 'HTML',
-			}
-		);
-		return;
-	}
 
 	const linksKeyboard = createLinksKeyboard(links);
-	await ctx.reply(caption, {
+	await ctx.reply(ctx.i18n.t('beforeUpload'), {
 		parse_mode: 'HTML',
 		reply_markup: { inline_keyboard: linksKeyboard },
 	});
+
+	if (allowedToUploadLinks.length > 0) {
+		const link = allowedToUploadLinks[0];
+		const buffer = await downloadLink(link.href);
+		if (buffer) {
+			await ctx.replyWithVideo(
+				{ url: link.href, filename },
+				{
+					caption,
+					parse_mode: 'HTML',
+				}
+			);
+			return;
+		}
+	}
+	throw new Error('tooLargeSize');
 };
