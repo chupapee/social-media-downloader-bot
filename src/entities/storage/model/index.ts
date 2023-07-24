@@ -1,1 +1,1 @@
-export { DatabaseEntities, DatabaseUser, SocialMediaType } from './types';
+export { DatabaseEntities, SocialMedia } from './types';

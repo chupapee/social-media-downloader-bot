@@ -1,5 +1,6 @@
 import { Markup, Scenes, session, Telegraf } from 'telegraf';
 
+import { storageApi } from '@entities/storage';
 import { addMsgToRemoveList } from '@features/bot';
 import { isDonationTrigger, makeDonation } from '@features/donation';
 import { feedbackScene } from '@scenes/feedback';
@@ -103,6 +104,7 @@ bot.use(async (ctx, next) => {
 
 bot.start(async (ctx) => {
 	await ctx.reply(ctx.i18n.t('start', { userId: ctx.from.id }));
+	storageApi.saveUser({ ...ctx.from });
 });
 
 bot.on('message', async (ctx) => {

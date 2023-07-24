@@ -8,13 +8,12 @@ import { IContextBot } from '@shared/config';
 export const youtubeScene = new Scenes.BaseScene<IContextBot>('youtubeScene');
 
 youtubeScene.enter((ctx) => {
+	const originalLink: string = ctx.state.link;
 	const handleEnter = async () => {
-		const originalLink: string = ctx.state.link;
-		onServiceInit({ ctx, originalLink, socialMediaType: 'you' });
+		onServiceInit({ ctx, socialMediaType: 'youtube' });
 
 		try {
 			const { videoDetails } = await ytdl.getInfo(originalLink);
-
 			await scrapeAndSend({
 				ctx,
 				originalLink,
@@ -42,16 +41,18 @@ youtubeScene.enter((ctx) => {
 		.then(() =>
 			onServiceFinish({
 				ctx,
-				socialMediaType: 'you',
+				socialMediaType: 'youtube',
 				status: 'success',
+				originalLink,
 			})
 		)
 		.catch((error) =>
 			onServiceFinish({
 				ctx,
-				socialMediaType: 'you',
+				socialMediaType: 'youtube',
 				status: 'error',
 				error,
+				originalLink,
 			})
 		);
 });

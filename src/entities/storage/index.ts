@@ -1,2 +1,2 @@
-export { getUsers, saveUser } from './api/storageApi';
-export { DatabaseEntities, DatabaseUser, SocialMediaType } from './model';
+export { storageApi } from './api';
+export { DatabaseEntities, SocialMedia } from './model';

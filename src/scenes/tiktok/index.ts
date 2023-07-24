@@ -13,9 +13,9 @@ const tooLargeError = 'file size is too large';
 const linkNotFoundError = 'link not found';
 
 tiktokScene.enter((ctx) => {
+	const originalLink = ctx.state.link;
 	const handelEnter = async () => {
-		const originalLink = ctx.state.link;
-		onServiceInit({ ctx, originalLink, socialMediaType: 'tiktok' });
+		onServiceInit({ ctx, socialMediaType: 'tiktok' });
 
 		try {
 			const page = await retryGettingPage(
@@ -77,6 +77,7 @@ tiktokScene.enter((ctx) => {
 				ctx,
 				socialMediaType: 'tiktok',
 				status: 'success',
+				originalLink,
 			})
 		)
 		.catch((error) =>
@@ -85,6 +86,7 @@ tiktokScene.enter((ctx) => {
 				socialMediaType: 'tiktok',
 				status: 'error',
 				error,
+				originalLink,
 			})
 		);
 });

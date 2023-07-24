@@ -1,50 +1,48 @@
+import { User } from 'typegram';
+
 import { doc, getDoc, updateDoc } from '@firebase/firestore';
-import { BOT_ADMIN_ID, db } from '@shared/config';
+import { db } from '@shared/config';
+import { notifyAdmin } from '@shared/notifyAdmin';
 
-import {
-	DatabaseEntities,
-	DatabaseUser,
-	SocialMediaType,
-} from '../model/types';
+import { DatabaseEntities } from '../model/types';
 
-export async function getUsers(): Promise<DatabaseEntities | undefined>;
-export async function getUsers(
-	appType: SocialMediaType
-): Promise<DatabaseUser[] | undefined>;
+const USERS_REF = doc(db, 'users', 'list');
 
-export async function getUsers(
-	appType?: SocialMediaType
-): Promise<DatabaseUser[] | DatabaseEntities | undefined> {
-	const usersRef = doc(db, 'users', 'list');
+export const getUsers = async () => {
 	try {
-		const response = (await getDoc(usersRef)).data() as DatabaseEntities;
-		if (appType) return response[appType];
-		return response;
+		const response = await getDoc(USERS_REF);
+		const users = response.data() as DatabaseEntities;
+		return users['social-media-bot'];
 	} catch (error) {
 		console.error(error, 'GETTING DB USERS FAILED');
 	}
-}
+};
 
 /** Some symbols aren't allowed in the database
  * so they should be stringified first
  */
-const updatable = (object: unknown) => JSON.parse(JSON.stringify(object));
+const toWritableObj = (object: unknown) => JSON.parse(JSON.stringify(object));
 
-export async function saveUser(
-	oldUsers: DatabaseUser[],
-	newUser: DatabaseUser,
-	appType: SocialMediaType
-) {
-	if (newUser.id !== BOT_ADMIN_ID) {
-		const usersRef = doc(db, 'users', 'list');
-		const updatedUsers = [...oldUsers, updatable(newUser)];
+const isUserExist = (user: User, usersList: User[]) => {
+	return usersList.some(({ id }) => id === user.id);
+};
+
+export const saveUser = async (user: User) => {
+	const usersList = await getUsers();
+	if (usersList !== undefined) {
+		if (isUserExist(user, usersList)) return;
+
+		notifyAdmin({
+			text: `✨ New user added: ${JSON.stringify(user, null, 2)}`,
+		});
+		const updatedUsersList = [...usersList, toWritableObj(user)];
 		try {
-			await updateDoc(usersRef, {
-				[appType]: updatedUsers,
+			await updateDoc(USERS_REF, {
+				'social-media-bot': updatedUsersList,
 			});
 			console.log('USER SAVED SUCCESSFULLY');
 		} catch (error) {
 			console.error(error, 'SAVING USER IN DB FAILED');
 		}
 	}
-}
+};

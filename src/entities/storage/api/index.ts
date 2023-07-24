@@ -1,1 +1,1 @@
-export { getUsers, saveUser } from './storageApi';
+export * as storageApi from './storageApi';

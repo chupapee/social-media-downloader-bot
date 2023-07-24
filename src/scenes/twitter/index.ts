@@ -11,9 +11,9 @@ import { IContextBot } from '@shared/config';
 export const twitterScene = new Scenes.BaseScene<IContextBot>('twitterScene');
 
 twitterScene.enter(async (ctx) => {
+	const originalLink: string = ctx.state.link;
 	const handleEnter = async () => {
-		const originalLink: string = ctx.state.link;
-		onServiceInit({ ctx, originalLink, socialMediaType: 'twitter' });
+		onServiceInit({ ctx, socialMediaType: 'twitter' });
 
 		try {
 			const content = await getPage(originalLink);
@@ -79,6 +79,7 @@ twitterScene.enter(async (ctx) => {
 				ctx,
 				socialMediaType: 'twitter',
 				status: 'success',
+				originalLink,
 			})
 		)
 		.catch((error) =>
@@ -87,6 +88,7 @@ twitterScene.enter(async (ctx) => {
 				socialMediaType: 'twitter',
 				status: 'error',
 				error,
+				originalLink,
 			})
 		);
 });

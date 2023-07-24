@@ -1,15 +1,15 @@
-import { SocialMediaType } from '@entities/storage';
+import { SocialMedia } from '@entities/storage';
 import { BOT_ADMIN_ID, IContextBot } from '@shared/config';
 import { notifyAdmin } from '@shared/notifyAdmin';
 
 import { removeTempMessages } from '../bot';
-import { saveServiceFinisher } from '../storage';
 
 interface OnServiceInitArgs {
 	ctx: IContextBot;
-	socialMediaType: SocialMediaType;
+	socialMediaType: SocialMedia;
 	status: 'success' | 'error';
 	error?: Error;
+	originalLink: string;
 }
 
 export const onServiceFinish = ({
@@ -17,9 +17,10 @@ export const onServiceFinish = ({
 	socialMediaType,
 	status,
 	error,
+	originalLink,
 }: OnServiceInitArgs) => {
 	const successText = `${socialMediaType} service handled! ✅`;
-	const errorText = `${socialMediaType} service failed! ❌`;
+	const errorText = `❌ ${socialMediaType} service failed!\n\n🔗 Link:\n${originalLink}`;
 	if ('message' in ctx.update) {
 		const user = ctx.update.message.from;
 		if (user.id !== BOT_ADMIN_ID) {
@@ -27,9 +28,8 @@ export const onServiceFinish = ({
 				text:
 					status === 'success'
 						? successText
-						: `${errorText}\n${error!.message}`,
+						: `${errorText}\n\n📝 Reason:\n${error!.message}`,
 			});
-			saveServiceFinisher(user, socialMediaType);
 		}
 	}
 	ctx.scene.leave();

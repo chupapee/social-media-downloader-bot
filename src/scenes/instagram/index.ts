@@ -15,10 +15,10 @@ export const instagramScene = new Scenes.BaseScene<IContextBot>(
 );
 
 instagramScene.enter((ctx) => {
+	const originalLink: string = ctx.state.link;
 	const handelEnter = async () => {
-		const originalLink: string = ctx.state.link;
 		const isReels = originalLink.includes('reel');
-		onServiceInit({ ctx, originalLink, socialMediaType: 'insta' });
+		onServiceInit({ ctx, socialMediaType: 'instagram' });
 
 		try {
 			const page = await getPage(originalLink);
@@ -59,16 +59,18 @@ instagramScene.enter((ctx) => {
 		.then(() =>
 			onServiceFinish({
 				ctx,
-				socialMediaType: 'insta',
+				socialMediaType: 'instagram',
 				status: 'success',
+				originalLink,
 			})
 		)
 		.catch((error) =>
 			onServiceFinish({
 				ctx,
-				socialMediaType: 'insta',
+				socialMediaType: 'instagram',
 				status: 'error',
 				error,
+				originalLink,
 			})
 		);
 });
