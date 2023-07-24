@@ -2,15 +2,10 @@ import { Scenes } from 'telegraf';
 import ytdl from 'ytdl-core';
 
 import { onServiceFinish, onServiceInit } from '@features/scenes';
-import { sendFromBuffer } from '@features/youtube';
+import { scrapeAndSend } from '@features/youtube';
 import { IContextBot } from '@shared/config';
 
 export const youtubeScene = new Scenes.BaseScene<IContextBot>('youtubeScene');
-
-/** Convert seconds to minutes */
-const calcDuration = (sec: string) => {
-	return Number((Number(sec) / 60).toFixed(0));
-};
 
 youtubeScene.enter((ctx) => {
 	const handleEnter = async () => {
@@ -20,28 +15,10 @@ youtubeScene.enter((ctx) => {
 		try {
 			const { videoDetails } = await ytdl.getInfo(originalLink);
 
-			const duration = calcDuration(videoDetails.lengthSeconds);
-			const isLongDuration = duration >= 10;
-
-			const chunks: Uint8Array[] = [];
-			await new Promise((resolve, reject) => {
-				ytdl(originalLink, {
-					filter: 'audioandvideo',
-					quality: isLongDuration ? 'lowest' : 'highest',
-				})
-					.on('data', (chunk: Uint8Array) => chunks.push(chunk))
-					.on('end', async () => {
-						await sendFromBuffer(
-							chunks,
-							videoDetails,
-							originalLink,
-							ctx
-						);
-						resolve('done');
-					})
-					.on('error', (e) => {
-						reject(e.message);
-					});
+			await scrapeAndSend({
+				ctx,
+				originalLink,
+				videoDetails,
 			});
 		} catch (error) {
 			console.error(error);

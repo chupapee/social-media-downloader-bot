@@ -8,7 +8,7 @@ export const getPage = async (link: string) => {
 	try {
 		const browser = await puppeteer.launch({
 			executablePath: puppeteerExecutablePath,
-			headless: false,
+			headless: 'new',
 			args: ['--no-sandbox', '--disable-setuid-sandbox'],
 		});
 		const page = await browser.newPage();
