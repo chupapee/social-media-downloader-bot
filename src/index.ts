@@ -1,6 +1,7 @@
-import { Scenes, session, Telegraf } from 'telegraf';
+import { Markup, Scenes, session, Telegraf } from 'telegraf';
 
 import { addMsgToRemoveList } from '@features/bot';
+import { isDonationTrigger, makeDonation } from '@features/donation';
 import { feedbackScene } from '@scenes/feedback';
 import { instagramScene } from '@scenes/instagram';
 import { tiktokScene } from '@scenes/tiktok';
@@ -51,6 +52,18 @@ bot.command('feedback', async (ctx) => {
 	await ctx.scene.enter(feedbackScene.id);
 });
 
+bot.command('donate', makeDonation);
+
+bot.use(async (ctx, next) => {
+	if ('message' in ctx && 'text' in ctx.message!) {
+		const text = ctx.message.text;
+		if (isDonationTrigger(text)) {
+			makeDonation(ctx);
+		}
+	}
+	return next();
+});
+
 /** The response to the services stats inline_keyboard press is due to the fact that
  * after processing the link, the scene is exited,
  * so its needs to handle the button click here */
@@ -71,6 +84,13 @@ bot.use(async (ctx, next) => {
 	const isStarted = ctx.state.isStarted;
 	const isRunning = ctx.scene.current;
 
+	if (
+		'message' in ctx &&
+		'text' in ctx.message! &&
+		isDonationTrigger(ctx.message!.text)
+	) {
+		return;
+	}
 	/** While the user is in a certain scene,
 	 * new commands are not processed */
 	if (!isStarted && isRunning) {
@@ -89,6 +109,9 @@ bot.on('message', async (ctx) => {
 	const handleMessage = async () => {
 		if ('text' in ctx.message) {
 			const link = ctx.message.text;
+
+			if (isDonationTrigger(link)) return;
+
 			const isMusicLink = link.includes('music.youtube.com');
 			const scenesData = getScenesData();
 			const selectedAction = scenesData.find(({ urls }) =>
@@ -99,14 +122,14 @@ bot.on('message', async (ctx) => {
 				ctx.state.isStarted = true;
 				const { scene } = selectedAction;
 				const { message_id } = await ctx.reply(
-					ctx.i18n.t('processingLink')
+					ctx.i18n.t('processingLink'),
+					Markup.keyboard([[ctx.i18n.t('supportBtnText')]]).resize()
 				);
 				addMsgToRemoveList(message_id, ctx);
 				await ctx.scene.enter(scene);
 			} else await ctx.reply(ctx.i18n.t('invalidLink'));
 		}
 	};
-
 	handleMessage();
 });
 
