@@ -1,7 +1,6 @@
-import { downloadLink } from '@entities/instagram';
 import { createLinksKeyboard, getPage, parsePage } from '@entities/youtube';
 import { IContextBot } from '@shared/config';
-import { retryGettingPage } from '@shared/utils';
+import { downloadLink, retryGettingPage } from '@shared/utils';
 
 const MAX_ALLOWED_SIZE = 48; // mb
 const RETRIES_COUNT = 3;

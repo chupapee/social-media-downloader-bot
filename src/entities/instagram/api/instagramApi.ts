@@ -35,14 +35,3 @@ export const getPage = async (link: string) => {
 		throw new Error('Something went wrong, please try again');
 	}
 };
-
-export const downloadLink = async (link: string) => {
-	try {
-		const response = await axios.get(link, { responseType: 'arraybuffer' });
-		const buffer = Buffer.from(response.data, 'binary');
-		return buffer;
-	} catch (error) {
-		if (error instanceof Error) throw new Error(error.message);
-		console.error('Error while downloading and sending image:', error);
-	}
-};

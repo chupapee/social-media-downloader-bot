@@ -16,7 +16,7 @@ export const parsePage = (page: string) => {
 			links.push({
 				type: type as 'photo' | 'video',
 				href: link,
-				source,
+				source: `👤 ${source}`,
 			});
 	});
 

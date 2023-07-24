@@ -32,6 +32,17 @@ export const retryGettingPage = async <T>(
 	return content;
 };
 
+export const downloadLink = async (link: string) => {
+	try {
+		const response = await axios.get(link, { responseType: 'arraybuffer' });
+		const buffer = Buffer.from(response.data, 'binary');
+		return buffer;
+	} catch (error) {
+		if (error instanceof Error) throw new Error(error.message);
+		console.error('Download buffer error:', error);
+	}
+};
+
 export const markdownParsable = (str: string) => {
 	const symbolsToEscape = [
 		'_',

@@ -1,1 +1,1 @@
-export { downloadLink, getPage } from './instagramApi';
+export { getPage } from './instagramApi';
