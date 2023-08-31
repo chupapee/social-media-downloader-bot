@@ -62,7 +62,7 @@ export const scrapeAndSend = async ({
 		});
 
 		const link = uploadableLinks[0];
-		const buffer = await downloadLink(link.href);
+		const buffer = await downloadLink({ link: link.href });
 		if (buffer) {
 			await ctx.replyWithVideo(
 				{ source: buffer, filename },

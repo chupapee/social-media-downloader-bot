@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+import {
+	isDevEnv,
+	PROXY_HOST,
+	PROXY_LOGIN,
+	PROXY_PASS,
+	PROXY_PORT,
+} from '@shared/config';
+
 export const timeout = (sec: number): Promise<null> =>
 	new Promise((ok) => setTimeout(ok, sec));
 
@@ -32,9 +40,30 @@ export const retryGettingPage = async <T>(
 	return content;
 };
 
-export const downloadLink = async (link: string) => {
+interface DownloadLinkArgs {
+	link: string;
+	withProxy?: boolean;
+}
+
+export const downloadLink = async ({
+	link,
+	withProxy = false,
+}: DownloadLinkArgs) => {
 	try {
-		const response = await axios.get(link, { responseType: 'arraybuffer' });
+		const response = await axios.get(link, {
+			responseType: 'arraybuffer',
+			proxy:
+				withProxy && !isDevEnv
+					? {
+							host: PROXY_HOST,
+							port: Number(PROXY_PORT),
+							auth: {
+								username: PROXY_LOGIN,
+								password: PROXY_PASS,
+							},
+					  }
+					: false,
+		});
 		const buffer = Buffer.from(response.data, 'binary');
 		return buffer;
 	} catch (error) {

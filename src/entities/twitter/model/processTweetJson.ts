@@ -3,12 +3,12 @@ import { parseMediaFiles } from './parseMediaFiles';
 import { processMainTweet } from './processMainTweet';
 import { processQuotedTweet } from './processQuotedTweet';
 
-export const processTweetJson = (
+export const processTweetJson = async (
 	tweetJson: TweetJson,
 	originalLink: string
 ) => {
 	const { legacy } = tweetJson.data!.tweetResult.result;
-	const mediaFiles = parseMediaFiles(legacy);
+	const mediaFiles = await parseMediaFiles(legacy);
 
 	const { mainTweet, actionsList } = processMainTweet(
 		tweetJson,

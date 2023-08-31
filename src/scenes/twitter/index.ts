@@ -19,21 +19,19 @@ twitterScene.enter(async (ctx) => {
 			const content = await getPage(originalLink);
 			if (!content?.data) throw new Error("page doesn't parsed");
 
-			const { fullCaption, actionsBtn, mediaFiles } = processTweetJson(
-				content,
-				originalLink
-			);
+			const { fullCaption, actionsBtn, mediaFiles } =
+				await processTweetJson(content, originalLink);
 
 			const actionsKeyboard = createActionsKeyboard(actionsBtn);
 
-			if (mediaFiles.length > 0) {
+			if (mediaFiles && mediaFiles.length > 0) {
 				await ctx.replyWithMediaGroup(
 					mediaFiles.map(({ href, type }, i) => {
 						const filename =
 							type === 'video' ? `${type}.mp4` : `${type}.jpg`;
 						if (i === 0) {
 							return {
-								media: { url: href, filename },
+								media: { source: href, filename },
 								type,
 								caption: `${fullCaption}`,
 								parse_mode: 'HTML',
@@ -41,7 +39,7 @@ twitterScene.enter(async (ctx) => {
 						}
 
 						return {
-							media: { url: href, filename },
+							media: { source: href, filename },
 							type,
 						};
 					})
