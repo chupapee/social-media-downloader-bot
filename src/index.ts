@@ -11,7 +11,7 @@ import { youtubeScene } from '@scenes/youtube';
 import { BOT_TOKEN, i18n, IContextBot } from '@shared/config';
 import { STATS_ACTION_ID } from '@shared/consts';
 
-// import { onBotUp } from './features';
+import { botUpEvent } from './features/botUpEvent';
 import { getScenesData } from './getScenesData';
 
 export const bot = new Telegraf<IContextBot>(BOT_TOKEN);
@@ -32,7 +32,7 @@ bot.catch((error) => {
 	console.error(error, 'INDEX.TS');
 });
 
-// onBotUp();
+botUpEvent();
 
 const lang = {
 	ru: '🇷🇺 Язык изменен на русский!',

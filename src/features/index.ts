@@ -1,1 +1,1 @@
-export { onBotUp } from './onBotUp';
+export { botUpEvent } from './botUpEvent';
