@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer';
 
+import { PROXY_LOGIN, PROXY_PASS, PROXY_URL } from '@shared/config';
 import { puppeteerExecutablePath } from '@shared/consts';
 
 import { TweetJson } from '../model';
@@ -13,10 +14,20 @@ export const getPage = async (
 		const browser = await puppeteer.launch({
 			executablePath: puppeteerExecutablePath,
 			headless: 'new',
-			args: ['--no-sandbox', '--disable-setuid-sandbox'],
+			args: [
+				'--no-sandbox',
+				'--disable-setuid-sandbox',
+				`--proxy-server=${PROXY_URL}`,
+			],
 		});
 
 		const page = await browser.newPage();
+
+		await page.authenticate({
+			username: PROXY_LOGIN,
+			password: PROXY_PASS,
+		});
+
 		await page
 			.goto(twitterLink, { waitUntil: 'domcontentloaded' })
 			.catch(() => null);

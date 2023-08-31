@@ -29,3 +29,7 @@ export const TWITTER_PAGE_URL = getEnvVar('TWITTER_PAGE_URL');
 export const INSTA_PAGE_URL = getEnvVar('INSTA_PAGE_URL');
 export const TIKTOK_PAGE_URL = getEnvVar('TIKTOK_PAGE_URL');
 export const YOUTUBE_PAGE_URL = getEnvVar('YOUTUBE_PAGE_URL');
+
+export const PROXY_URL = getEnvVar('PROXY_URL');
+export const PROXY_LOGIN = getEnvVar('PROXY_LOGIN');
+export const PROXY_PASS = getEnvVar('PROXY_PASS');
