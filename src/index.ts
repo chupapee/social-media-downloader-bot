@@ -8,7 +8,7 @@ import { instagramScene } from '@scenes/instagram';
 import { tiktokScene } from '@scenes/tiktok';
 import { twitterScene } from '@scenes/twitter';
 import { youtubeScene } from '@scenes/youtube';
-import { BOT_TOKEN, i18n, IContextBot } from '@shared/config';
+import { BOT_TOKEN, i18n, IContextBot, isDevEnv } from '@shared/config';
 import { STATS_ACTION_ID } from '@shared/consts';
 
 import { botUpEvent } from './features/botUpEvent';
@@ -113,6 +113,16 @@ bot.on('message', async (ctx) => {
 			const link = ctx.message.text;
 
 			if (isDonationTrigger(link)) return;
+
+			if (
+				(!isDevEnv && link.includes('twitter.com')) ||
+				link.includes('x.com')
+			) {
+				ctx.reply(ctx.i18n.t('Unavailable'), {
+					parse_mode: 'Markdown',
+				});
+				return;
+			}
 
 			const isMusicLink = link.includes('music.youtube.com');
 			const scenesData = getScenesData();

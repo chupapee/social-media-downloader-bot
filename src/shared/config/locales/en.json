@@ -17,6 +17,7 @@
 	"//twitter_scene": "",
 	"tweetStats": "📊 | Tweet stats",
 	"TweetUnavailable": "🔒 Unfortunately, this tweet is protected and unavailable for viewing",
+	"Unavailable": "⚠️ Due to the [updated Twitter API](https://twitter.com/TwitterDev/status/1641222786894135296), links are temporarily not processed",
 
 	"//you_scene": "",
 	"availableFormats": "🔗 Available formats",
