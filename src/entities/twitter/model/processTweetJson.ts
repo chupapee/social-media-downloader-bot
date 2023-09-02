@@ -1,3 +1,5 @@
+import { timeout } from '@shared/utils';
+
 import { TweetJson } from './index';
 import { parseMediaFiles } from './parseMediaFiles';
 import { processMainTweet } from './processMainTweet';
@@ -8,7 +10,10 @@ export const processTweetJson = async (
 	originalLink: string
 ) => {
 	const { legacy } = tweetJson.data!.tweetResult.result;
-	const mediaFiles = await parseMediaFiles(legacy);
+	const mediaFiles = await Promise.race([
+		parseMediaFiles(legacy),
+		timeout(30_000),
+	]);
 
 	const { mainTweet, actionsList } = processMainTweet(
 		tweetJson,

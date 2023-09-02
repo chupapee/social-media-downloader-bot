@@ -1,4 +1,4 @@
-import { downloadLink, timeout } from '@shared/utils';
+import { downloadLink } from '@shared/utils';
 
 import { selectLargestQuality } from '../lib';
 import { TweetInfo } from './index';
@@ -24,10 +24,9 @@ export const parseMediaFiles = async (
 				);
 
 				try {
-					const videoBuffer = await Promise.race([
-						downloadLink(largestVideo.url),
-						timeout(5_000),
-					]);
+					const videoBuffer = await downloadLink(
+						largestVideo.url
+					).catch(() => {});
 					if (videoBuffer) {
 						mediaFiles.push({
 							type: 'video',
@@ -38,10 +37,9 @@ export const parseMediaFiles = async (
 				return;
 			}
 			try {
-				const photoBuffer = await Promise.race([
-					downloadLink(media_url_https),
-					timeout(5_000),
-				]);
+				const photoBuffer = await downloadLink(media_url_https).catch(
+					() => {}
+				);
 				if (photoBuffer) {
 					mediaFiles.push({ type: 'photo', href: photoBuffer });
 				}

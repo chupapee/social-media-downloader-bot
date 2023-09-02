@@ -1,11 +1,26 @@
 import { Scenes } from 'telegraf';
 import ytdl from 'ytdl-core';
 
+import {
+	createLinksKeyboard,
+	createStatsKeyboard,
+	getPage,
+	parsePage,
+	YouTubeLink,
+} from '@entities/youtube';
 import { onServiceFinish, onServiceInit } from '@features/scenes';
-import { scrapeAndSend } from '@features/youtube';
 import { IContextBot } from '@shared/config';
+import { downloadLink, retryGettingPage, timeout } from '@shared/utils';
 
 export const youtubeScene = new Scenes.BaseScene<IContextBot>('youtubeScene');
+
+const MAX_ALLOWED_SIZE = 50; // mb
+const RETRIES_COUNT = 2;
+const MAX_TIMEOUT = 25_000;
+
+const filterUploadableLinks = (links: YouTubeLink[]) => {
+	return links.filter(({ size }) => size && size <= MAX_ALLOWED_SIZE);
+};
 
 youtubeScene.enter((ctx) => {
 	const originalLink: string = ctx.state.link;
@@ -13,12 +28,77 @@ youtubeScene.enter((ctx) => {
 		onServiceInit({ ctx, socialMediaType: 'youtube' });
 
 		try {
-			const { videoDetails } = await ytdl.getInfo(originalLink);
-			await scrapeAndSend({
-				ctx,
+			const page = await retryGettingPage(
+				RETRIES_COUNT,
 				originalLink,
-				videoDetails,
-			});
+				getPage,
+				MAX_TIMEOUT
+			);
+
+			if (!page) throw new Error('smthWentWrong');
+
+			const links = await parsePage(page);
+			const linksKeyboard = createLinksKeyboard(links);
+
+			const uploadableLinks = filterUploadableLinks(links);
+			if (uploadableLinks.length > 0) {
+				await ctx.reply(ctx.i18n.t('beforeUpload'), {
+					parse_mode: 'HTML',
+					reply_markup: { inline_keyboard: linksKeyboard },
+				});
+			}
+
+			const videoInfo = await Promise.race([
+				ytdl.getInfo(originalLink),
+				timeout(20_000),
+			]).catch(() => {});
+
+			let caption = links[0].descr ?? ctx.i18n.t('savedByBot');
+			let statsKeyboard = null;
+			let filename = links[0].title;
+			if (videoInfo) {
+				const { title, likes, viewCount, dislikes, author } =
+					videoInfo.videoDetails;
+				caption = `${title}\n\n<a href='${originalLink}'>👤 ${
+					author.name ?? author.user
+				}</a>`;
+				filename = `${title}.mp4`;
+				statsKeyboard = createStatsKeyboard({
+					likes,
+					dislikes,
+					viewCount,
+				});
+			}
+
+			if (uploadableLinks.length > 0) {
+				const link = uploadableLinks[0];
+				const buffer = await downloadLink(link.href).catch(() => {});
+
+				if (buffer) {
+					const replyOptions = statsKeyboard
+						? {
+								caption,
+								reply_markup: {
+									inline_keyboard: statsKeyboard,
+								},
+								parse_mode: 'HTML',
+						  }
+						: { caption };
+
+					await ctx.replyWithVideo(
+						{ source: buffer, filename },
+						replyOptions as any
+					);
+					return;
+				}
+
+				await ctx.reply(caption, {
+					parse_mode: 'HTML',
+					reply_markup: { inline_keyboard: linksKeyboard },
+				});
+
+				throw new Error('tooLargeSize');
+			}
 		} catch (error) {
 			console.error(error);
 			if (error instanceof Error) {
