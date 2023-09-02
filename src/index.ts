@@ -114,15 +114,15 @@ bot.on('message', async (ctx) => {
 
 			if (isDonationTrigger(link)) return;
 
-			if (
-				(!isDevEnv && link.includes('twitter.com')) ||
-				link.includes('x.com')
-			) {
-				ctx.reply(ctx.i18n.t('Unavailable'), {
-					parse_mode: 'Markdown',
-				});
-				return;
-			}
+			// if (
+			// 	(!isDevEnv && link.includes('twitter.com')) ||
+			// 	link.includes('x.com')
+			// ) {
+			// 	ctx.reply(ctx.i18n.t('Unavailable'), {
+			// 		parse_mode: 'Markdown',
+			// 	});
+			// 	return;
+			// }
 
 			const isMusicLink = link.includes('music.youtube.com');
 			const scenesData = getScenesData();
