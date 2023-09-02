@@ -4,7 +4,7 @@ import { selectLargestQuality } from '../lib';
 import { TweetInfo } from './index';
 
 export interface MediaFile {
-	href: Buffer;
+	href: string | Buffer;
 	type: 'photo' | 'video';
 }
 
@@ -23,27 +23,21 @@ export const parseMediaFiles = async (
 					MAX_ALLOWED_MEDIA_SIZE
 				);
 
-				try {
-					const videoBuffer = await downloadLink(
-						largestVideo.url
-					).catch(() => {});
-					if (videoBuffer) {
-						mediaFiles.push({
-							type: 'video',
-							href: videoBuffer,
-						});
+				const buffer = await downloadLink(largestVideo.url).catch(
+					(error) => {
+						console.error(error);
 					}
-				} catch (error) {}
-				return;
-			}
-			try {
-				const photoBuffer = await downloadLink(media_url_https).catch(
-					() => {}
 				);
-				if (photoBuffer) {
-					mediaFiles.push({ type: 'photo', href: photoBuffer });
+
+				if (buffer) {
+					mediaFiles.push({
+						type: 'video',
+						href: buffer,
+					});
 				}
-			} catch (error) {}
+				continue;
+			}
+			mediaFiles.push({ type: 'photo', href: media_url_https });
 		}
 	}
 	return mediaFiles;

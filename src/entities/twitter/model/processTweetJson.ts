@@ -10,10 +10,7 @@ export const processTweetJson = async (
 	originalLink: string
 ) => {
 	const { legacy } = tweetJson.data!.tweetResult.result;
-	const mediaFiles = await Promise.race([
-		parseMediaFiles(legacy),
-		timeout(30_000),
-	]);
+	const mediaFiles = await parseMediaFiles(legacy);
 
 	const { mainTweet, actionsList } = processMainTweet(
 		tweetJson,

@@ -19,7 +19,7 @@ twitterScene.enter(async (ctx) => {
 		try {
 			const content = await Promise.race([
 				getPage(originalLink),
-				timeout(40_000),
+				timeout(60_000),
 			]).catch(() => {});
 			if (!content?.data) throw new Error("page doesn't parsed");
 
@@ -28,14 +28,23 @@ twitterScene.enter(async (ctx) => {
 
 			const actionsKeyboard = createActionsKeyboard(actionsBtn);
 
-			if (mediaFiles && mediaFiles.length > 0) {
+			if (mediaFiles.length > 0) {
 				await ctx.replyWithMediaGroup(
 					mediaFiles.map(({ href, type }, i) => {
 						const filename =
 							type === 'video' ? `${type}.mp4` : `${type}.jpg`;
+
+						const media =
+							type === 'video'
+								? {
+										source: href,
+										filename,
+								  }
+								: { url: href, filename };
+
 						if (i === 0) {
 							return {
-								media: { source: href, filename },
+								media: media as any,
 								type,
 								caption: `${fullCaption}`,
 								parse_mode: 'HTML',
@@ -43,7 +52,7 @@ twitterScene.enter(async (ctx) => {
 						}
 
 						return {
-							media: { source: href, filename },
+							media: media as any,
 							type,
 						};
 					})

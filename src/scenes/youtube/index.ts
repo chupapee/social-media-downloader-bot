@@ -10,7 +10,7 @@ import {
 } from '@entities/youtube';
 import { onServiceFinish, onServiceInit } from '@features/scenes';
 import { IContextBot } from '@shared/config';
-import { downloadLink, retryGettingPage, timeout } from '@shared/utils';
+import { retryGettingPage, timeout } from '@shared/utils';
 
 export const youtubeScene = new Scenes.BaseScene<IContextBot>('youtubeScene');
 
@@ -72,33 +72,30 @@ youtubeScene.enter((ctx) => {
 
 			if (uploadableLinks.length > 0) {
 				const link = uploadableLinks[0];
-				const buffer = await downloadLink(link.href).catch(() => {});
 
-				if (buffer) {
-					const replyOptions = statsKeyboard
-						? {
-								caption,
-								reply_markup: {
-									inline_keyboard: statsKeyboard,
-								},
-								parse_mode: 'HTML',
-						  }
-						: { caption };
+				const replyOptions = statsKeyboard
+					? {
+							caption,
+							reply_markup: {
+								inline_keyboard: statsKeyboard,
+							},
+							parse_mode: 'HTML',
+					  }
+					: { caption };
 
-					await ctx.replyWithVideo(
-						{ source: buffer, filename },
-						replyOptions as any
-					);
-					return;
-				}
-
-				await ctx.reply(caption, {
-					parse_mode: 'HTML',
-					reply_markup: { inline_keyboard: linksKeyboard },
-				});
-
-				throw new Error('tooLargeSize');
+				await ctx.replyWithVideo(
+					{ url: link.href, filename },
+					replyOptions as any
+				);
+				return;
 			}
+
+			await ctx.reply(caption, {
+				parse_mode: 'HTML',
+				reply_markup: { inline_keyboard: linksKeyboard },
+			});
+
+			throw new Error('tooLargeSize');
 		} catch (error) {
 			console.error(error);
 			if (error instanceof Error) {
