@@ -1,16 +1,9 @@
 import puppeteer from 'puppeteer';
 
-import {
-	PROXY_HOST,
-	PROXY_LOGIN,
-	PROXY_PASS,
-	PROXY_PORT,
-} from '@shared/config';
 import { puppeteerExecutablePath } from '@shared/consts';
 
 import { TweetJson } from '../model';
 
-const PROXY_ADDRESS = PROXY_HOST ? PROXY_HOST + ':' + PROXY_PORT : '';
 const API_JSON_DATA = 'https://twitter.com/i/api/graphql';
 
 export const getPage = async (
@@ -20,19 +13,10 @@ export const getPage = async (
 		const browser = await puppeteer.launch({
 			executablePath: puppeteerExecutablePath,
 			headless: 'new',
-			args: [
-				'--no-sandbox',
-				'--disable-setuid-sandbox',
-				`--proxy-server=${PROXY_ADDRESS}`,
-			],
+			args: ['--no-sandbox', '--disable-setuid-sandbox'],
 		});
 
 		const page = await browser.newPage();
-
-		await page.authenticate({
-			username: PROXY_LOGIN,
-			password: PROXY_PASS,
-		});
 
 		await page
 			.goto(twitterLink, { waitUntil: 'domcontentloaded' })

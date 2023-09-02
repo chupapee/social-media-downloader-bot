@@ -25,10 +25,7 @@ export const parseMediaFiles = async (
 
 				try {
 					const videoBuffer = await Promise.race([
-						downloadLink({
-							link: largestVideo.url,
-							withProxy: true,
-						}),
+						downloadLink(largestVideo.url),
 						timeout(5_000),
 					]);
 					if (videoBuffer) {
@@ -42,7 +39,7 @@ export const parseMediaFiles = async (
 			}
 			try {
 				const photoBuffer = await Promise.race([
-					downloadLink({ link: media_url_https, withProxy: true }),
+					downloadLink(media_url_https),
 					timeout(5_000),
 				]);
 				if (photoBuffer) {
