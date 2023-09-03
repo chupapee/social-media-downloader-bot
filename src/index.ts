@@ -94,7 +94,7 @@ bot.use(async (ctx, next) => {
 	}
 	/** While the user is in a certain scene,
 	 * new commands are not processed */
-	if (!isStarted && isRunning) {
+	if (!isStarted && isRunning && ctx.chat?.type === 'private') {
 		const { message_id } = await ctx.reply(ctx.i18n.t('pleaseWait'));
 		addMsgToRemoveList(message_id, ctx);
 		return;
@@ -150,7 +150,9 @@ bot.on('message', async (ctx) => {
 				addMsgToRemoveList(message_id, ctx);
 
 				await ctx.scene.enter(scene);
-			} else await ctx.reply(ctx.i18n.t('invalidLink'));
+			} else if (ctx.chat.type === 'private') {
+				await ctx.reply(ctx.i18n.t('invalidLink'));
+			}
 		}
 	};
 	handleMessage();
