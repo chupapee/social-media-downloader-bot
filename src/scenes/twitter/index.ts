@@ -7,7 +7,6 @@ import {
 } from '@entities/twitter';
 import { onServiceFinish, onServiceInit } from '@features/scenes';
 import { IContextBot } from '@shared/config';
-import { timeout } from '@shared/utils';
 
 export const twitterScene = new Scenes.BaseScene<IContextBot>('twitterScene');
 
@@ -17,11 +16,10 @@ twitterScene.enter(async (ctx) => {
 		onServiceInit({ ctx, socialMediaType: 'twitter' });
 
 		try {
-			const content = await Promise.race([
-				getPage(originalLink),
-				timeout(60_000),
-			]).catch(() => {});
-			if (!content?.data) throw new Error("page doesn't parsed");
+			const content = await getPage(originalLink);
+
+			if (!content || !content.data)
+				throw new Error("page doesn't parsed");
 
 			const { fullCaption, actionsBtn, mediaFiles } =
 				await processTweetJson(content, originalLink);

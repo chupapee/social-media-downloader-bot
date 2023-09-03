@@ -26,7 +26,7 @@ export const getPage = async (
 			(res) =>
 				res.url().startsWith(API_JSON_DATA) && res.status() === 200,
 			{
-				timeout: 50_000,
+				timeout: 70_000,
 			}
 		);
 
