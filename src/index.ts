@@ -135,11 +135,20 @@ bot.on('message', async (ctx) => {
 				ctx.state.isStarted = true;
 
 				const { scene } = selectedAction;
+
+				const donateKeyboard =
+					ctx.chat.type === 'private'
+						? Markup.keyboard([
+								[ctx.i18n.t('supportBtnText')],
+						  ]).resize()
+						: null;
+
 				const { message_id } = await ctx.reply(
 					ctx.i18n.t('processingLink'),
-					Markup.keyboard([[ctx.i18n.t('supportBtnText')]]).resize()
+					donateKeyboard as any
 				);
 				addMsgToRemoveList(message_id, ctx);
+
 				await ctx.scene.enter(scene);
 			} else await ctx.reply(ctx.i18n.t('invalidLink'));
 		}
