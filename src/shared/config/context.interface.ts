@@ -9,6 +9,8 @@ interface SceneSession extends Scenes.SceneSession {
 	usersList: UserSession[] | undefined;
 }
 
+export type ChatType = 'private' | 'group' | 'supergroup' | 'channel';
+
 export interface IContextBot extends Context {
 	scene: Scenes.SceneContextScene<IContextBot>;
 	session: SceneSession;

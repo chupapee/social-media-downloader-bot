@@ -1,4 +1,3 @@
-import axios from 'axios';
 import puppeteer from 'puppeteer';
 
 import { INSTA_PAGE_URL } from '@shared/config';

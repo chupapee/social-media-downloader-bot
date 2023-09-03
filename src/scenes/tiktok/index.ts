@@ -3,7 +3,7 @@ import { Scenes } from 'telegraf';
 import { getPage, parsePage } from '@entities/tiktok';
 import { addMsgToRemoveList } from '@features/bot';
 import { onServiceFinish, onServiceInit } from '@features/scenes';
-import { IContextBot } from '@shared/config';
+import { ChatType, IContextBot } from '@shared/config';
 import { calcLinkSize, retryGettingPage } from '@shared/utils';
 
 export const tiktokScene = new Scenes.BaseScene<IContextBot>('tiktokScene');
@@ -14,6 +14,8 @@ const linkNotFoundError = 'link not found';
 
 tiktokScene.enter((ctx) => {
 	const originalLink = ctx.state.link;
+	const chatType: ChatType = ctx.state.chatType;
+
 	const handelEnter = async () => {
 		onServiceInit({ ctx, socialMediaType: 'tiktok' });
 
@@ -29,19 +31,24 @@ tiktokScene.enter((ctx) => {
 			if (!link.href) throw new Error(linkNotFoundError);
 
 			//** link button before upload to Telegram */
-			const { message_id } = await ctx.reply(ctx.i18n.t('beforeUpload'), {
-				reply_markup: {
-					inline_keyboard: [
-						[
-							{
-								text: `🔗 ${link.title} 🎥`,
-								url: link.href,
-							},
-						],
-					],
-				},
-			});
-			addMsgToRemoveList(message_id, ctx);
+			if (chatType === 'private') {
+				const { message_id } = await ctx.reply(
+					ctx.i18n.t('beforeUpload'),
+					{
+						reply_markup: {
+							inline_keyboard: [
+								[
+									{
+										text: `🔗 ${link.title} 🎥`,
+										url: link.href,
+									},
+								],
+							],
+						},
+					}
+				);
+				addMsgToRemoveList(message_id, ctx);
+			}
 
 			const videoSize = await calcLinkSize(link.href, 'content-length');
 

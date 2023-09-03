@@ -9,7 +9,7 @@ import {
 	YouTubeLink,
 } from '@entities/youtube';
 import { onServiceFinish, onServiceInit } from '@features/scenes';
-import { IContextBot } from '@shared/config';
+import { ChatType, IContextBot } from '@shared/config';
 import { retryGettingPage, timeout } from '@shared/utils';
 
 export const youtubeScene = new Scenes.BaseScene<IContextBot>('youtubeScene');
@@ -24,6 +24,8 @@ const filterUploadableLinks = (links: YouTubeLink[]) => {
 
 youtubeScene.enter((ctx) => {
 	const originalLink: string = ctx.state.link;
+	const chatType: ChatType = ctx.state.chatType;
+
 	const handleEnter = async () => {
 		onServiceInit({ ctx, socialMediaType: 'youtube' });
 
@@ -41,7 +43,7 @@ youtubeScene.enter((ctx) => {
 			const linksKeyboard = createLinksKeyboard(links);
 
 			const uploadableLinks = filterUploadableLinks(links);
-			if (uploadableLinks.length > 0) {
+			if (uploadableLinks.length > 0 && chatType === 'private') {
 				await ctx.reply(ctx.i18n.t('beforeUpload'), {
 					parse_mode: 'HTML',
 					reply_markup: { inline_keyboard: linksKeyboard },

@@ -131,7 +131,9 @@ bot.on('message', async (ctx) => {
 			);
 			if (selectedAction && !isMusicLink) {
 				ctx.state.link = link;
+				ctx.state.chatType = ctx.chat.type;
 				ctx.state.isStarted = true;
+
 				const { scene } = selectedAction;
 				const { message_id } = await ctx.reply(
 					ctx.i18n.t('processingLink'),
