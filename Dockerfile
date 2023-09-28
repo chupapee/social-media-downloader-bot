@@ -3,16 +3,15 @@ FROM node:16.20.0-bullseye-slim
 
 ARG APP_DIR=/usr/src/bots/social-media-bot
 
-# container dir after creating
 WORKDIR ${APP_DIR}
 
-COPY package.json ${APP_DIR}
-COPY yarn.lock ${APP_DIR}
+COPY package.json .
+COPY yarn.lock .
 
 RUN yarn install
 
 # bundle app source code inside container
-COPY . ${APP_DIR}
+COPY . .
 
 ENV NODE_ENV production
 
@@ -28,8 +27,6 @@ RUN apt-get update && apt-get install gnupg wget -y && \
   apt-get install google-chrome-stable -y --no-install-recommends && \
   rm -rf /var/lib/apt/lists/*
 
-
-# RUN yarn install && yarn build &&
 RUN yarn build
 
 CMD [ "yarn", "process:start" ]

@@ -6,10 +6,11 @@
 	"license": "MIT",
 	"scripts": {
 		"dev": "nodemon",
-		"build": "rm -rf dist && tsc",
+		"build": "tsc && tsc-alias",
 		"lint": "eslint src",
 		"lint:fix": "eslint src --fix",
-		"format": "prettier --write ./src/*"
+		"format": "prettier --write ./src/*",
+		"process:start": "node dist/index.js"
 	},
 	"dependencies": {
 		"@types/node": "^20.1.7",
