@@ -17,20 +17,20 @@
 		"update": "git pull && yarn process:restart"
 	},
 	"dependencies": {
-		"@types/node": "^20.1.7",
 		"axios": "^1.4.0",
 		"cheerio": "^1.0.0-rc.12",
 		"dotenv": "^16.0.3",
 		"firebase": "^9.22.0",
-		"nodemon": "^2.0.22",
 		"puppeteer": "^20.2.1",
 		"telegraf": "^4.12.2",
 		"telegraf-i18n": "^6.6.0",
-		"ts-node": "^10.9.1",
-		"typescript": "^5.0.4",
 		"ytdl-core": "^4.11.5"
 	},
 	"devDependencies": {
+		"@types/node": "^20.1.7",
+		"typescript": "^5.0.4",
+		"ts-node": "^10.9.1",
+		"nodemon": "^2.0.22",
 		"eslint": "^8.42.0",
 		"eslint-kit": "^9.1.0",
 		"prettier": "^2.8.8",
