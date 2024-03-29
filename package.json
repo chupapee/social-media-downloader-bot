@@ -13,23 +13,23 @@
 		"process:start": "node dist/index.js"
 	},
 	"dependencies": {
-		"@types/node": "^20.1.7",
 		"axios": "^1.4.0",
 		"cheerio": "^1.0.0-rc.12",
 		"dotenv": "^16.0.3",
 		"firebase": "^9.22.0",
-		"nodemon": "^2.0.22",
 		"puppeteer": "^20.2.1",
 		"telegraf": "^4.12.2",
-		"telegraf-i18n": "^6.6.0",
-		"ts-node": "^10.9.1",
-		"typescript": "^5.0.4"
+		"telegraf-i18n": "^6.6.0"
 	},
 	"devDependencies": {
+		"@types/node": "^20.1.7",
 		"eslint": "^8.42.0",
 		"eslint-kit": "^9.1.0",
+		"nodemon": "^2.0.22",
 		"prettier": "^2.8.8",
+		"ts-node": "^10.9.1",
 		"tsc-alias": "^1.8.7",
-		"tsconfig-paths": "^4.2.0"
+		"tsconfig-paths": "^4.2.0",
+		"typescript": "^5.0.4"
 	}
 }

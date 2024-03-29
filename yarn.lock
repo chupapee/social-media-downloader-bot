@@ -4202,7 +4202,7 @@ ts-node@^10.9.1:
     v8-compile-cache-lib "^3.0.1"
     yn "3.1.1"
 
-tsc-alias@^1.8.8:
+tsc-alias@^1.8.7:
   version "1.8.8"
   resolved "https://registry.yarnpkg.com/tsc-alias/-/tsc-alias-1.8.8.tgz#48696af442b7656dd7905e37ae0bc332d80be3fe"
   integrity sha512-OYUOd2wl0H858NvABWr/BoSKNERw3N9GTi3rHPK8Iv4O1UyUXIrTTOAZNHsjlVpXFOhpJBVARI1s+rzwLivN3Q==
