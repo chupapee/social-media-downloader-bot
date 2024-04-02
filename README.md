@@ -15,12 +15,12 @@
 <h2 align='center'>Screenshots</h2>
 <table align='center'>
 	<tr>
-		<td><img alt="Twitter" src="https://github.com/comeall09/readme-storage/blob/main/images/bots/media-bot/tweet.png"></td>
-		<td><img alt="YouTube" src="https://github.com/comeall09/readme-storage/blob/main/images/bots/media-bot/you.png"></td>
+		<td><img alt="Twitter" src="assets/twitter.png"></td>
+		<td><img alt="YouTube" src="assets/youtube.png"></td>
 	</tr>
 	<tr>
-		<td><img alt="TikTok" src="https://github.com/comeall09/readme-storage/blob/main/images/bots/media-bot/tiktok.png"></td>
-		<td><img alt="Instagram" src="https://github.com/comeall09/readme-storage/blob/main/images/bots/media-bot/insta.png"></td>
+		<td><img alt="TikTok" src="assets/tiktok.png"></td>
+		<td><img alt="Instagram" src="assets/insta.png"></td>
 </tr>
 </table>
 
@@ -85,14 +85,14 @@ yarn dev
 
 ### Production mode
 There are two options to run the application in production:
-- using [Docker](https://www.docker.com/) ([main branch](https://github.com/comeall09/social-media-downloader-bot/tree/main))
-- and [Pm2](https://pm2.io/) - the process management tool ([latest branch](https://github.com/comeall09/social-media-downloader-bot/tree/latest))
+- using [Docker](https://www.docker.com/) ([main branch](https://github.com/chupapee/social-media-downloader-bot/tree/main))
+- and [Pm2](https://pm2.io/) - the process management tool ([latest branch](https://github.com/chupapee/social-media-downloader-bot/tree/latest))
 
 <br/>
 
 #### Building with Docker
 
-1. Switch to the [main branch](https://github.com/comeall09/social-media-downloader-bot/tree/main):
+1. Switch to the [main branch](https://github.com/chupapee/social-media-downloader-bot/tree/main):
 ```shell
 git checkout main
 ```
@@ -109,7 +109,7 @@ docker run -d --name bot --restart unless-stopped <your-repo>/social-media-downl
 
 #### Building with Pm2
 
-1. Switch to the [latest branch](https://github.com/comeall09/social-media-downloader-bot/tree/latest):
+1. Switch to the [latest branch](https://github.com/chupapee/social-media-downloader-bot/tree/latest):
 ```shell
 git checkout latest
 ```
