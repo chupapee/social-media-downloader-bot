@@ -30,7 +30,7 @@ module.exports = configure({
 			semi: true,
 			semicolons: true,
 			singleQuote: true,
-			tabWidth: 4,
+			tabWidth: 2,
 		}),
 		presets.typescript({
 			tsconfig: 'tsconfig.json',

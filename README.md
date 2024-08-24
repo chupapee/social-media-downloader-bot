@@ -85,22 +85,18 @@ yarn dev
 
 ### Production mode
 There are two options to run the application in production:
-- using [Docker](https://www.docker.com/) ([main branch](https://github.com/chupapee/social-media-downloader-bot/tree/main))
-- and [Pm2](https://pm2.io/) - the process management tool ([latest branch](https://github.com/chupapee/social-media-downloader-bot/tree/latest))
+- using [Docker](https://www.docker.com/)
+- and [Pm2](https://pm2.io/)
 
 <br/>
 
 #### Building with Docker
 
-1. Switch to the [main branch](https://github.com/chupapee/social-media-downloader-bot/tree/main):
-```shell
-git checkout main
-```
-2. Build the application image:
+1. Build the application image:
 ```shell
 docker build -t <your-repo>/social-media-downloader .
 ```
-3. Run the image:
+2. Run the image:
 ```shell
 docker run -d --name bot --restart unless-stopped <your-repo>/social-media-downloader
 ```
@@ -109,11 +105,7 @@ docker run -d --name bot --restart unless-stopped <your-repo>/social-media-downl
 
 #### Building with Pm2
 
-1. Switch to the [latest branch](https://github.com/chupapee/social-media-downloader-bot/tree/latest):
-```shell
-git checkout latest
-```
-2. If you are running the process on [Ubuntu v22.04](https://ubuntu.com/) (like me), you will need to install additional dependencies to ensure the bot functions correctly:
+1. If you are running the process on [Ubuntu v22.04](https://ubuntu.com/) (like me), you will need to install additional dependencies to ensure the bot functions correctly:
 ```shell
 # Install Google Chrome Stable and fonts
 # Note: this installs the necessary libs to make the browser work with Puppeteer.
@@ -124,7 +116,7 @@ apt-get update && apt-get install gnupg wget -y && \
   apt-get install google-chrome-stable -y --no-install-recommends && \
   rm -rf /var/lib/apt/lists/*
 ```
-3. Start the bot with the following command:
+2. Start the bot with the following command:
 ```shell
-yarn process:start
+yarn node:start
 ```

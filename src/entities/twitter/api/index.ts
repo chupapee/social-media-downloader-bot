@@ -1,1 +1,0 @@
-export { getPage } from './twitterApi';

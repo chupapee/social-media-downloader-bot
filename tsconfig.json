@@ -13,10 +13,8 @@
 		"strictPropertyInitialization": false,
 		"baseUrl": "src",
 		"paths": {
-			"@scenes/*": ["./scenes/*"],
-			"@entities/*": ["./entities/*"],
-			"@features/*": ["./features/*"],
-			"@shared/*": ["./shared/*"],
+			"modules/*": ["./modules/*"],
+			"shared/*": ["./shared/*"],
 		}
 	},
 	"include": ["src", "src/shared/config/locales/*.json"]

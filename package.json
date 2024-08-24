@@ -1,40 +1,43 @@
 {
 	"name": "social-media-downloader-bot",
 	"version": "1.0.0",
-	"main": "./src/index.ts",
+	"main": "./src/main.ts",
 	"author": "k.khamidov <khamidoff09@gmail.com>",
 	"license": "MIT",
 	"scripts": {
 		"dev": "nodemon",
 		"build": "tsc && tsc-alias",
+
+		"pm2:start": "yarn build && npx pm2 start ecosystem.config.js",
+		"pm2:stop": "npx pm2 stop social-media-downloader-bot",
+		"pm2:restart": "yarn build && npx pm2 restart social-media-downloader-bot",
+		"pm2:delete": "npx pm2 delete social-media-downloader-bot",
+		"node:start": "node dist/main.js",
+
 		"lint": "eslint src",
 		"lint:fix": "eslint src --fix",
-		"format": "prettier --write ./src/*",
-		"process:start": "yarn build && npx pm2 start ecosystem.config.js",
-		"process:stop": "npx pm2 stop social-media-downloader-bot",
-		"process:delete": "npx pm2 delete social-media-downloader-bot",
-		"process:restart": "yarn build && npx pm2 restart social-media-downloader-bot",
-		"update": "git pull && yarn process:restart"
+		"format": "prettier --write ./src/*"
 	},
 	"dependencies": {
+		"@supabase/supabase-js": "^2.45.2",
 		"axios": "^1.4.0",
 		"cheerio": "^1.0.0-rc.12",
 		"dotenv": "^16.0.3",
-		"firebase": "^9.22.0",
+		"effector": "^23.2.2",
+		"patronum": "^2.2.0",
 		"puppeteer": "^20.2.1",
 		"telegraf": "^4.12.2",
-		"telegraf-i18n": "^6.6.0",
 		"ytdl-core": "^4.11.5"
 	},
 	"devDependencies": {
 		"@types/node": "^20.1.7",
-		"typescript": "^5.0.4",
-		"ts-node": "^10.9.1",
-		"nodemon": "^2.0.22",
 		"eslint": "^8.42.0",
 		"eslint-kit": "^9.1.0",
+		"nodemon": "^2.0.22",
 		"prettier": "^2.8.8",
+		"ts-node": "^10.9.1",
 		"tsc-alias": "^1.8.7",
-		"tsconfig-paths": "^4.2.0"
+		"tsconfig-paths": "^4.2.0",
+		"typescript": "^5.0.4"
 	}
 }

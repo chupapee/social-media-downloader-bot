@@ -1,7 +1,7 @@
-import { User } from 'typegram';
+import { User } from 'telegraf/typings/core/types/typegram';
 
-import { bot } from '../index';
-import { BOT_ADMIN_ID } from './config';
+import { bot } from '../main';
+import { BOT_ADMIN_ID } from './config/config.service';
 
 interface NotifyAdminFullArgs {
 	user?: User;
