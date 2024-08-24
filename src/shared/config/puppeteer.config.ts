@@ -1,6 +1,7 @@
 import puppeteer, { Browser } from 'puppeteer';
 
 import { puppeteerExecutablePath } from '../consts';
+import { isDevEnv } from './config.service';
 
 export class PuppeteerBrowser {
 	private static browser: Browser;
@@ -10,7 +11,7 @@ export class PuppeteerBrowser {
 			// FIXME: RACE CONDITION ISSUE
 			PuppeteerBrowser.browser = await puppeteer.launch({
 				executablePath: puppeteerExecutablePath,
-				headless: false,
+				headless: isDevEnv ? false : 'new',
 				args: ['--no-sandbox', '--disable-setuid-sandbox'],
 			});
 		}
