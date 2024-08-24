@@ -1,15 +1,10 @@
-import puppeteer from 'puppeteer';
 import { INSTA_PAGE_URL } from 'shared/config/config.service';
-import { puppeteerExecutablePath } from 'shared/consts';
+import { PuppeteerBrowser } from 'shared/config/puppeteer.config';
 import { timeout } from 'shared/utils';
 
 export const getPage = async (link: string) => {
 	try {
-		const browser = await puppeteer.launch({
-			executablePath: puppeteerExecutablePath,
-			headless: 'new',
-			args: ['--no-sandbox', '--disable-setuid-sandbox'],
-		});
+		const browser = await PuppeteerBrowser.getInstance();
 		const page = await browser.newPage();
 
 		await page.goto(INSTA_PAGE_URL, { waitUntil: 'domcontentloaded' });
@@ -26,7 +21,7 @@ export const getPage = async (link: string) => {
 
 		const content = await page.content();
 
-		await browser.close();
+		await page.close();
 		return content;
 	} catch (error) {
 		if (error instanceof Error) throw new Error(error.message);

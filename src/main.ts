@@ -1,5 +1,6 @@
 import { newMessageReceived, tempMessageSent } from 'modules/bot/services';
 import { BOT_ADMIN_ID, BOT_TOKEN } from 'shared/config/config.service';
+import { launchBrowser } from 'shared/config/puppeteer.config';
 import {
 	SUPABASE_API_KEY,
 	SUPABASE_PROJECT_URL,
@@ -13,6 +14,7 @@ import { createClient } from '@supabase/supabase-js';
 
 export const supabase = createClient(SUPABASE_PROJECT_URL, SUPABASE_API_KEY);
 export const bot = new Telegraf(BOT_TOKEN);
+launchBrowser();
 
 const RESTART_COMMAND = 'restart';
 
@@ -47,12 +49,6 @@ bot.on(message('text'), async (ctx) => {
 			const isMusicLink = link.includes('music.youtube.com');
 
 			const targetSource = detectUrlSource(link);
-
-			if (targetSource === 'twitter') {
-				return ctx.reply(
-					'⚠️ Twitter links are temporarily not processed, please stay tuned'
-				);
-			}
 
 			if (targetSource && !isMusicLink) {
 				const { message_id } = await ctx.reply('⏳ Fetching media...');

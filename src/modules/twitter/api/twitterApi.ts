@@ -1,19 +1,17 @@
-import puppeteer from 'puppeteer';
-import { puppeteerExecutablePath } from 'shared/consts';
+import { PuppeteerBrowser } from 'shared/config/puppeteer.config';
 
 import { TweetJson } from '../model';
 
-const API_JSON_DATA = 'https://twitter.com/i/api/graphql';
+const API_JSON_DATA = [
+	'https://x.com/i/api/graphql',
+	'https://api.x.com/graphql',
+];
 
 export const getPage = async (
 	twitterLink: string
 ): Promise<TweetJson | undefined> => {
 	try {
-		const browser = await puppeteer.launch({
-			executablePath: puppeteerExecutablePath,
-			headless: 'new',
-			args: ['--no-sandbox', '--disable-setuid-sandbox'],
-		});
+		const browser = await PuppeteerBrowser.getInstance();
 
 		const page = await browser.newPage();
 
@@ -22,14 +20,18 @@ export const getPage = async (
 			.catch(() => null);
 
 		const response = await page.waitForResponse(
-			(res) => res.url().startsWith(API_JSON_DATA) && res.status() === 200,
+			(res) =>
+				res.request().method().toUpperCase() !== 'OPTIONS' &&
+				API_JSON_DATA.some((api) => res.url().includes(api)) &&
+				res.status() === 200,
 			{
 				timeout: 70_000,
 			}
 		);
 
 		const content: TweetJson = await response.json();
-		await browser.close();
+
+		await page.close();
 		if (!content.data) throw new Error('data not found');
 		if (content.data.tweetResult.result.__typename === 'TweetUnavailable') {
 			throw new Error('TweetUnavailable');
