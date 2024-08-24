@@ -33,29 +33,24 @@
 	<thead>
 		<tr>
 			<th align='left'>Features</th>
-			<th align='left'>Available commands</th>
 			<th align='left'>Technology stack</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td>📹 Video downloading from <a href="https://tiktok.com/">TikTok</a> & <a href="https://www.youtube.com/">YouTube</a></td>
-			<td>▶️ `/start` to start using the bot</td>
 			<td>⚙️ <a href="https://telegrafjs.org/">Telegraf 4</a></td>
 		</tr>
 		<tr>
 			<td>📸 Downloading photos, videos, reels,<br/>and stories from <a href="https://instagram.com/">Instagram</a> in any quantity</td>
-			<td>💬 `/feedback` to send feedback to <a href="https://t.me/chupapee">me</a></td>
 			<td>🟩 <a href="https://www.nodejs.org/">NodeJS</a></td>
 		</tr>
 		<tr>
 			<td>📝 Downloading tweets with<br/>all the nested media from <a href="https://twitter.com/">Twitter</a></td>
-			<td>🌎 `/en` to change the language to English</td>
 			<td>📘 <a href="https://www.typescriptlang.org/">Typescript</a></td>
 		</tr>
 		<tr>
 			<td>🌐 English and Russian localizations</td>
-			<td>🌏 `/ru` to change the language to Russian</td>
 			<td>🛠️ Web <a href="https://pptr.dev/">scraping</a> <a href="https://cheerio.js.org/">tools</a></td>
 		</tr>
 	</tbody>
