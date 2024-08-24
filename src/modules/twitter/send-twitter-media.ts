@@ -2,23 +2,24 @@ import { createEffect } from 'effector';
 import { bot } from 'main';
 import { notifyAdmin } from 'modules/bot/controllers';
 import { MessageData } from 'modules/bot/services';
+import { ScrapingError, UnknownError, WrongLinkError } from 'shared/api';
 
-import { getPage } from './api/twitterApi';
+import {
+	getPage,
+	TweetEmptyError,
+	TweetUnavailableError,
+} from './api/twitterApi';
 import { createActionsKeyboard } from './lib/createActionsKeyboard';
 import { processTweetJson } from './model';
 
-export const sendTwitterMedia = createEffect(
-	async ({ chatId, link, ...others }: MessageData) => {
-		notifyAdmin({
-			messageData: { chatId, link, ...others },
-			baseInfo: `source type: ${others.linkSource}`,
-			status: 'start',
-		});
-
+export const sendTwitterMedia = createEffect<MessageData, void, UnknownError>(
+	async ({ chatId, link, ...others }) => {
 		try {
 			const content = await getPage(link);
 
-			if (!content || !content.data) throw new Error("page doesn't parsed");
+			if (!content) {
+				throw new WrongLinkError('❌ Failed to parse the link(');
+			}
 
 			const { fullCaption, actionsBtn, mediaFiles } = await processTweetJson(
 				content,
@@ -70,25 +71,46 @@ export const sendTwitterMedia = createEffect(
 			});
 		} catch (error) {
 			console.error(error, 'error message');
-			if (error instanceof Error) {
-				if (error.message === 'TweetUnavailable') {
-					await bot.telegram.sendMessage(
-						chatId,
-						'🔒 Unfortunately, this tweet is protected and unavailable for viewing'
-					);
-					throw new Error(error.message);
-				}
-				await bot.telegram.sendMessage(
-					chatId,
-					'❌ Oops, something went wrong. Please try again.'
-				);
-				throw new Error(error.message);
+
+			if (error instanceof TweetEmptyError) {
+				await bot.telegram.sendMessage(chatId, error.message);
+				notifyAdmin({
+					messageData: { chatId, link, ...others },
+					status: 'error',
+					errorInfo: { cause: error.message },
+				});
+				return;
 			}
-			await bot.telegram.sendMessage(
-				chatId,
-				'❌ Oops, something went wrong. Please try again.'
-			);
-			throw new Error(`${JSON.stringify(error)}, 'unhandled error'`);
+			if (error instanceof TweetUnavailableError) {
+				await bot.telegram.sendMessage(chatId, error.message);
+				notifyAdmin({
+					messageData: { chatId, link, ...others },
+					status: 'error',
+					errorInfo: { cause: error.message },
+				});
+				return;
+			}
+			if (error instanceof WrongLinkError) {
+				await bot.telegram.sendMessage(chatId, error.message);
+				notifyAdmin({
+					messageData: { chatId, link, ...others },
+					status: 'error',
+					errorInfo: { cause: error.message },
+				});
+				return;
+			}
+
+			if (error instanceof ScrapingError) {
+				await bot.telegram.sendMessage(chatId, error.message);
+				notifyAdmin({
+					messageData: { chatId, link, ...others },
+					status: 'error',
+					errorInfo: { cause: error.error },
+				});
+				return;
+			}
+
+			throw new UnknownError(error);
 		}
 	}
 );

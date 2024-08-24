@@ -1,6 +1,9 @@
 import { createEffect, createEvent, createStore, sample } from 'effector';
 import { bot } from 'main';
-import { sendErrorMessageFx } from 'modules/bot/controllers';
+import {
+	notifyAdmin,
+	sendUnknownErrorMessageFx,
+} from 'modules/bot/controllers';
 import { sendInstagramMedia } from 'modules/instagram/send-instagram-media';
 import { saveUser } from 'modules/storage/storageApi';
 import { sendTiktokMedia } from 'modules/tiktok/send-tiktok-media';
@@ -40,6 +43,7 @@ $messagesList.watch((messagesList) => console.log({ messagesList }));
 export const messageDone = createEvent();
 export const newMessageReceived = createEvent<MessageData>();
 
+const messageInitiated = createEvent();
 const messageStarted = createEvent();
 
 const saveUserFx = createEffect(saveUser);
@@ -102,7 +106,7 @@ export const sendWaitMessageFx = createEffect(
 
 			await bot.telegram.sendMessage(
 				newMessage.chatId,
-				`⏳ Please wait ***${timeToWait}*** and send link again\n\nYou can get ***unlimited access*** to our bot without waiting any minutes between requests\nRun the ***/premium*** command to get more info`,
+				`⏳ Please wait ***${timeToWait}*** and send link again`,
 				{
 					parse_mode: 'Markdown',
 				}
@@ -162,55 +166,11 @@ sample({
 	target: sendWaitMessageFx,
 });
 
-const messageInitiated = createEvent();
-
-sample({
-	clock: checkMessages,
-	filter: and(
-		not($isLinkProcessing),
-		not($waitTime),
-		$messagesList.map((messagesList) => messagesList.length > 0)
-	),
-	target: messageInitiated,
-});
-
 sample({
 	clock: messageInitiated,
 	source: $messagesList,
 	fn: (messagesList) => messagesList[0],
 	target: [$messageData, messageStarted],
-});
-
-sample({
-	clock: messageStarted,
-	source: $messageData,
-	filter: (messageData: MessageData | null): messageData is MessageData =>
-		messageData !== null && messageData.linkSource === 'instagram',
-	target: sendInstagramMedia,
-});
-
-sample({
-	clock: messageStarted,
-	source: $messageData,
-	filter: (messageData: MessageData | null): messageData is MessageData =>
-		messageData !== null && messageData.linkSource === 'twitter',
-	target: sendTwitterMedia,
-});
-
-sample({
-	clock: messageStarted,
-	source: $messageData,
-	filter: (messageData: MessageData | null): messageData is MessageData =>
-		messageData !== null && messageData.linkSource === 'tiktok',
-	target: sendTiktokMedia,
-});
-
-sample({
-	clock: messageStarted,
-	source: $messageData,
-	filter: (messageData: MessageData | null): messageData is MessageData =>
-		messageData !== null && messageData.linkSource === 'youtube',
-	target: sendYoutubeMedia,
 });
 
 sample({
@@ -226,22 +186,66 @@ sample({
 });
 
 sample({
-	clock: [
-		sendInstagramMedia.done,
-		sendTwitterMedia.done,
-		sendTiktokMedia.done,
-		sendYoutubeMedia.done,
-	],
-	source: $messageData,
-	filter: (messageData, result) =>
-		typeof result === 'string' && messageData?.chatId !== undefined,
-	fn: (messageData, result) => ({
-		messageData: messageData!,
-		text: result as unknown as string,
-	}), // FIXME: as string won't be necessary in ts 5.5
-	target: [sendErrorMessageFx, messageDone],
+	clock: checkMessages,
+	filter: and(
+		not($isLinkProcessing),
+		not($waitTime),
+		$messagesList.map((messagesList) => messagesList.length > 0)
+	),
+	target: messageInitiated,
 });
 
+// sending mediafiles
+sample({
+	clock: messageStarted,
+	source: $messageData,
+	filter: (messageData: MessageData | null): messageData is MessageData =>
+		messageData !== null && messageData.linkSource === 'Instagram',
+	target: sendInstagramMedia,
+});
+
+sample({
+	clock: messageStarted,
+	source: $messageData,
+	filter: (messageData: MessageData | null): messageData is MessageData =>
+		messageData !== null && messageData.linkSource === 'Twitter',
+	target: sendTwitterMedia,
+});
+
+sample({
+	clock: messageStarted,
+	source: $messageData,
+	filter: (messageData: MessageData | null): messageData is MessageData =>
+		messageData !== null && messageData.linkSource === 'Tiktok',
+	target: sendTiktokMedia,
+});
+
+sample({
+	clock: messageStarted,
+	source: $messageData,
+	filter: (messageData: MessageData | null): messageData is MessageData =>
+		messageData !== null && messageData.linkSource === 'Youtube',
+	target: sendYoutubeMedia,
+});
+
+sample({
+	clock: messageStarted,
+	source: $messageData,
+	filter: (data): data is MessageData => data !== null,
+	target: createEffect((messageData: MessageData) => {
+		notifyAdmin({
+			messageData,
+			baseInfo: `ℹ️ Source: ${messageData.linkSource}`,
+			status: 'start',
+		});
+
+		bot.telegram
+			.sendMessage(messageData.chatId, '⏳ Fetching media...')
+			.then(({ message_id }) => tempMessageSent(message_id));
+	}),
+});
+
+// success
 sample({
 	clock: [
 		sendInstagramMedia.done,
@@ -249,7 +253,33 @@ sample({
 		sendTiktokMedia.done,
 		sendYoutubeMedia.done,
 	],
-	target: messageDone,
+	source: $messageData,
+	filter: (data): data is MessageData => data !== null,
+	target: [
+		messageDone,
+		createEffect(({ linkSource }: MessageData) => {
+			notifyAdmin({
+				status: 'info',
+				baseInfo: `📥 ${linkSource} media uploaded to user!`,
+			});
+		}),
+	],
+});
+
+// fail
+sample({
+	clock: [
+		sendInstagramMedia.failData,
+		sendTwitterMedia.failData,
+		sendTiktokMedia.failData,
+		sendYoutubeMedia.failData,
+	],
+	source: $messageData,
+	fn: (messageData, unknownError) => ({
+		messageData: messageData!,
+		unknownError,
+	}),
+	target: [sendUnknownErrorMessageFx, messageDone],
 });
 
 sample({

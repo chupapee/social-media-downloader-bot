@@ -1,12 +1,13 @@
 import axios from 'axios';
+import { Page } from 'puppeteer';
 
-export type SOURCE = 'twitter' | 'instagram' | 'tiktok' | 'youtube';
+export type SOURCE = 'Twitter' | 'Instagram' | 'Tiktok' | 'Youtube';
 
 const sourcesMap: Record<SOURCE, string[]> = {
-	twitter: ['twitter.com', 'x.com'],
-	instagram: ['instagram.com'],
-	tiktok: ['tiktok.com'],
-	youtube: ['youtube.com', 'youtu.be'],
+	Twitter: ['twitter.com', 'x.com'],
+	Instagram: ['instagram.com'],
+	Tiktok: ['tiktok.com'],
+	Youtube: ['youtube.com', 'youtu.be'],
 };
 
 export const detectUrlSource = (url: string): SOURCE | null => {
@@ -15,6 +16,14 @@ export const detectUrlSource = (url: string): SOURCE | null => {
 	});
 
 	return (res?.[0] as SOURCE) ?? null;
+};
+
+export const closePageDelay = (page: Page, delay: number) => {
+	setTimeout(() => {
+		if (!page.isClosed()) {
+			page.close();
+		}
+	}, delay);
 };
 
 export const timeout = (sec: number): Promise<null> =>

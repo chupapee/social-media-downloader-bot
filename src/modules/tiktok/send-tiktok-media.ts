@@ -2,28 +2,31 @@ import { createEffect } from 'effector';
 import { bot } from 'main';
 import { notifyAdmin } from 'modules/bot/controllers';
 import { MessageData } from 'modules/bot/services';
+import {
+	ScrapingError,
+	TooLargeMediaSize,
+	UnknownError,
+	WrongLinkError,
+} from 'shared/api';
 import { calcLinkSize, retryGettingPage } from 'shared/utils';
 
 import { getPage } from './api/tiktopApi';
 import { parsePage } from './model/parsePage';
 
-const MAX_VIDEO_SIZE = 20; /** mbyte */
-const tooLargeError = 'file size is too large';
-const linkNotFoundError = 'link not found';
+const MAX_VIDEO_SIZE = 48; /** megabyte */
 
-export const sendTiktokMedia = createEffect(
-	async ({ chatId, link: originalLink, ...others }: MessageData) => {
-		notifyAdmin({
-			messageData: { chatId, link: originalLink, ...others },
-			baseInfo: `source type: ${others.linkSource}`,
-			status: 'start',
-		});
-
+export const sendTiktokMedia = createEffect<MessageData, void, UnknownError>(
+	async ({ chatId, link: originalLink, ...others }) => {
 		try {
 			const page = await retryGettingPage(3, originalLink, getPage, 15_000);
-			if (!page) throw new Error(linkNotFoundError);
+			if (!page) {
+				throw new WrongLinkError(
+					'❌ Failed to parse the link(\nSomething might be wrong with the file...'
+				);
+			}
+
 			const link = parsePage(page);
-			if (!link.href) throw new Error(linkNotFoundError);
+			if (!link.href) throw new WrongLinkError('❌ Failed to parse the link(');
 
 			await bot.telegram.sendMessage(
 				chatId,
@@ -45,7 +48,9 @@ export const sendTiktokMedia = createEffect(
 			const videoSize = await calcLinkSize(link.href, 'content-length');
 
 			if (videoSize && videoSize > MAX_VIDEO_SIZE) {
-				throw new Error(tooLargeError);
+				throw new TooLargeMediaSize(
+					'⚠️ The file size is too large for uploading to Telegram\nPlease use the links above 👆\njust click on the button with the desired resolution)'
+				);
 			}
 
 			//** uploading to Telegram */
@@ -58,30 +63,30 @@ export const sendTiktokMedia = createEffect(
 				}
 			);
 		} catch (error) {
-			if (error instanceof Error) {
-				switch (error.message) {
-					case tooLargeError:
-						await bot.telegram.sendMessage(
-							chatId,
-							'⚠️ The file size is too large for uploading to Telegram\nPlease use the links above 👆\njust click on the button with the desired resolution)'
-						);
-						break;
-					case linkNotFoundError:
-						await bot.telegram.sendMessage(
-							chatId,
-							'❌ Failed to parse the link(\nSomething might be wrong with the file...'
-						);
-						break;
-					default:
-						console.error(error, 'ERROR');
-						await bot.telegram.sendMessage(
-							chatId,
-							'❌ Oops, something went wrong. Please try again.'
-						);
-						throw new Error(error.message);
-				}
-				throw new Error(error.message);
+			if (error instanceof TooLargeMediaSize) {
+				await bot.telegram.sendMessage(chatId, error.message);
+				return;
 			}
+			if (error instanceof WrongLinkError) {
+				await bot.telegram.sendMessage(chatId, error.message);
+				notifyAdmin({
+					messageData: { chatId, link: originalLink, ...others },
+					status: 'error',
+					errorInfo: { cause: error.message },
+				});
+				return;
+			}
+			if (error instanceof ScrapingError) {
+				await bot.telegram.sendMessage(chatId, error.message);
+				notifyAdmin({
+					messageData: { chatId, link: originalLink, ...others },
+					status: 'error',
+					errorInfo: { cause: error.error },
+				});
+				return;
+			}
+
+			throw new UnknownError(error);
 		}
 	}
 );

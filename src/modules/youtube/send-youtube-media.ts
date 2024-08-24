@@ -2,6 +2,7 @@ import { createEffect } from 'effector';
 import { bot } from 'main';
 import { notifyAdmin } from 'modules/bot/controllers';
 import { MessageData } from 'modules/bot/services';
+import { ScrapingError, TooLargeMediaSize, UnknownError } from 'shared/api';
 import { retryGettingPage, timeout } from 'shared/utils';
 import ytdl from 'ytdl-core';
 
@@ -11,18 +12,12 @@ import { createStatsKeyboard } from './lib/createStatsKeyboard';
 import { parsePage } from './model/parsePage';
 import { YouTubeLink } from './model/types';
 
-const MAX_ALLOWED_SIZE = 50; // mb
-const RETRIES_COUNT = 2;
-const MAX_TIMEOUT = 25_000;
+const MAX_ALLOWED_SIZE = 48; // mb
+const RETRIES_COUNT = 3;
+const MAX_TIMEOUT = 15_000;
 
-export const sendYoutubeMedia = createEffect(
-	async ({ chatId, link: originalLink, ...others }: MessageData) => {
-		notifyAdmin({
-			messageData: { chatId, link: originalLink, ...others },
-			baseInfo: `source type: ${others.linkSource}`,
-			status: 'start',
-		});
-
+export const sendYoutubeMedia = createEffect<MessageData, void, UnknownError>(
+	async ({ chatId, link: originalLink, ...others }) => {
 		try {
 			const page = await retryGettingPage(
 				RETRIES_COUNT,
@@ -31,7 +26,12 @@ export const sendYoutubeMedia = createEffect(
 				MAX_TIMEOUT
 			);
 
-			if (!page) throw new Error('smthWentWrong');
+			if (!page) {
+				throw new ScrapingError(
+					'🚫 Link could not be scraped, please check it or try again later',
+					"page couldn't be scraped"
+				);
+			}
 
 			const links = await parsePage(page);
 			const linksKeyboard = createLinksKeyboard(links);
@@ -96,36 +96,40 @@ export const sendYoutubeMedia = createEffect(
 				reply_markup: { inline_keyboard: linksKeyboard },
 			});
 
-			throw new Error('tooLargeSize');
+			throw new TooLargeMediaSize(
+				'⚠️ The mediafiles size is too large for uploading to the Telegram\nPlease use the links above 👆\njust click on the button with the desired resolution)'
+			);
 		} catch (error) {
 			console.error(error);
-			if (error instanceof Error) {
-				if (error.message.includes('410')) {
-					bot.telegram.sendMessage(
-						chatId,
-						// bot.telegram.i18n.t('regionError')
-						'🔒 Link is unavailable for download'
-					);
-					throw new Error(error.message);
-				}
-				if (error.message === 'tooLargeSize') {
-					bot.telegram.sendMessage(
-						chatId,
-						'⚠️ The file size is too large for uploading to Telegram\nPlease use the links above 👆\njust click on the button with the desired resolution)'
-					);
-					throw new Error(error.message);
-				}
+
+			if (error instanceof ScrapingError) {
+				await bot.telegram.sendMessage(chatId, error.message);
+				notifyAdmin({
+					messageData: { chatId, link: originalLink, ...others },
+					status: 'error',
+					errorInfo: { cause: error.error },
+				});
+				return;
+			}
+			if (error instanceof TooLargeMediaSize) {
+				await bot.telegram.sendMessage(chatId, error.message);
+				return;
+			}
+
+			if (error instanceof Error && error.message.includes('410')) {
 				await bot.telegram.sendMessage(
 					chatId,
-					'❌ Oops, something went wrong. Please try again.'
+					// region-error
+					'🔒 Link is unavailable for download'
 				);
-				throw new Error(error.message);
+				notifyAdmin({
+					messageData: { chatId, link: originalLink, ...others },
+					status: 'error',
+					errorInfo: { cause: '410: 🔒 Link is unavailable for download' },
+				});
 			}
-			await bot.telegram.sendMessage(
-				chatId,
-				'❌ Oops, something went wrong. Please try again.'
-			);
-			throw new Error('smthWentWrong');
+
+			throw new UnknownError(error);
 		}
 	}
 );

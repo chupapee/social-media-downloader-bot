@@ -1,21 +1,30 @@
 import { createEffect } from 'effector';
 import { bot } from 'main';
+import { UnknownError } from 'shared/api';
 import { BOT_ADMIN_ID } from 'shared/config/config.service';
 
 import { MessageData } from './services';
 
-export const sendErrorMessageFx = createEffect(
-	async ({ messageData, text }: { messageData: MessageData; text: string }) => {
-		console.log('error occured:', messageData);
+export const sendUnknownErrorMessageFx = createEffect(
+	async ({
+		messageData,
+		unknownError,
+	}: {
+		messageData: MessageData;
+		unknownError: UnknownError;
+	}) => {
+		console.log('unknown error occured:', messageData);
+
 		notifyAdmin({
 			messageData,
 			status: 'error',
-			errorInfo: { cause: messageData },
+			errorInfo: { cause: unknownError },
 		});
-		bot.telegram.sendMessage(messageData.chatId, text, {
-			parse_mode: 'Markdown',
-			link_preview_options: { is_disabled: true },
-		});
+
+		await bot.telegram.sendMessage(
+			messageData.chatId,
+			"❌ Oops, something went wrong. Please try sending the link again.\nWe've already been notified about this and are working to fix it"
+		);
 	}
 );
 
@@ -46,10 +55,10 @@ export async function notifyAdmin({
 	if (status === 'error' && errorInfo) {
 		bot.telegram.sendMessage(
 			BOT_ADMIN_ID,
-			'🛑 ERROR 🛑\n' +
+			'🛑 ERROR OCCURED 🛑\n\n' +
 				`🔗 Target link: ${messageData?.link}\n` +
-				`reason: ${JSON.stringify(errorInfo.cause)}\n` +
-				`author: ${userInfo}`,
+				`reason: ${JSON.stringify(errorInfo.cause)}\n\n` +
+				`👤 user : ${userInfo}`,
 			msgOptions
 		);
 		return;

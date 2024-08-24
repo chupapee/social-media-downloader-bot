@@ -50,15 +50,14 @@ bot.on(message('text'), async (ctx) => {
 
 			const targetSource = detectUrlSource(link);
 
-			if (targetSource === 'youtube') {
+			if (targetSource !== 'Twitter') {
 				return ctx.reply(
-					'⚠️ Youtube links are temporarily not processed, please stay tuned'
+					`⚠️ At the moment, only links from ***Twitter*** can be processed`,
+					{ parse_mode: 'Markdown' }
 				);
 			}
 
 			if (targetSource && !isMusicLink) {
-				const { message_id } = await ctx.reply('⏳ Fetching media...');
-
 				newMessageReceived({
 					chatId: String(ctx.chat.id),
 					link,
@@ -67,7 +66,6 @@ bot.on(message('text'), async (ctx) => {
 					user: ctx.from,
 					initTime: Date.now(),
 				});
-				tempMessageSent(message_id);
 				return;
 			}
 
