@@ -50,6 +50,12 @@ bot.on(message('text'), async (ctx) => {
 
 			const targetSource = detectUrlSource(link);
 
+			if (targetSource === 'youtube') {
+				return ctx.reply(
+					'⚠️ Youtube links are temporarily not processed, please stay tuned'
+				);
+			}
+
 			if (targetSource && !isMusicLink) {
 				const { message_id } = await ctx.reply('⏳ Fetching media...');
 

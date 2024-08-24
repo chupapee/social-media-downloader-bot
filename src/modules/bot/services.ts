@@ -21,7 +21,7 @@ export interface MessageData {
 	initTime: number;
 }
 
-const TIMEOUT_BETWEEN_REQUESTS = isDevEnv ? 0 : 300_000; // 60_000 * 5 = 5min;
+const TIMEOUT_BETWEEN_REQUESTS = isDevEnv ? 0 : 120_000; // 2min;
 export const $messageData = createStore<MessageData | null>(null);
 export const $messagesList = createStore<MessageData[]>([]);
 const $isLinkProcessing = createStore(false);
