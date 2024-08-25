@@ -8,7 +8,12 @@ import {
 	UnknownError,
 	WrongLinkError,
 } from 'shared/api';
-import { calcLinkSize, retryGettingPage } from 'shared/utils';
+import {
+	bytesToMegaBytes,
+	calcLinkSize,
+	downloadLink,
+	retryGettingPage,
+} from 'shared/utils';
 
 import { getPage } from './api/tiktopApi';
 import { parsePage } from './model/parsePage';
@@ -53,15 +58,17 @@ export const sendTiktokMedia = createEffect<MessageData, void, UnknownError>(
 				);
 			}
 
+			const downloadedMedia = await downloadLink(link.href);
+			const videoOpt =
+				downloadedMedia && bytesToMegaBytes(downloadedMedia.byteLength) < 50
+					? { source: downloadedMedia }
+					: { url: link.href };
+
 			//** uploading to Telegram */
-			await bot.telegram.sendVideo(
-				chatId,
-				{ url: link.href },
-				{
-					caption: `<a href='${link}'>${link.title}</a>`,
-					parse_mode: 'HTML',
-				}
-			);
+			await bot.telegram.sendVideo(chatId, videoOpt, {
+				caption: `<a href='${link}'>${link.title}</a>`,
+				parse_mode: 'HTML',
+			});
 		} catch (error) {
 			if (error instanceof TooLargeMediaSize) {
 				await bot.telegram.sendMessage(chatId, error.message);

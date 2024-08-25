@@ -1,6 +1,7 @@
 import { createEffect } from 'effector';
 import { bot } from 'main';
-import { splitArray } from 'shared/utils';
+import { bytesToMegaBytes, downloadLink, splitArray } from 'shared/utils';
+import { MediaGroup } from 'telegraf/typings/telegram-types';
 
 import { MAX_FILE_LIMIT, MAX_VIDEOS_LIMIT } from '../lib/consts';
 import { createInlineKeyboard } from '../lib/createInlineKeyboard';
@@ -22,19 +23,46 @@ export const sendManyFiles = createEffect(
 
 		const limitedLinks = splitArray(limitedVideosList, MAX_FILE_LIMIT);
 		for (const list of limitedLinks) {
-			await bot.telegram.sendMediaGroup(
-				chatId,
-				list.map(({ type, href, source }) => {
-					return {
-						type,
+			const uploadableList = [];
+
+			for (const media of list) {
+				const filename = `${media.source}.${
+					media.type === 'video' ? 'mp4' : 'jpg'
+				}`;
+
+				if (media.type === 'photo') {
+					uploadableList.push({
+						type: media.type,
 						media: {
-							url: href,
-							filename: `${source}.${type === 'video' ? 'mp4' : 'jpg'}`,
+							url: media.href,
+							filename,
 						},
+						caption: `<a href='${link}'>${media.source}</a>`,
 						parse_mode: 'HTML',
-					};
-				})
-			);
+					});
+					continue;
+				}
+
+				const videoBuffer = await downloadLink(media.href);
+				const mediaData =
+					videoBuffer && bytesToMegaBytes(videoBuffer.byteLength) < 50
+						? {
+								source: videoBuffer,
+								filename,
+						  }
+						: { url: media.href, filename };
+
+				if (videoBuffer) {
+					uploadableList.push({
+						type: media.type,
+						media: mediaData,
+						caption: `<a href='${link}'>${media.source}</a>`,
+						parse_mode: 'HTML',
+					});
+				}
+			}
+
+			bot.telegram.sendMediaGroup(chatId, uploadableList as MediaGroup);
 		}
 
 		/** send other videos links */

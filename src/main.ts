@@ -44,15 +44,28 @@ bot.on(callbackQuery('data'), async (ctx, next) => {
 bot.on(message('text'), async (ctx) => {
 	const handleMessage = async () => {
 		if ('text' in ctx.message) {
+			// restart action
+			if (
+				ctx.from.id === BOT_ADMIN_ID &&
+				ctx.message.text === RESTART_COMMAND
+			) {
+				ctx.reply('Are you sure?', {
+					reply_markup: {
+						inline_keyboard: [
+							[{ text: 'Yes', callback_data: RESTART_COMMAND }],
+						],
+					},
+				});
+				return;
+			}
+
 			const link = ctx.message.text;
-
 			const isMusicLink = link.includes('music.youtube.com');
-
 			const targetSource = detectUrlSource(link);
 
-			if (targetSource !== 'Twitter') {
+			if (targetSource === 'Youtube') {
 				return ctx.reply(
-					`⚠️ At the moment, only links from ***Twitter*** can be processed`,
+					`⚠️ At the moment, links from ***Youtube*** cannot be processed`,
 					{ parse_mode: 'Markdown' }
 				);
 			}
@@ -65,21 +78,6 @@ bot.on(message('text'), async (ctx) => {
 					locale: '',
 					user: ctx.from,
 					initTime: Date.now(),
-				});
-				return;
-			}
-
-			// restart action
-			if (
-				ctx.from.id === BOT_ADMIN_ID &&
-				ctx.message.text === RESTART_COMMAND
-			) {
-				ctx.reply('Are you sure?', {
-					reply_markup: {
-						inline_keyboard: [
-							[{ text: 'Yes', callback_data: RESTART_COMMAND }],
-						],
-					},
 				});
 				return;
 			}

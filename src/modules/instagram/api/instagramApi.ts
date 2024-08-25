@@ -20,7 +20,7 @@ export const getPage = async (link: string) => {
 		await page.waitForSelector('#btn-submit');
 		await page.click('#btn-submit');
 
-		await page.waitForSelector('.download-content', { timeout: 20_000 });
+		await page.waitForSelector('.download-content', { timeout: 40_000 });
 
 		const content = await page.content();
 
