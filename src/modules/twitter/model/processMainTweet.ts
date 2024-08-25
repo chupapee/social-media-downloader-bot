@@ -24,9 +24,9 @@ export const processMainTweet = (
 	tweetJson: TweetJson,
 	originalLink: string
 ) => {
-	const { core, legacy, views } = tweetJson.data!.tweetResult.result;
+	const { core, legacy, views, ...others } = tweetJson.data!.tweetResult.result;
 
-	const { full_text } = legacy;
+	const { full_text: legacyText } = legacy;
 
 	const { count } = views;
 
@@ -36,7 +36,8 @@ export const processMainTweet = (
 
 	const mainTweet = parseTweetText({
 		originalLink,
-		full_text,
+		full_text:
+			others.note_tweet?.note_tweet_results?.result?.text ?? legacyText,
 		name,
 		screen_name,
 	});

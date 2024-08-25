@@ -1,5 +1,5 @@
 import { TweetJson } from './index';
-import { parseMediaFiles } from './parseMediaFiles';
+import { MediaFile, parseMediaFiles } from './parseMediaFiles';
 import { processMainTweet } from './processMainTweet';
 import { processQuotedTweet } from './processQuotedTweet';
 
@@ -9,6 +9,7 @@ export const processTweetJson = async (
 ) => {
 	const { legacy } = tweetJson.data!.tweetResult.result;
 	const mediaFiles = await parseMediaFiles(legacy);
+	const quotedTweetMediaFiles: MediaFile[] = [];
 
 	const { mainTweet, actionsList } = processMainTweet(tweetJson, originalLink);
 
@@ -16,13 +17,18 @@ export const processTweetJson = async (
 
 	const { quoted_status_result } = tweetJson.data!.tweetResult.result;
 	if (quoted_status_result?.result) {
-		const quotedTweet = processQuotedTweet(tweetJson, originalLink);
-		fullCaption += `\n\n<strong>↩️ Replying to </strong>${quotedTweet}`;
+		const { fullText, mediaFiles = [] } = processQuotedTweet(
+			tweetJson,
+			originalLink
+		);
+		quotedTweetMediaFiles.push(...mediaFiles);
+		fullCaption += `\n\n<strong>↩️ Replying to </strong>${fullText}`;
 	}
 
 	return {
 		fullCaption,
 		actionsBtn: actionsList,
-		mediaFiles,
+		mediaFiles: { mainTweet: mediaFiles, quotedTweet: quotedTweetMediaFiles },
+		quotedTweetMediaFiles,
 	};
 };

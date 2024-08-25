@@ -47,6 +47,13 @@ export interface TweetJson {
 					count: number;
 				};
 				legacy: TweetInfo;
+				note_tweet?: {
+					note_tweet_results?: {
+						result?: {
+							text?: string;
+						};
+					};
+				};
 				quoted_status_result?: {
 					result: {
 						legacy: TweetInfo;

@@ -29,7 +29,7 @@ export const parseTweetText = ({
 	const text = correctedText.trim().length > 0 ? `\n\n${correctedText}` : '';
 	const fullTweet = `<a href="${originalLink}">👤 ${
 		name ?? screen_name
-	}: </a>${text}${linksText ? `\n${linksText}` : ''}`;
+	}: </a>${text}${linksText ? `\n\n${linksText}` : ''}`;
 
 	return fullTweet;
 };

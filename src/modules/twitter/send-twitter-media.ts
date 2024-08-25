@@ -3,6 +3,7 @@ import { bot } from 'main';
 import { notifyAdmin } from 'modules/bot/controllers';
 import { MessageData } from 'modules/bot/services';
 import { ScrapingError, UnknownError, WrongLinkError } from 'shared/api';
+import { downloadLink } from 'shared/utils';
 
 import {
 	getPage,
@@ -10,7 +11,7 @@ import {
 	TweetUnavailableError,
 } from './api/twitterApi';
 import { createActionsKeyboard } from './lib/createActionsKeyboard';
-import { processTweetJson } from './model';
+import { MediaFile, processTweetJson } from './model';
 
 export const sendTwitterMedia = createEffect<MessageData, void, UnknownError>(
 	async ({ chatId, link, ...others }) => {
@@ -21,17 +22,37 @@ export const sendTwitterMedia = createEffect<MessageData, void, UnknownError>(
 				throw new WrongLinkError('❌ Failed to parse the link(');
 			}
 
-			const { fullCaption, actionsBtn, mediaFiles } = await processTweetJson(
-				content,
-				link
-			);
+			const {
+				fullCaption,
+				actionsBtn,
+				mediaFiles: allMediaFiles,
+			} = await processTweetJson(content, link);
+
+			const mediaFilesToUpload: MediaFile[] = [];
+
+			if (allMediaFiles.mainTweet.length > 0) {
+				mediaFilesToUpload.push(...allMediaFiles.mainTweet);
+			} else if (allMediaFiles.quotedTweet.length > 0) {
+				for (const { href, type } of allMediaFiles.quotedTweet) {
+					if (type === 'video') {
+						const buffer = await downloadLink(href as string).catch((error) => {
+							console.error(error);
+						});
+						if (buffer) {
+							mediaFilesToUpload.push({ href: buffer, type });
+						}
+						continue;
+					}
+					mediaFilesToUpload.push({ href, type });
+				}
+			}
 
 			const actionsKeyboard = createActionsKeyboard(actionsBtn);
 
-			if (mediaFiles.length > 0) {
+			if (mediaFilesToUpload.length > 0) {
 				await bot.telegram.sendMediaGroup(
 					chatId,
-					mediaFiles.map(({ href, type }, i) => {
+					mediaFilesToUpload.map(({ href, type }, i) => {
 						const filename = type === 'video' ? `${type}.mp4` : `${type}.jpg`;
 
 						const media =
